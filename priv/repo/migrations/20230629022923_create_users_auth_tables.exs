@@ -1,0 +1,79 @@
+defmodule AppOS.Repo.Migrations.CreateUsersAuthTables do
+  use Ecto.Migration
+
+  def change do
+    execute("CREATE EXTENSION IF NOT EXISTS citext", "")
+
+    create table(:organizations) do
+
+      add(:name, :string)
+      add(:is_active, :boolean, default: true, null: false)
+
+      add(:domain, :string)
+      add(:subdomain, :string)
+
+      add(:invited_by_id, references(:organizations))
+      add(:refer_code, :uuid, null: false)
+
+      timestamps()
+    end
+
+    create(unique_index(:organizations, [:name]))
+
+    create table(:users) do
+      add(:name, :string)
+
+      add(:email, :citext, null: false)
+      add(:hashed_password, :string, null: false)
+      add(:confirmed_at, :naive_datetime)
+
+      add(:is_superuser, :boolean, null: false, default: false)
+      add(:is_organization_admin, :boolean, null: false, default: false)
+      add(:is_active, :boolean, null: false, default: true)
+
+      add(:organization_id, references(:organizations, on_delete: :delete_all))
+
+      timestamps()
+    end
+
+    create(unique_index(:users, [:email]))
+
+    create table(:users_tokens) do
+      add(:user_id, references(:users, on_delete: :delete_all), null: false)
+      add(:token, :binary, null: false)
+      add(:context, :string, null: false)
+      add(:sent_to, :string)
+      timestamps(updated_at: false)
+    end
+
+    create(index(:users_tokens, [:user_id]))
+    create(unique_index(:users_tokens, [:context, :token]))
+
+    create table(:subscriptions, primary_key: false) do
+      add(:organization_id, references(:organizations, on_delete: :delete_all), primary_key: true)
+
+      add(:product_id, :string, null: false)
+
+      add(:subscription_id, :string)
+      add(:subscription_status, :string, null: false)
+
+      add(:customer_id, :string)
+
+      add(:issued_at, :utc_datetime, null: false)
+      add(:valid_until, :utc_datetime, null: false)
+
+      add(:payment_attempt, :string)
+      # add(:cancelled_at, :utc_datetime)
+
+      add(:cancel_url, :string)
+      add(:update_url, :string)
+
+      # add(:is_paddle, :boolean, default: false, null: false)
+      # add(:paddle, {:array, :map}, default: [], null: false)
+
+      timestamps()
+    end
+
+    create(unique_index(:subscriptions, [:organization_id]))
+  end
+end

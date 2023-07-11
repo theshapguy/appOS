@@ -1,0 +1,127 @@
+{
+	"plans": [
+		{
+			"name": "Free Plan",
+			"subtitle": "All the basics for starting a new business",
+			"is_trial_plan": true,
+			"trial_days": 7,
+			"whats_included": [
+				"Potenti felis, in cras at at ligula nunc.",
+				"Orci neque eget pellentesque.",
+				"Donec mauris sit in eu tincidunt etiam."
+			],
+			"limits": {
+				"users": 1
+			},
+			"product_id": "prod_free_id",
+			"payment_options": [{
+					"duration": "Monthly",
+					"cost_str": "0",
+					"cost": 0,
+					"price_id": "price_free_id_monthly",
+					"free": true
+				},
+				{
+					"duration": "Yearly",
+					"cost_str": "$0",
+					"cost": 0,
+					"price_id": "price_free_id_yearly",
+					"free": true
+				}
+			]
+		},
+		{
+			"name": "Basic Plan",
+			"subtitle": "All the basics for starting a new business",
+			"whats_included": [
+				"Potenti felis, in cras at at ligula nunc.",
+				"Orci neque eget pellentesque.",
+				"Donec mauris sit in eu tincidunt etiam.",
+				"Potenti felis, in cras at at ligula nunc.",
+				"Orci neque eget pellentesque."
+			],
+			"limits": {
+				"users": 5
+			},
+			"product_id": "prod_JYt4BBIYBdgTZB",
+			"payment_options": [{
+					"duration": "Monthly",
+					"cost_str": "$10 / mo",
+					"cost": 10,
+					"price_id": "price_1IvlIJEYGCo6GFJNKvJkEuQb"
+				},
+				{
+					"duration": "Yearly",
+					"cost_str": "$100 / yr",
+					"cost": 100,
+					"price_id": "price_1IvlIJEYGCo6GFJNI05ZhC7Q"
+				}
+			]
+		},
+		{
+			"name": "Plus Plan",
+			"subtitle": "All the basics for starting a new business",
+			"whats_included": [
+				"Potenti felis, in cras at at ligula nunc.",
+				"Orci neque eget pellentesque.",
+				"Donec mauris sit in eu tincidunt etiam.",
+				"Potenti felis, in cras at at ligula nunc.",
+				"Orci neque eget pellentesque.",
+				"Donec mauris sit in eu tincidunt etiam.",
+				"Faucibus volutpat magna."
+			],
+			"limits": {
+				"users": 10
+			},
+			"product_id": "prod_JYt4qkzup5OnZ3",
+			"payment_options": [
+				{
+					"duration": "Yearly",
+					"cost_str": "$200 / yr",
+					"cost": 200,
+					"price_id": "price_1IvlIlEYGCo6GFJNQmDwUqch"
+				},
+                {
+					"duration": "Monthly",
+					"cost_str": "$20 / mo",
+					"cost": 20,
+					"price_id": "price_1IvlIlEYGCo6GFJNRUBU2HH5"
+				}
+
+			]
+		},
+		{
+			"name": "Pro Plan",
+			"subtitle": "All the basics for starting a new business",
+			"whats_included": [
+				"Potenti felis, in cras at at ligula nunc.",
+				"Orci neque eget pellentesque.",
+				"Donec mauris sit in eu tincidunt etiam.",
+				"Potenti felis, in cras at at ligula nunc.",
+				"Orci neque eget pellentesque.",
+				"Donec mauris sit in eu tincidunt etiam.",
+				"Faucibus volutpat magna.",
+				"Id sed tellus in varius quisque.",
+				"Risus egestas faucibus.",
+				"Risus cursus ullamcorper."
+			],
+			"limits": {
+				"users": 100
+			},
+			"product_id": "prod_JYt5dK2UCuZ8D9",
+			"payment_options": [{
+					"duration": "Monthly",
+					"cost_str": "$50 / mo",
+					"cost": 50,
+					"price_id": "price_1IvlJ2EYGCo6GFJNrhOdJ6NV"
+				},
+				{
+					"duration": "Yearly",
+					"cost_str": "$500 / yr",
+					"cost": 500,
+					"price_id": "price_1IvlJ2EYGCo6GFJNf9GRMTv9"
+				}
+			]
+		}
+	]
+}

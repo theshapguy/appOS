@@ -1,0 +1,76 @@
+<.header class="text-center">
+  Manage Your Team
+  <:subtitle>Manage your team and your team members</:subtitle>
+</.header>
+
+<div class="space-y-12 divide-y">
+  <div>
+    <.simple_form
+      :let={f}
+      for={@organization_changeset}
+      action={~p"/users/settings/team"}
+      id="update_name"
+    >
+      <.error :if={@organization_changeset.action}>
+        Oops, something went wrong! Please check the errors below.
+      </.error>
+
+      <.input field={f[:action]} type="hidden" name="action" value="update_name" />
+
+      <.input field={f[:name]} type="text" label="Team Name" required />
+
+      <:actions>
+        <.button phx-disable-with="Changing...">Change Name</.button>
+      </:actions>
+    </.simple_form>
+  </div>
+</div>
+<div class="mt-20">
+  <.header class="text-center">
+    Add Team Members
+    <:subtitle>Invite New Members To Your Team.</:subtitle>
+  </.header>
+</div>
+
+<div class="space-y-12 divide-y">
+  <div>
+    <.simple_form
+      :let={f}
+      for={@user_changeset}
+      action={~p"/users/settings/team"}
+      id="add_organization_member"
+      method="put"
+    >
+      <.error :if={@user_changeset.action}>
+        Oops, something went wrong! Please check the errors below.
+      </.error>
+
+      <.input field={f[:action]} type="hidden" name="action" value="add_organization_member" />
+
+      <.input field={f[:email]} type="email" label="Email" required />
+
+      <:actions>
+        <.button phx-disable-with="Changing...">Add Team Member</.button>
+      </:actions>
+    </.simple_form>
+  </div>
+</div>
+
+<div class="mt-20">
+   <.header class="text-center">
+   Manage Team Member Permissions
+   <:subtitle>Control Access And Privileges For Your Team Members.</:subtitle>
+   </.header>
+</div>
+
+<div class="space-y-4 mt-10">
+   <%= for item <- @organization_admins do %>
+   <div class="p-4 bg-white border border-gray-300 rounded-md hover:border-zinc-300 hover:bg-gray-50">
+      <p class="font-medium"><%= item.name %></p>
+      <p class="text-zinc-400 font-mono"><%= item.email %> — Admin</p>
+   </div>
+   <% end %>
+   <div class="text-center">
+      <a href="" class="text-blue-500">Manage Your Team Permissions</a>
+   </div>
+</div>

@@ -1,0 +1,24 @@
+<div class="mx-auto max-w-sm">
+  <.header class="text-center">
+    Confirm Your Team Invite
+    <:subtitle>
+      Enter your password below and you are all set!
+    </:subtitle>
+  </.header>
+
+  <.simple_form :let={f} for={@changeset} action={~p"/users/confirm/invite/#{@token}"}>
+  
+    <.error :if={@changeset.action == :update}>
+      Oops, something went wrong! Please check the errors below.
+    </.error>
+
+    <.input field={f[:email]} type="email" label="Email" readonly required />
+    <.input field={f[:password]} type="password" label="Password" required />
+
+    <:actions>
+      <.button phx-disable-with="Accepting Invite..." class="w-full">
+        Accept Invite & Create Account
+      </.button>
+    </:actions>
+  </.simple_form>
+</div>
