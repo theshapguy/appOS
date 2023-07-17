@@ -3,10 +3,13 @@ defmodule AppOSWeb.UserSettingsOrganizationController do
 
   alias AppOS.Organizations
   alias AppOS.Accounts
+  alias AppOS.Roles
+  alias AppOS.UsersRoles
+  alias AppOS.Roles.Role
 
+  import AppOS.Utils
 
-
-  plug(:assign_organization_changesets)
+  plug(:assign_changesets)
 
   plug Bodyguard.Plug.Authorize,
     policy: AppOS.Policies.Organization,
@@ -15,9 +18,7 @@ defmodule AppOSWeb.UserSettingsOrganizationController do
     fallback: AppOSWeb.BodyguardFallbackController
 
   def edit(conn, _params) do
-    conn
-    |> assign(:organization_admins, Accounts.list_organization_admin(conn.assigns.current_user.organization))
-    |> render(:edit)
+    render(conn, :edit)
   end
 
   def update(conn, %{"action" => "update_name", "organization" => organization_params}) do
@@ -34,9 +35,16 @@ defmodule AppOSWeb.UserSettingsOrganizationController do
     end
   end
 
-  def update(conn, %{"action" => "add_organization_member", "user" => user_params}) do
+  def update(conn, %{
+        "action" => "add_organization_member",
+        "user" => user_params,
+        "role_id" => role_id
+      }) do
+    %Role{} = role = Roles.get_role!(conn.assigns.current_user.organization, role_id)
+
     case Accounts.register_user_with_organization(
            conn.assigns.current_user.organization,
+           role,
            user_params
          ) do
       {:ok, user} ->
@@ -57,8 +65,48 @@ defmodule AppOSWeb.UserSettingsOrganizationController do
     end
   end
 
-  defp assign_organization_changesets(conn, _opts) do
-    user = conn.assigns.current_user
+  def update(
+        conn,
+        %{
+          "action" => "update_role",
+          "role_id" => role_id,
+          "user_id" => user_id
+        }
+      ) do
+    current_organization = conn.assigns.current_user.organization
+
+    user = Accounts.get_user!(current_organization, user_id)
+    role = Roles.get_role!(current_organization, role_id, ignore_editable: true)
+
+    case UsersRoles.update_user_roles(user, [role]) do
+      {:ok, _} ->
+        conn
+        |> put_flash(:info, "Role for [#{user.email}] updated sucessfully.")
+        |> redirect(to: ~p"/users/settings/team#manage-team-list-#{user.id}")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_flash(
+          :error,
+          "Failed to update role for [#{user.email}]. #{traverse_changeset_errors_for_flash(changeset)}"
+        )
+        |> redirect(to: ~p"/users/settings/team#manage-team-list-#{user.id}")
+    end
+
+    # case Organizations.update_organization(user.organization, organization_params) do
+    #   {:ok, _} ->
+    #     conn
+    #     |> put_flash(:info, "Updated sucessfully.")
+    #     |> redirect(to: ~p"/users/settings/team")
+
+    #   {:error, changeset} ->
+    #     render(conn, :edit, organization_changeset: changeset)
+    # end
+  end
+
+  defp assign_changesets(conn, _opts) do
+    user =
+      conn.assigns.current_user
 
     conn
     |> assign(
@@ -68,6 +116,14 @@ defmodule AppOSWeb.UserSettingsOrganizationController do
     |> assign(
       :user_changeset,
       Accounts.change_user_registration_with_organization(%Accounts.User{})
+    )
+    |> assign(
+      :organization_members,
+      Accounts.list_organization_members(conn.assigns.current_user.organization)
+    )
+    |> assign(
+      :roles,
+      Roles.list_roles(conn.assigns.current_user.organization)
     )
   end
 end

@@ -43,15 +43,15 @@ defmodule AppOS.MixProject do
   defp deps do
     [
       {:bcrypt_elixir, "~> 3.0"},
-      {:phoenix, "~> 1.7.6"},
+      {:phoenix, "~> 1.7.7"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 3.3"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.18.16"},
+      {:phoenix_live_view, "~> 0.19.4"},
       {:floki, ">= 0.30.0", only: :test},
-      {:phoenix_live_dashboard, "~> 0.7.2"},
+      {:phoenix_live_dashboard, "~> 0.8.0"},
       {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2.1", runtime: Mix.env() == :dev},
       {:swoosh, "~> 1.3"},
@@ -64,11 +64,13 @@ defmodule AppOS.MixProject do
       # Added
       {:stripy, path: "./modified_deps/stripy"},
       {:hashids, "~>2.0.0"},
-      {:excoveralls, "~> 0.14.4", only: :test},
       {:php_serializer, "~> 2.0.0"},
       # https://hexdocs.pm/timex/Timex.Format.DateTime.Formatters.Default.html
       {:timex, "~> 3.0"},
-      {:bodyguard, path: "./modified_deps/bodyguard"}
+      {:bodyguard, path: "./modified_deps/bodyguard"},
+      {:wax_, "~> 0.6.0"},
+      {:mimic, "~> 1.7", only: :test},
+      {:excoveralls, "~> 0.14.4", only: :test}
     ]
   end
 

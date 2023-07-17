@@ -27,6 +27,7 @@ defmodule AppOS.SubscriptionsTest do
     test "list_subscriptions/0 returns all subscriptions", %{user: user} do
       subscription = subscription_fixture(user)
       subscription2 = subscription_fixture(user_fixture())
+
       assert Subscriptions.list_subscriptions() == [subscription, subscription2]
     end
 

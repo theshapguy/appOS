@@ -22,6 +22,7 @@ defmodule AppOS.Organizations.Organization do
     field(:refer_code, :binary_id)
 
     has_one(:subscription, AppOS.Subscriptions.Subscription, foreign_key: :organization_id)
+    has_many(:roles, AppOS.Roles.Role)
 
     timestamps()
   end

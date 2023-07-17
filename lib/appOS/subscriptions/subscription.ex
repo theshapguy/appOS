@@ -45,6 +45,14 @@ defmodule AppOS.Subscriptions.Subscription do
     timestamps()
   end
 
+  @doc """
+  Query to find all roles for specific organization.
+  """
+  def order_by_id(query \\ __MODULE__) do
+    query
+    |> order_by([s], asc: :organization_id)
+  end
+
   @doc false
   def changeset(subscription, attrs) do
     subscription
@@ -69,14 +77,4 @@ defmodule AppOS.Subscriptions.Subscription do
     |> maybe_put_assoc(:organization, attrs)
     |> unique_constraint(:organization, name: :subscriptions_pkey)
   end
-
-  defp maybe_put_assoc(changeset, assoc, attrs) when assoc in ~w(organization)a do
-    if resource = attrs[to_string(assoc)] || attrs[assoc] do
-      put_assoc(changeset, assoc, resource)
-    else
-      changeset
-    end
-  end
 end
-
-# TODO Unique Constraint on Subscription Primary Key - Org ID

@@ -14,6 +14,9 @@ defmodule AppOS.Accounts do
   alias AppOS.Subscriptions
   alias AppOS.Subscriptions.Subscription
 
+  alias AppOS.Roles
+  alias AppOS.Roles.Role
+
   ## Database getters
 
   @doc """
@@ -64,7 +67,26 @@ defmodule AppOS.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user!(id),
+    do:
+      Repo.get!(User, id)
+      |> Repo.preload([{:organization, :subscription}])
+
+  def get_user(id),
+    do:
+      Repo.get(User, id)
+      |> Repo.preload([{:organization, :subscription}])
+
+  def get_user!(%Organization{} = organization, id) do
+    User
+    |> User.query_for_organization(organization)
+    |> User.query_for_id(id)
+    |> Repo.one!()
+    |> Repo.preload([{:organization, :subscription}])
+    |> Repo.preload(:roles)
+  end
+
+  # |> Repo.preload([:roles])
 
   ## User registration
 
@@ -87,10 +109,15 @@ defmodule AppOS.Accounts do
   #   |> Repo.insert()
   # end
 
-  def register_user(attrs, refer_code \\ "") do
+  def register_user(attrs) do
     user_changeset =
       %User{organization_admin?: true}
       |> User.registration_changeset(attrs)
+
+    # Extract Refer Code From Virtual Field Invite Code
+    # Virtual Field Invite Code Exists In User Schema
+    # Using this method rather than sending another function argument
+    refer_code = Map.get(attrs, "invite_code", "")
 
     invited_by_organization_id =
       case Organizations.get_organization_by_refer_code(refer_code) do
@@ -117,40 +144,78 @@ defmodule AppOS.Accounts do
         }
       )
 
+    administrator_role_changeset =
+      Roles.change_role_registration(
+        %Role{},
+        %{
+          "name" => "Administrator",
+          "editable?" => "false",
+          "permissions" => [AppOS.Roles.Permissions.admin_user_permission()]
+        }
+      )
+
+    normal_user_changeset =
+      Roles.change_role(
+        %Role{},
+        %{
+          "name" => "Simple User",
+          "permissions" => AppOS.Roles.Permissions.normal_user_default_permission_list()
+        }
+      )
+
     Ecto.Multi.new()
     |> Ecto.Multi.insert(:organization, organization_changeset)
-    |> Ecto.Multi.run(:user, fn repo, %{organization: organization} ->
-      # Use the inserted organization.
-      user_changeset
-      |> Ecto.Changeset.put_assoc(:organization, organization)
-      |> repo.insert()
-    end)
     |> Ecto.Multi.run(:subscription, fn repo, %{organization: organization} ->
       subscription_changeset
       |> Ecto.Changeset.put_assoc(:organization, organization)
       |> repo.insert()
     end)
+    |> Ecto.Multi.run(:admin_role, fn repo, %{organization: organization} ->
+      administrator_role_changeset
+      |> Ecto.Changeset.put_assoc(:organization, organization)
+      |> repo.insert()
+    end)
+    |> Ecto.Multi.run(:normal_role, fn repo, %{organization: organization} ->
+      normal_user_changeset
+      |> Ecto.Changeset.put_assoc(:organization, organization)
+      |> repo.insert()
+    end)
+    |> Ecto.Multi.run(:user, fn repo, %{organization: organization, admin_role: admin_role} ->
+      # Use the inserted organization.
+      user_changeset
+      |> Ecto.Changeset.put_assoc(:organization, organization)
+      |> Ecto.Changeset.put_assoc(:roles, [admin_role])
+      |> repo.insert()
+    end)
+
+    # |> maybe_add_user_credential_changeset(user_credential_attrs)
+
+    # If Web AuthN, Add Transaction To Add User Credentials, If Not Ignore This Step
+
     |> Repo.transaction()
     |> case do
       # Need to preload organization because it is required
-      {:ok, %{user: user}} -> {:ok, user |> Repo.preload([{:organization, :subscription}])}
-      {:error, :user, changeset, _} -> {:error, changeset}
-      {:error, :organization, changeset, _} -> {:error, changeset}
-      {:error, :subscription, changeset, _} -> {:error, changeset}
-    end
+      {:ok, %{user: user}} ->
+        {
+          :ok,
+          user
+          |> Repo.preload([{:organization, :subscription}])
+        }
 
-    # for downstream functions can consume this as query
-    # and not as a transaction
-    # See return types for Repo.insert/1 vs Repo.transaction/1
-    # case transaction do
-    #   {:ok, %{"user" => user, "organization" => _organization}} ->
-    #     {:ok, user}
-    #   {:error, _, changeset, _} -> {:error, changeset}
-    # end
+      {:error, :user, changeset, _} ->
+        {:error, changeset}
+
+      {:error, :organization, changeset, _} ->
+        {:error, changeset}
+
+      {:error, :subscription, changeset, _} ->
+        {:error, changeset}
+        # {:error, :user_credential, changeset, _} -> {:error, changeset}
+    end
   end
 
-  def register_user!(attrs, refer_code \\ "") do
-    case register_user(attrs, refer_code) do
+  def register_user!(attrs) do
+    case register_user(attrs) do
       {:ok, user} ->
         user
 
@@ -162,10 +227,43 @@ defmodule AppOS.Accounts do
     end
   end
 
-  def register_user_with_organization(%Organization{} = organization, attrs) do
+  # Not Used For Now
+  # defp maybe_add_user_credential_changeset(
+  #        %Ecto.Multi{} = multi,
+  #        %{
+  #          "attestationObject" => attestation_object_b64,
+  #          "clientDataJSON" => client_data_json,
+  #          "rawID" => raw_id_b64,
+  #          "type" => "public-key",
+  #          "deviceName" => device_name
+  #        } = user_credential_attrs
+  #      )
+  #      when is_map(user_credential_attrs) do
+  #   # {:ok, {authenticator_data, _result}} =
+  #   #   Wax.register(
+  #   #     attestation_object,
+  #   #     client_data_json,
+  #   #     challenge
+  #   #   )
+
+  #   # If User Credential Not Nil, Add Ecto Multi
+  #   Ecto.Multi.run(multi, :user_credential, fn repo, %{user: user} ->
+  #     UserCredentials.change_user_credentail(%UserCredentail{}, user_credential_attrs)
+  #     |> Ecto.Changeset.put_assoc(:user, user)
+  #     |> repo.insert()
+  #   end)
+  # end
+
+  # defp maybe_add_user_credential_changeset(%Ecto.Multi{} = multi, nil) do
+  #   # If User Credential Is Nil, Continue
+  #   multi
+  # end
+
+  def register_user_with_organization(%Organization{} = organization, %Role{} = role, attrs) do
     %User{}
     |> User.registration_changeset_organization_member(attrs)
     |> Ecto.Changeset.put_assoc(:organization, organization)
+    |> Ecto.Changeset.put_assoc(:roles, [role])
     |> Repo.insert()
   end
 
@@ -223,6 +321,19 @@ defmodule AppOS.Accounts do
   ## Settings
 
   @doc """
+  Returns an `%Ecto.Changeset{}` for changing the user name.
+
+  ## Examples
+
+      iex> change_user_name(user)
+      %Ecto.Changeset{data: %User{}}
+
+  """
+  def change_user_fullname(user, attrs \\ %{}) do
+    User.name_changeset(user, attrs)
+  end
+
+  @doc """
   Returns an `%Ecto.Changeset{}` for changing the user email.
 
   ## Examples
@@ -253,6 +364,24 @@ defmodule AppOS.Accounts do
     |> User.email_changeset(attrs)
     |> User.validate_current_password(password)
     |> Ecto.Changeset.apply_action(:update)
+  end
+
+  @doc """
+  Updates the user name
+  """
+  def update_user_fullname(%User{} = user, attrs) do
+    user
+    |> User.name_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Updates the user name
+  """
+  def update_user_organization_admin(%User{} = user, attrs) do
+    user
+    |> User.organization_admin_changeset(attrs)
+    |> Repo.update()
   end
 
   @doc """
@@ -504,13 +633,33 @@ defmodule AppOS.Accounts do
       [%User{}]
 
   """
-  def list_organization_admin(%Organization{} = organization, organization_admin? \\ true) do
+  def list_organization_members(%Organization{} = organization) do
     User
     |> User.query_for_organization(organization)
-    |> User.query_organization_admin?(organization_admin?)
-    |> User.query_sort_by_name()
+    |> User.query_sort_by_admins_and_name()
     |> Repo.all()
-
+    |> Repo.preload(:roles)
   end
 
+  def list_organization_admins(%Organization{} = organization, opts \\ []) do
+    count? = Keyword.get(opts, :count?, false)
+
+    query =
+      User
+      |> User.query_for_organization(organization)
+      |> User.query_organization_admin?(true)
+
+    # |> User.query_sort_by_admins_and_name()
+    # |> Repo.all()
+    # |> Repo.aggregate(:count, :id)
+
+    case count? do
+      true ->
+        query
+        |> Repo.aggregate(:count, :id)
+
+      false ->
+        query |> Repo.all()
+    end
+  end
 end

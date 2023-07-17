@@ -1,0 +1,63 @@
+<.header class="text-center">
+  Edit Role - <%= @role.name %>
+  <:subtitle>
+    Update name, privileges and permissions this role should have
+  </:subtitle>
+</.header>
+
+<.simple_form
+  :let={f}
+  for={@changeset}
+  action={~p"/users/settings/roles/#{@role.id}"}
+  id="update_role"
+  onsubmit="validateForm(event)"
+>
+  <.error :if={@changeset.action}>
+    Oops, something went wrong! Please check the errors below.
+  </.error>
+
+  <.input field={f[:name]} type="text" label="Name" required />
+
+  <.permission_group_layout
+    selected_permissions={@selected_permissions}
+    permission_groups={@permission_groups}
+    field={f[:permissions]}
+  />
+
+  <.error class="hidden" id="permission-checkbox-error-message">
+    Please select at least one permission
+  </.error>
+
+  <:actions>
+    <.button class="w-full" phx-disable-with="Updating...">Update Role</.button>
+  </:actions>
+</.simple_form>
+
+<.link
+  href={~p"/users/settings/roles/#{@role.id}"}
+  method="delete"
+  data-confirm={"Are you sure you want to delete [Role:\"#{@role.name}\"]"}
+  class="w-full h-full"
+>
+  <div class="text-red-600 text-center font-medium text-sm my-4 p-3 hover:bg-red-50 rounded-md">
+    Delete Role
+  </div>
+</.link>
+
+<script>
+    <%!--  Don't Allow Empty Permissions - Make Sure Atlest One Is Selected --%>
+    var createRoleForm = document.getElementById("update_role")
+    var statusMessage = document.getElementById('permission-checkbox-error-message');
+
+    function validateForm(event){
+      event.preventDefault();
+            
+      if (isAtLeastOneChecked("role[permissions][]")){
+        statusMessage.classList.add('hidden');
+        createRoleForm.submit();
+      }else{
+        statusMessage.classList.remove('hidden');
+      }
+        
+  }
+</script>

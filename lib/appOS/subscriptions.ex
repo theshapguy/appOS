@@ -20,7 +20,9 @@ defmodule AppOS.Subscriptions do
   """
 
   def list_subscriptions do
-    Repo.all(Subscription)
+    Subscription
+    |> Subscription.order_by_id()
+    |> Repo.all()
   end
 
   @doc """

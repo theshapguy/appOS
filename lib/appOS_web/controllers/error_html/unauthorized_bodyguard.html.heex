@@ -1,0 +1,9 @@
+<div>
+  <p class="font-medium">
+    You are not allowed to perform this action.
+    Please contact your team administrator to allocate for permissions for you.
+  </p>
+  <%= if @conn.assigns[:bodyguard_message] do %>
+    <p class="text-sm font-mono mt-4"><%= @bodyguard_message %></p>
+  <% end %>
+</div>

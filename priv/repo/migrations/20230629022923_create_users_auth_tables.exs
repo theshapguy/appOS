@@ -5,7 +5,6 @@ defmodule AppOS.Repo.Migrations.CreateUsersAuthTables do
     execute("CREATE EXTENSION IF NOT EXISTS citext", "")
 
     create table(:organizations) do
-
       add(:name, :string)
       add(:is_active, :boolean, default: true, null: false)
 
@@ -75,5 +74,44 @@ defmodule AppOS.Repo.Migrations.CreateUsersAuthTables do
     end
 
     create(unique_index(:subscriptions, [:organization_id]))
+
+    create table(:roles) do
+      add :name, :citext, null: false
+      add :permissions, {:array, :string}, default: [], null: false
+      add :active, :boolean, default: true, null: false
+      add :is_editable, :boolean, default: true, null: false
+
+      add(:organization_id, references(:organizations, on_delete: :delete_all), null: false)
+
+      timestamps()
+    end
+
+    create(unique_index(:roles, [:name, :organization_id]))
+
+    create table(:user_credentials) do
+      add :credential_id, :string, null: false
+      add :credential_public_key, :bytea, null: false
+      add :aaguid, :bytea
+      add :user_id, references(:users, on_delete: :delete_all), null: false
+      add :nickname, :string, null: false
+
+      timestamps()
+    end
+
+    create index(:user_credentials, [:user_id])
+    create(unique_index(:user_credentials, [:credential_id]))
+
+    create table(:users_roles, primary_key: false) do
+      add(:role_id, references(:roles), null: false)
+      add(:user_id, references(:users, on_delete: :delete_all), null: false)
+
+      timestamps()
+    end
+
+    create index(:users_roles, [:user_id])
+    create index(:users_roles, [:role_id])
+
+    # TODO
+    # create(unique_index(:users_roles, [:user_id, :role_id]))
   end
 end

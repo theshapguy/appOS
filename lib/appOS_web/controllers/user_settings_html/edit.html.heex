@@ -1,7 +1,30 @@
 <.header class="text-center">
-  Account Settings
-  <:subtitle>Manage your account email address and password settings</:subtitle>
+  Name Settings
+  <:subtitle>Change your name</:subtitle>
 </.header>
+
+<div class="space-y-12 divide-y">
+  <.simple_form :let={f} for={@name_changeset} action={~p"/users/settings"} id="update_name">
+    <.error :if={@name_changeset.action}>
+      Oops, something went wrong! Please check the errors below.
+    </.error>
+
+    <.input field={f[:action]} type="hidden" name="action" value="update_name" />
+
+    <.input field={f[:name]} type="text" label="Name" required />
+
+    <:actions>
+      <.button phx-disable-with="Changing...">Change Name</.button>
+    </:actions>
+  </.simple_form>
+</div>
+
+<div class="mt-20">
+  <.header class="text-center">
+    Account Settings
+    <:subtitle>Manage your account email address and password settings</:subtitle>
+  </.header>
+</div>
 
 <div class="space-y-12 divide-y">
   <div>
@@ -61,3 +84,172 @@
     </.simple_form>
   </div>
 </div>
+
+<div class="mt-20">
+  <.header class="text-center">
+    Secure Login Settings
+    <:subtitle>Login to your account securely using Passkey, TouchID or FaceID</:subtitle>
+  </.header>
+</div>
+
+<div class="flex justify-center items-center mt-6">
+  <button
+    type="button"
+    class="px-3 py-2 w-full text-sm font-medium text-center flex items-center justify-center space-x-2 text-blue-700 border-blue-700 border rounded-lg hover:border-blue-200 focus:ring-4 focus:outline-none focus:ring-blue-300"
+    id="register-webauthn"
+    data-challenge={@challenge_b64}
+    data-user-id={@conn.assigns.current_user.id}
+    data-display-name={@conn.assigns.current_user.email}
+    type="submit"
+    onclick="triggerAttestation()"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="1.5"
+      stroke="currentColor"
+      class="w-6 h-6 block"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M7.864 4.243A7.5 7.5 0 0119.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 004.5 10.5a7.464 7.464 0 01-1.15 3.993m1.989 3.559A11.209 11.209 0 008.25 10.5a3.75 3.75 0 117.5 0c0 .527-.021 1.049-.064 1.565M12 10.5a14.94 14.94 0 01-3.6 9.75m6.633-4.596a18.666 18.666 0 01-2.485 5.33"
+      />
+    </svg>
+
+    <%= if Enum.empty?(@credentials) do %>
+      <p class="">Setup Passkey, TouchID or FaceID</p>
+    <% else %>
+      <p class="">Add Passkey, TouchID or FaceID</p>
+    <% end %>
+  </button>
+</div>
+<div id="webauthn-error-text" class="text-sm text-red-600 mt-2 text-center hidden"></div>
+
+<div class="divide-y">
+  <%= for item <- @credentials do %>
+    <div class="flex justify-between items-center py-6">
+      <div>
+        <div class="text-base"><%= item.nickname %></div>
+        <div class="text-sm text-zinc-500" title={item.inserted_at}>
+          <.localtime datetime={item.inserted_at} timezone={@timezone} />
+        </div>
+      </div>
+      <div class="text-red-600 font-medium text-sm cursor-pointer">
+        <.link
+          href={~p"/users/settings/credentials/#{item.id}"}
+          method="delete"
+          data-confirm={"Are you sure you want to delete \"#{item.nickname}\" passkey?"}
+        >
+          Delete
+        </.link>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<div class="hidden">
+  <.simple_form
+    :let={f}
+    for={@conn}
+    as={:webauthn}
+    action={~p"/users/settings"}
+    id="add_webauthn_credential"
+    method="put"
+  >
+    <.input field={f[:action]} type="hidden" name="action" value="add_credential_key" />
+    <.input field={f[:rawID]} type="hidden" />
+    <.input field={f[:type]} type="hidden" />
+    <.input field={f[:clientDataJSON]} type="hidden" />
+    <.input field={f[:attestationObject]} type="hidden" />
+    <.input field={f[:deviceName]} type="hidden" />
+  </.simple_form>
+</div>
+
+<.webauthn_arraybuffer_helpers></.webauthn_arraybuffer_helpers>
+<script>
+  var challenge_b64 = "<%= @challenge_b64 %>";  
+  var user = "<%= @conn.assigns.current_user.name %>";
+  var email = "<%= @conn.assigns.current_user.email %>";
+
+  var user_id_b64 = "<%= @conn.assigns.current_user.id %>";
+
+  function triggerAttestation(){
+    toggleErrorMessage("webauthn-error-text", "", false)
+    
+    challenge = _base64ToArrayBuffer(challenge_b64);
+    user_id = _base64ToArrayBuffer(user_id_b64);
+
+    navigator.credentials.create({
+      publicKey: {
+        // random, cryptographically secure, at least 16 bytes
+        challenge: challenge,
+        // relying party
+        <%!-- TODO Get From Config Name and Domain And Test Tomorrow --%>
+        rp: {
+          id: "658c7343cc71-11974691996598043146.ngrok-free.app",
+          name: 'AppOS'
+        },
+        user: {
+          id: user_id,
+          name: email,
+          displayName: user
+        },
+        pubKeyCredParams: [
+            {
+              type: "public-key",
+              alg: -7 // "ES256" as registered in the IANA COSE Algorithms registry
+            },
+            {
+              type: "public-key",
+              alg: -257 // Value registered by this specification for "RS256"
+            }
+        ],
+        excludeCredentials: [
+        // Don’t re-register any authenticator that has one of these credentials
+        <%= for item <- @credentials do %>    
+        {
+          "id": _base64ToArrayBuffer("<%= item.credential_id %>"),
+          "type": "public-key"
+        },
+        
+        <% end %>
+
+        ],        
+        attestation: "none",
+        authenticatorSelection: {
+          residentKey: "required",
+          userVerification: "required",
+          requireResidentKey: true
+        },
+        
+      }
+    }).then(function (newCredential) {
+
+      document.getElementById('add_webauthn_credential_rawID').value = _arrayBufferToBase64(newCredential.rawId);
+      document.getElementById('add_webauthn_credential_type').value = newCredential.type;
+      document.getElementById('add_webauthn_credential_clientDataJSON').value =
+        _arrayBufferToString(newCredential.response.clientDataJSON)
+      document.getElementById('add_webauthn_credential_attestationObject').value =
+        _arrayBufferToBase64(newCredential.response.attestationObject)
+
+      document.getElementById('add_webauthn_credential_deviceName').value = getDeviceDetails(window.UAParser)
+        
+
+      document.getElementById('add_webauthn_credential').submit();
+    }).catch(function (err) {
+      
+      toggleErrorMessage("webauthn-error-text", err.message, true)
+
+      if(err.name == 'NotAllowedError') {
+        }
+      else {
+        
+        
+        }
+    });
+  }
+
+  // triggerAttestation();
+</script>

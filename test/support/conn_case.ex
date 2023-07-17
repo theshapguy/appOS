@@ -27,6 +27,10 @@ defmodule AppOSWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import AppOSWeb.ConnCase
+
+      def session_conn() do
+        build_conn() |> Plug.Test.init_test_session(%{})
+      end
     end
   end
 

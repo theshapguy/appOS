@@ -85,6 +85,9 @@ defmodule AppOSWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import AppOSWeb.CoreComponents
+      # User UI Components (Added)
+      import AppOSWeb.UserComponents
+
       import AppOSWeb.Gettext
 
       # Shortcut for generating JS commands

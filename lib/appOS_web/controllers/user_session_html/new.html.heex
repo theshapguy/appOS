@@ -28,4 +28,88 @@
       </.button>
     </:actions>
   </.simple_form>
+
+  <div class="mt-4">
+    <button
+      id="authenticate-passkey"
+      class="px-3 py-2 w-full text-sm font-medium text-center flex items-center justify-center text-blue-700 border-blue-700 border rounded-lg hover:border-blue-200 focus:ring-4 focus:outline-none focus:ring-blue-300"
+      type="submit"
+      onclick="triggerAuthenticate()"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-6 h-6 block"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M7.864 4.243A7.5 7.5 0 0119.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 004.5 10.5a7.464 7.464 0 01-1.15 3.993m1.989 3.559A11.209 11.209 0 008.25 10.5a3.75 3.75 0 117.5 0c0 .527-.021 1.049-.064 1.565M12 10.5a14.94 14.94 0 01-3.6 9.75m6.633-4.596a18.666 18.666 0 01-2.485 5.33"
+        />
+      </svg>
+
+      <p class="mx-auto">
+        Login with Passkey, TouchID or FaceID
+      </p>
+    </button>
+    <div id="webauthn-error-text" class="text-sm text-red-600 mt-2 text-center hidden"></div>
+  </div>
+
+  <.simple_form
+    :let={f}
+    for={@conn.params["webauthn_user"]}
+    as={:webauthn_user}
+    action={~p"/users/log_in"}
+    id="webauthn_user"
+  >
+    <.input field={f[:rawID]} type="hidden" />
+    <.input field={f[:type]} type="hidden" />
+    <.input field={f[:clientDataJSON]} type="hidden" />
+    <.input field={f[:authenticatorData]} type="hidden" />
+    <.input field={f[:signature]} type="hidden" />
+    <.input field={f[:userHandle]} type="hidden" />
+  </.simple_form>
 </div>
+
+<.webauthn_arraybuffer_helpers></.webauthn_arraybuffer_helpers>
+
+<script>
+  function triggerAuthenticate() {
+      toggleErrorMessage('webauthn-error-text', "", false)
+
+      navigator.credentials.get({
+          publicKey: {
+              challenge: _base64ToArrayBuffer("<%= @authentication_challenge_b64 %>"),
+              allowCredentials: [],
+              
+
+          }
+      }).then(function(newCredential) {
+
+          document.getElementById('webauthn_user_rawID').value = _arrayBufferToBase64(newCredential.rawId);
+          document.getElementById('webauthn_user_type').value = newCredential.type;
+          document.getElementById('webauthn_user_clientDataJSON').value =
+              _arrayBufferToString(newCredential.response.clientDataJSON)
+          document.getElementById('webauthn_user_authenticatorData').value =
+              _arrayBufferToBase64(newCredential.response.authenticatorData)
+          document.getElementById('webauthn_user_signature').value =
+              _arrayBufferToBase64(newCredential.response.signature)
+          if (newCredential.response.userHandle) {
+              document.getElementById('webauthn_user_userHandle').value =
+                  base64RemovePadding(_arrayBufferToBase64(newCredential.response.userHandle))
+          }
+
+          document.getElementById('webauthn_user').submit();
+      }).catch((err) => {
+          //toggleErrorMessage(err.message, true)
+          toggleErrorMessage('webauthn-error-text', err.message, true)
+          console.log(err);
+          if (err.name == 'NotAllowedError') {} else {}
+
+          
+      });
+  }
+</script>

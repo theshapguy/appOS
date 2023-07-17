@@ -31,6 +31,13 @@ defmodule AppOSWeb.Router do
     pipe_through(:browser)
 
     get("/", PageController, :home)
+
+    live "/templates", TemplateLive.Index, :index
+    live "/templates/new", TemplateLive.Index, :new
+    live "/templates/:id/edit", TemplateLive.Index, :edit
+
+    live "/templates/:id", TemplateLive.Show, :show
+    live "/templates/:id/show/edit", TemplateLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.
@@ -75,13 +82,42 @@ defmodule AppOSWeb.Router do
 
     get("/users/settings", UserSettingsController, :edit)
     put("/users/settings", UserSettingsController, :update)
+
     get("/users/settings/confirm_email/:token", UserSettingsController, :confirm_email)
+
+    delete("/users/settings/credentials/:credential_id", UserSettingsController, :delete)
 
     # Organization Member Settings
     get("/users/settings/team", UserSettingsOrganizationController, :edit)
     put("/users/settings/team", UserSettingsOrganizationController, :update)
 
+    resources "/users/settings/roles", RoleController,
+      only: [:new, :edit, :create, :update, :delete]
+
+    # Roles
+    # get("/users/settings/roles/new", RoleController, :new)
+    # get("/users/settings/role/:id", RoleController, :edit)
+
+    # post("/users/settings/roles", RoleController, :create)
+    # put("/users/settings/role/:id", RoleController, :update)
+    # delete("/users/settings/role/:id", UserSettingsController, :delete)
+
     get("/users/billing", SubscriptionController, :edit)
+
+    # live "/users/settings/team/permissions/:encrypted_user_id", PermissionLive.Index, :index
+    # live "/users/settings/team/role-manager", RoleManagerLive.Index, :index
+
+    # live_session :roles,
+    #   on_mount: [
+    #     {AppOSWeb.UserAuthLive, :require_authenticated_user}
+    #   ] do
+    #   live "/roles", RoleLive.Index, :index
+    #   live "/roles/new", RoleLive.Index, :new
+    #   live "/roles/:id/edit", RoleLive.Index, :edit
+
+    #   live "/roles/:id", RoleLive.Show, :show
+    #   live "/roles/:id/show/edit", RoleLive.Show, :edit
+    # end
   end
 
   scope "/", AppOSWeb do

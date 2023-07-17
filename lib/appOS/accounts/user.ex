@@ -15,20 +15,39 @@ defmodule AppOS.Accounts.User do
 
     field(:active?, :boolean, default: true, source: :is_active)
 
-
     belongs_to(:organization, AppOS.Organizations.Organization)
+    has_many(:user_credentials, AppOS.UserCredentials.UserCredentail)
+
+    # Use To Send the Refer Code Of Organization In User Attrs
+    # So that Data can be extracted
+    field(:refer_code, :string, virtual: true)
+
+    # TODO Make Sure Role Is Attached To User
+    many_to_many :roles, AppOS.Roles.Role,
+      join_through: AppOS.Accounts.UserRole,
+      on_replace: :delete
 
     timestamps()
   end
 
   @doc """
+  Query to find user by id.
+  """
+  def query_for_id(query \\ __MODULE__, id) do
+    query
+    |> where([u], u.id == ^id)
+  end
+
+  @doc """
   Query to find all users for specific team.
   """
-  def query_for_organization(query \\ __MODULE__, organization) do
+  def query_for_organization(
+        query \\ __MODULE__,
+        %AppOS.Organizations.Organization{} = organization
+      ) do
     query
     |> where([u], u.organization_id == ^organization.id)
   end
-
 
   @doc """
   Query to find organization_admin?.
@@ -45,11 +64,10 @@ defmodule AppOS.Accounts.User do
   @doc """
   Query To Sort By Name
   """
-  def query_sort_by_name(query \\ __MODULE__) do
+  def query_sort_by_admins_and_name(query \\ __MODULE__) do
     query
-    |> order_by(desc: :name)
+    |> order_by(desc: :organization_admin?, asc: :name)
   end
-
 
   @doc """
   A user changeset for registration.
@@ -76,7 +94,7 @@ defmodule AppOS.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password, :name, :organization_admin?])
+    |> cast(attrs, [:email, :password, :name, :refer_code, :organization_admin?])
     |> put_change_name_as_email()
     |> validate_length(:name, max: 240)
     |> validate_email(opts)
@@ -165,6 +183,17 @@ defmodule AppOS.Accounts.User do
   end
 
   @doc """
+  A user changeset for changing the name.
+
+  It requires the name to change otherwise an error is added.
+  """
+  def organization_admin_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:organization_admin?])
+    |> validate_required([:organization_admin?])
+  end
+
+  @doc """
   A user changeset for changing the email.
 
   It requires the email to change otherwise an error is added.
@@ -204,7 +233,6 @@ defmodule AppOS.Accounts.User do
   def confirm_changeset(user) do
     now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
     change(user, confirmed_at: now)
-
   end
 
   @doc """

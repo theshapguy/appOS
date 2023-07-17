@@ -6,15 +6,13 @@ defmodule AppOSWeb.UserRegistrationController do
   alias AppOSWeb.UserAuth
 
   def new(conn, params) do
-    refer_code = Map.get(params, "invite_code", "")
-    changeset = Accounts.change_user_registration(%User{})
-    render(conn, :new, changeset: changeset, refer_code: refer_code)
+    invite_code = Map.get(params, "invite_code", "")
+    changeset = Accounts.change_user_registration(%User{refer_code: invite_code})
+    render(conn, :new, changeset: changeset)
   end
 
-  def create(conn, %{"user" => user_params} = params) do
-    refer_code = Map.get(params, "invite_code", "")
-
-    case Accounts.register_user(user_params, refer_code) do
+  def create(conn, %{"user" => user_params}) do
+    case Accounts.register_user(user_params) do
       {:ok, user} ->
         {:ok, _} =
           Accounts.deliver_user_confirmation_instructions(
@@ -27,7 +25,7 @@ defmodule AppOSWeb.UserRegistrationController do
         |> UserAuth.log_in_user(user)
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :new, changeset: changeset, refer_code: refer_code)
+        render(conn, :new, changeset: changeset)
     end
   end
 end

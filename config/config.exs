@@ -86,6 +86,7 @@ config :phoenix, :json_library, Jason
 #   # optional
 #   httpoison: [recv_timeout: 5000, timeout: 8000]
 
+# [Release] Check Production Or Runtime Variables
 config :appOS, :paddle,
   sandbox: true,
   api_key: "3071a1d8b877b7325866d3ece8857018",
@@ -116,6 +117,14 @@ config :appOS, :paddle,
   6w/lkLugrM5x0h7+6Vj3rOUCAwEAAQ==
   -----END PUBLIC KEY-----
   """
+
+# [Release] Check Production Or Runtime Variables
+config :wax_,
+  origin: "https://658c7343cc71-11974691996598043146.ngrok-free.app",
+  rp_id: :auto,
+  update_metadata: true,
+  metadata_dir: :appOS,
+  attestation: "none"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

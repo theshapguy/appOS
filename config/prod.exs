@@ -50,3 +50,5 @@ config :appOS, :paddle,
   6w/lkLugrM5x0h7+6Vj3rOUCAwEAAQ==
   -----END PUBLIC KEY-----
   """
+
+# [Release] Check Runtime As Well
