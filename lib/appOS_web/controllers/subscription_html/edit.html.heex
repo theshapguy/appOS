@@ -31,7 +31,7 @@
         <%!-- If Not on Default Plan; Upgrades and Downgrades will need to be processed manually --%>
         <%= if @license.product_id == "default" do %>
           <div
-            class="inline-flex items-center px-3 py-2.5 text-sm font-medium leading-none rounded-md bg-green-600 text-white select-none cursor-pointer"
+            class="inline-flex items-center px-3 py-2.5 text-sm font-medium leading-none rounded-md bg-teal-600 text-white select-none cursor-pointer"
             onclick={"openCheckout('#{item.product_id}')"}
           >
             Subscribe

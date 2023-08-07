@@ -505,6 +505,7 @@ defmodule AppOS.Accounts do
 
     Repo.one(query)
     |> Repo.preload([{:organization, :subscription}])
+    |> Repo.preload(:roles)
   end
 
   @doc """

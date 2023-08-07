@@ -15,7 +15,7 @@ defmodule AppOSWeb.UserRegistrationControllerTest do
     test "redirects if already logged in", %{conn: conn} do
       conn = conn |> log_in_user(user_fixture()) |> get(~p"/users/register")
 
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/app"
     end
   end
 
@@ -30,10 +30,10 @@ defmodule AppOSWeb.UserRegistrationControllerTest do
         })
 
       assert get_session(conn, :user_token)
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/app"
 
       # Now do a logged in request and assert on the menu
-      conn = get(conn, ~p"/")
+      conn = get(conn, ~p"/app")
       response = html_response(conn, 200)
       assert response =~ email
       assert response =~ ~p"/users/settings"

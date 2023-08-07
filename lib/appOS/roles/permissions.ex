@@ -13,6 +13,12 @@ defmodule AppOS.Roles.Permissions do
   """
   def index do
     [
+      # This is commented out becuase admin is set using user struct and not this permission,
+      # and not by checking the box
+
+      # @admin_permission is used in slug list so that when that permission is there,
+      # user.organization_admin? is set
+
       # %{
       #   name: "Administrator",
       #   permissions: [

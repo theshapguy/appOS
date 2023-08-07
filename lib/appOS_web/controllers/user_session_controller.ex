@@ -26,7 +26,8 @@ defmodule AppOSWeb.UserSessionController do
       |> UserAuth.log_in_user(user, user_params)
     else
       # In order to prevent user enumeration attacks, don't disclose whether the email is registered.
-      render(conn, :new, error_message: "Invalid email or password")
+      conn
+      |> render(:new, error_message: "Invalid email or password")
     end
   end
 

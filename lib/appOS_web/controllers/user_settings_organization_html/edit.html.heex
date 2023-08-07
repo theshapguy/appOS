@@ -90,6 +90,12 @@
         <span class="text-zinc-400 font-mono">
           — <%= user.email %>
         </span>
+
+        <%= if @conn.assigns.current_user.id == user.id do %>
+          <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+            You
+          </span>
+        <% end %>
       </p>
 
       <.simple_form
@@ -140,7 +146,9 @@
 
   <%= for role <- @roles do %>
     <div class="p-4 bg-white border border-gray-300 rounded-md hover:border-zinc-300 hover:bg-gray-50 flex justify-between items-center">
-      <div class="font-medium"><%= role.name %></div>
+      <div class={"font-medium #{if !role.editable?, do: "underline underline-offset-4" }"}>
+        <%= role.name %>
+      </div>
       <%= if role.editable? do %>
         <a href={~p"/users/settings/roles/#{role.id}/edit"} class="text-blue-600 font-mono">
           Edit

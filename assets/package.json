@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "alpinejs": "^3.12.3",
     "js-cookie": "^3.0.5"
   }
 }

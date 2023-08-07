@@ -1,0 +1,98 @@
+<%!-- Layout For Dashboard Logged In Area --%>
+<div x-data="{ open: false }" class="bg-[#100627]">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <div class="flex-shrink-0 flex items-center">
+        <!-- Replace 'logo.png' with your actual logo path -->
+        <%!-- <img class="hidden h-8 w-auto" src="logo.png" alt="Logo" /> --%>
+
+        <a href="/">
+          <img class="block h-8 w-auto" src={~p"/images/logo.svg"} width="36" />
+        </a>
+      </div>
+      <!-- Menu items -->
+      <div class="justify-center flex-grow hidden sm:flex">
+        <!-- Add your menu items here -->
+        <!-- For example, you can add links to different pages -->
+        <ul class="flex space-x-4">
+          <li>
+            <.link href={~p"/app"} class="text-white px-3 py-2 rounded-md text-sm font-medium">
+              Home
+            </.link>
+          </li>
+          <li>
+            <.link
+              href={~p"/users/settings"}
+              class="text-white px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Settings
+            </.link>
+          </li>
+        </ul>
+      </div>
+      <!-- Login and Signup buttons -->
+      <div class="items-center gap-2 hidden sm:flex">
+        <.link
+          href={~p"/users/log_out"}
+          method="delete"
+          class="text-white px-3 py-2 rounded-md text-sm font-medium"
+        >
+          Log out
+        </.link>
+        <div
+          title={@current_user.email}
+          class="m-1 mr-2 w-8 h-8 relative flex justify-center items-center rounded-md cursor-default bg-teal-600 text-sm text-white uppercase"
+        >
+          <%= String.at(@current_user.email, 0) %>
+        </div>
+      </div>
+      <!-- Mobile menu toggle -->
+      <div class="flex items-center sm:hidden">
+        <button @click="open = !open" class="text-white p-2 rounded-md">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16m-7 6h7"
+            >
+            </path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Mobile menu -->
+  <div x-show="open" class="sm:hidden">
+    <div class="px-2 pt-2 pb-3 space-y-1">
+      <!-- Add mobile version of menu items here -->
+      <!-- For example, you can add links to different pages -->
+      <.link href={~p"/app"} class="text-white block px-3 py-2 rounded-md text-base font-medium">
+        Home
+      </.link>
+
+      <.link
+        href={~p"/users/settings"}
+        class="text-white block px-3 py-2 rounded-md text-base font-medium"
+      >
+        Settings
+      </.link>
+
+      <.link
+        href={~p"/users/log_out"}
+        method="delete"
+        class="text-white block px-3 py-2 rounded-md text-base font-medium"
+      >
+        Logout - <%= @current_user.email %>
+      </.link>
+    </div>
+  </div>
+</div>
+
+<main class="px-4 py-20 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-4xl">
+    <.flash_group flash={@flash} />
+    <%= @inner_content %>
+  </div>
+</main>

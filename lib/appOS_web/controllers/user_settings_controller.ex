@@ -173,6 +173,7 @@ defmodule AppOSWeb.UserSettingsController do
     |> assign(:password_changeset, Accounts.change_user_password(user))
     |> assign(:name_changeset, Accounts.change_user_fullname(user))
     |> assign(:credentials, UserCredentials.list_user_credentials(conn.assigns.current_user))
+    |> assign(:page_title, "Settings")
   end
 
   defp put_webauthn_challenge(conn, _opts) do

@@ -1,9 +1,12 @@
 defmodule AppOSWeb.UserComponents do
+  import AppOSWeb.CoreComponents
+
   @moduledoc """
   Provides custom user UI components.
 
   """
   use Phoenix.Component
+  use AppOSWeb, :verified_routes
 
   # alias Phoenix.LiveView.JS
   # import AppOSWeb.Gettext
@@ -151,6 +154,104 @@ defmodule AppOSWeb.UserComponents do
       <%= @datetime
       |> Timex.Timezone.convert(@timezone)
       |> Timex.format!("{Mshort} {D}, {YYYY} {h12}:{m}{am}") %>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders navigation for landing pages
+
+  """
+  attr :current_user, :map, required: true
+
+  def landing_navigation(assigns) do
+    ~H"""
+    <div x-data="{ open: false }" class="bg-[#100627]">
+      <div class="max-w-4xl mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo -->
+          <div class="flex-shrink-0 flex items-center">
+            <!-- Replace 'logo.png' with your actual logo path -->
+            <%!-- <img class="hidden h-8 w-auto" src="logo.png" alt="Logo" /> --%>
+
+            <a href="/">
+              <img class="block h-8 w-auto" src={~p"/images/logo.svg"} width="36" />
+            </a>
+          </div>
+          <!-- Menu items -->
+          <div class="sm:flex hidden justify-center flex-grow">
+            <!-- Add your menu items here -->
+        <!-- For example, you can add links to different pages -->
+            <ul class="flex space-x-4">
+              <li>
+                <.link href={~p"/"} class="text-white px-3 py-2 rounded-md text-sm font-medium">
+                  Home
+                </.link>
+              </li>
+              <li>
+                <a href="/plans" class="text-white px-3 py-2 rounded-md text-sm font-medium">
+                  #Pricing - Link Not Working
+                </a>
+              </li>
+            </ul>
+          </div>
+          <!-- Login and Signup buttons -->
+          <%= if !@current_user do %>
+            <div class="flex items-center gap-2">
+              <.link
+                href={~p"/users/log_in"}
+                class="text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Log in
+              </.link>
+
+              <.link
+                href={~p"/users/register"}
+                class="text-#[485858] bg-[#B4DCDD] px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Signup
+              </.link>
+            </div>
+          <% else %>
+            <div class="flex items-center gap-2">
+              <.link
+                href={~p"/users/settings"}
+                class="text-white bg-teal-600 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Go To App <.icon name="hero-arrow-long-right" class="h-5 w-5" />
+              </.link>
+            </div>
+          <% end %>
+          <!-- Mobile menu toggle -->
+          <div class="flex items-center sm:hidden">
+            <button @click="open = !open" class="text-white p-2 rounded-md">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16m-7 6h7"
+                >
+                </path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Mobile menu -->
+      <div x-show="open" class="sm:hidden">
+        <div class="px-2 pt-2 pb-3 space-y-1">
+          <!-- Add mobile version of menu items here -->
+      <!-- For example, you can add links to different pages -->
+          <.link href={~p"/"} class="text-white block px-3 py-2 rounded-md text-base font-medium">
+            Home
+          </.link>
+
+          <a href="/plans" class="text-white block px-3 py-2 rounded-md text-base font-medium">
+            #Pricing - Link Not Working
+          </a>
+        </div>
+      </div>
     </div>
     """
   end
