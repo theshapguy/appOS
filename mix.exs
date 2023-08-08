@@ -1,10 +1,11 @@
 defmodule AppOS.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
   def project do
     [
-      app: :appOS,
-      version: "0.1.0",
+      app: :appos,
+      version: @version,
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -19,6 +20,18 @@ defmodule AppOS.MixProject do
         # "test.run": :test,
         # "test.run.listen": :test,
         # "test.run.ci": :test
+      ],
+      default_release: :appos,
+      releases: [
+        appos: [
+          include_executables_for: [:unix],
+          applications: [appos: :permanent],
+          steps: [:assemble, :tar],
+          # version: {:from_app, :app}
+          # https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-requirements
+          version: @version
+          # version: "123123" <> "+" <> "darwin_x84",
+        ]
       ]
     ]
   end
@@ -43,34 +56,35 @@ defmodule AppOS.MixProject do
   defp deps do
     [
       {:bcrypt_elixir, "~> 3.0"},
-      {:phoenix, "~> 1.7.7"},
+      {:phoenix, "~> 1.7.10"},
       {:phoenix_ecto, "~> 4.4"},
-      {:ecto_sql, "~> 3.6"},
+      {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 3.3"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.19.4"},
+      {:phoenix_live_view, "~> 0.20.1"},
       {:floki, ">= 0.30.0", only: :test},
-      {:phoenix_live_dashboard, "~> 0.8.0"},
-      {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.2.1", runtime: Mix.env() == :dev},
+      {:phoenix_live_dashboard, "~> 0.8.2"},
+      {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:swoosh, "~> 1.3"},
       {:finch, "~> 0.13"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
+      {:dns_cluster, "~> 0.1.1"},
       {:plug_cowboy, "~> 2.5"},
       # Added
       {:stripy, path: "./modified_deps/stripy"},
-      {:hashids, "~>2.0.0"},
+      {:hashids, "~>2.1.0"},
       {:php_serializer, "~> 2.0.0"},
       # https://hexdocs.pm/timex/Timex.Format.DateTime.Formatters.Default.html
       {:timex, "~> 3.0"},
       {:bodyguard, path: "./modified_deps/bodyguard"},
       {:wax_, "~> 0.6.0"},
       {:mimic, "~> 1.7", only: :test},
-      {:excoveralls, "~> 0.14.4", only: :test}
+      {:excoveralls, "~> 0.18.0", only: :test}
     ]
   end
 
@@ -86,9 +100,43 @@ defmodule AppOS.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.setup": [
+        "cmd npm install --prefix ./assets",
+        "tailwind.install --if-missing",
+        "esbuild.install --if-missing"
+      ],
       "assets.build": ["tailwind default", "esbuild default"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
     ]
   end
+
+  # # TODO Add Git Commit ID
+  # defp target_triple do
+  #   # https://fiqus.coop/en/2019/07/15/add-git-commit-info-to-your-elixir-phoenix-app/
+  #   System.cmd("gcc", ["-dumpmachine"]) |> elem(0) |> String.trim()
+  # end
+
+  # def get_commit_sha() do
+  #   System.cmd("git", ["rev-parse", "--short", "HEAD"])
+  #   |> elem(0)
+  #   |> String.trim()
+  # end
+
+  # def get_commit_branch() do
+  #   System.cmd("git", ["rev-parse", "--abbrev-ref", "HEAD"])
+  #   |> elem(0)
+  #   |> String.trim()
+  # end
+
+  # def branch_version() do
+  #   # If git repo generate from git repo
+  #   case File.exists?(".git") do
+  #     true -> get_commit_branch() <> "-" <> get_commit_sha()
+  #     false -> "#{DateTime.to_unix(DateTime.utc_now())}"
+  #   end
+
+  #   # https://stackoverflow.com/a/52074767
+  #   # https://fiqus.coop/en/2019/07/15/add-git-commit-info-to-your-elixir-phoenix-app/
+  #   # System.cmd("gcc", ["-dumpmachine"]) |> elem(0) |> String.trim()
+  # end
 end

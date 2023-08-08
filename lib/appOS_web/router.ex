@@ -31,9 +31,7 @@ defmodule AppOSWeb.Router do
   end
 
   pipeline :app_layout_live do
-    plug(:put_root_layout, {AppOSWeb.Layouts, :root_live})
-
-    # plug :put_layout, html: {AppOSWeb.Layouts, :app_dashboard}
+    plug :put_root_layout, {AppOSWeb.Layouts, :root_live}
   end
 
   pipeline :app_layout do
@@ -86,7 +84,7 @@ defmodule AppOSWeb.Router do
   # end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
-  if Application.compile_env(:appOS, :dev_routes) do
+  if Application.compile_env(:appos, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put
     # it behind authentication and allow only admins to access it.
     # If your application does not have an admins-only section yet,

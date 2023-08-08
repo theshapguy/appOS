@@ -46,15 +46,15 @@ defmodule AppOSWeb.SubscriptionController do
     subscription = organization.subscription
 
     vendor_id =
-      Application.fetch_env!(:appOS, :paddle)
+      Application.fetch_env!(:appos, :paddle)
       |> Keyword.fetch!(:vendor_id)
 
     paddle_sandbox? =
-      Application.fetch_env!(:appOS, :paddle)
+      Application.fetch_env!(:appos, :paddle)
       |> Keyword.fetch!(:sandbox)
 
     bank_statement =
-      Application.fetch_env!(:appOS, :paddle)
+      Application.fetch_env!(:appos, :paddle)
       |> Keyword.fetch!(:bank_statement)
 
     conn =

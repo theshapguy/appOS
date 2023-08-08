@@ -1,11 +1,14 @@
 import Config
 
+# Maybe Try To Consolidate This Variable, Exists in test.exs too
+project_name = String.downcase(Path.basename(File.cwd!))
+
 # Configure your database
-config :appOS, AppOS.Repo,
+config :appos, AppOS.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "appos_dev",
+  database: "#{project_name}_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -16,7 +19,7 @@ config :appOS, AppOS.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with esbuild to bundle .js and .css sources.
-config :appOS, AppOSWeb.Endpoint,
+config :appos, AppOSWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   http: [ip: {127, 0, 0, 1}, port: 4000],
@@ -53,7 +56,7 @@ config :appOS, AppOSWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :appOS, AppOSWeb.Endpoint,
+config :appos, AppOSWeb.Endpoint,
   live_reload: [
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
@@ -63,7 +66,7 @@ config :appOS, AppOSWeb.Endpoint,
   ]
 
 # Enable dev routes for dashboard and mailbox
-config :appOS, dev_routes: true
+config :appos, dev_routes: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"

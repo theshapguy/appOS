@@ -30,11 +30,28 @@ window.Alpine = Alpine
 Alpine.start()
 // https://alpinejs.dev/globals/alpine-data
 
+let Hooks = {}
+
+// Hooks.Flash = {
+//     mounted(){
+//       let hide = () => liveSocket.execJS(this.el, this.el.getAttribute("phx-click"))
+//       this.timer = setTimeout(() => hide(), 8000)
+//       this.el.addEventListener("phx:hide-start", () => clearTimeout(this.timer))
+//       this.el.addEventListener("mouseover", () => {
+//         clearTimeout(this.timer)
+//         this.timer = setTimeout(() => hide(), 8000)
+//       })
+//     },
+//     destroyed(){ clearTimeout(this.timer) }
+// }
+
+
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 // Without Alpine
 // let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
 
 let liveSocket = new LiveSocket("/live", Socket, {
+    hooks: Hooks,
     params: {
         _csrf_token: csrfToken
     },

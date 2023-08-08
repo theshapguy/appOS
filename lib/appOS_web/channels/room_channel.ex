@@ -2,12 +2,13 @@ defmodule AppOSWeb.RoomChannel do
   use AppOSWeb, :channel
 
   @impl true
-  def join("room:lobby", payload, socket) do
-    if authorized?(payload) do
-      {:ok, socket}
-    else
-      {:error, %{reason: "unauthorized"}}
-    end
+  def join("room:lobby", _payload, socket) do
+    {:ok, socket}
+    # if authorized?(1) do
+
+    # else
+    #   {:error, %{reason: "unauthorized"}}
+    # end
   end
 
   def join("room:" <> _room_id, _payload, socket) do
@@ -30,7 +31,7 @@ defmodule AppOSWeb.RoomChannel do
   end
 
   # Add authorization logic here as required.
-  defp authorized?(_payload) do
-    true
-  end
+  # defp authorized?(payload) do
+  #   if payload == 1, do: true, else: false
+  # end
 end

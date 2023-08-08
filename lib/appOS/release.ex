@@ -1,9 +1,9 @@
-defmodule AppOS.Release do
+defmodule Appos.Release do
   @moduledoc """
   Used for executing DB release tasks when run in production without Mix
   installed.
   """
-  @app :appOS
+  @app :appos
 
   def migrate do
     load_app()

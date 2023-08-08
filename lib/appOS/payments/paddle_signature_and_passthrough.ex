@@ -76,7 +76,7 @@ defmodule AppOS.Payments.PaddleSignatureAndPassthrough do
   end
 
   defp public_key do
-    Application.fetch_env!(:appOS, :paddle)
+    Application.fetch_env!(:appos, :paddle)
     |> Keyword.fetch!(:public_key)
   end
 end

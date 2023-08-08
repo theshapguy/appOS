@@ -20,5 +20,5 @@ defmodule AppOSWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext, otp_app: :appOS
+  use Gettext, otp_app: :appos
 end

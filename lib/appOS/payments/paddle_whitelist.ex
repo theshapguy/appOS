@@ -29,7 +29,7 @@ defmodule AppOS.Payments.PaddleWhitelist do
   end
 
   def ip_whitelist do
-    Application.fetch_env!(:appOS, :paddle)
+    Application.fetch_env!(:appos, :paddle)
     |> Keyword.fetch!(:ip_whitelist)
     |> Enum.map(fn ip -> :inet.parse_address(Kernel.to_charlist(ip)) end)
     |> Enum.map(fn {:ok, ip} -> ip end)

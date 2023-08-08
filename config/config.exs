@@ -7,11 +7,12 @@
 # General application configuration
 import Config
 
-config :appOS,
+
+config :appos,
   ecto_repos: [AppOS.Repo]
 
 # Configures the endpoint
-config :appOS, AppOSWeb.Endpoint,
+config :appos, AppOSWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [
     formats: [html: AppOSWeb.ErrorHTML, json: AppOSWeb.ErrorJSON],
@@ -27,7 +28,12 @@ config :appOS, AppOSWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :appOS, AppOS.Mailer, adapter: Swoosh.Adapters.Local
+config :appos, AppOS.Mailer, adapter: Swoosh.Adapters.Local,
+  app_name: "AppOS",
+  sender_name: "Shap",
+  sender_email: "shap@appos.com",
+  # 100px
+  icon: "https://i.pravatar.cc/150?u=men"
 
 # Configure esbuild (the version is required)
 config :esbuild,
@@ -87,7 +93,7 @@ config :phoenix, :json_library, Jason
 #   httpoison: [recv_timeout: 5000, timeout: 8000]
 
 # [Release] Check Production Or Runtime Variables
-config :appOS, :paddle,
+config :appos, :paddle,
   sandbox: true,
   api_key: "3071a1d8b877b7325866d3ece8857018",
   vendor_id: 13057,
@@ -123,7 +129,7 @@ config :wax_,
   origin: "https://658c7343cc71-11974691996598043146.ngrok-free.app",
   rp_id: :auto,
   update_metadata: true,
-  metadata_dir: :appOS,
+  metadata_dir: :appos,
   attestation: "none"
 
 # Import environment specific config. This must remain at the bottom
