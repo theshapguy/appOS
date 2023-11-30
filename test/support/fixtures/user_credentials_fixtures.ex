@@ -1,7 +1,7 @@
-defmodule AppOS.UserCredentialsFixtures do
+defmodule Planet.UserCredentialsFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `AppOS.UserCredentials` context.
+  entities via the `Planet.UserCredentials` context.
   """
 
   @doc """
@@ -15,7 +15,7 @@ defmodule AppOS.UserCredentialsFixtures do
         credential_public_key: "some credential_public_key",
         credential_public_key_binary: "some credential_public_key_binary"
       })
-      |> AppOS.UserCredentials.create_user_credentail()
+      |> Planet.UserCredentials.create_user_credentail()
 
     user_credentail
   end

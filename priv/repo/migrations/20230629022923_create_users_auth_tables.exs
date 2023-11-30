@@ -1,4 +1,4 @@
-defmodule AppOS.Repo.Migrations.CreateUsersAuthTables do
+defmodule Planet.Repo.Migrations.CreateUsersAuthTables do
   use Ecto.Migration
 
   def change do

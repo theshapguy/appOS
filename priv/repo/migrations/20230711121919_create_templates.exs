@@ -1,4 +1,4 @@
-defmodule AppOS.Repo.Migrations.CreateTemplates do
+defmodule Planet.Repo.Migrations.CreateTemplates do
   use Ecto.Migration
 
   def change do

@@ -66,9 +66,9 @@ MIX_ENV=prod mix phx.digest.clean --all
 
 echo "****** Copy Release To Release Directory ******"
 if [ "$IN_VAGRANT" = "1" ]; then
-    cp -p -v -f ./_build/prod/appos* /tmp/release
+    cp -p -v -f ./_build/prod/planet* /tmp/release
 else
-    cp -p -v -f ./_build/prod/appos* ./release
+    cp -p -v -f ./_build/prod/planet* ./release
     # Running this to fetch all dependencies again
 fi
 

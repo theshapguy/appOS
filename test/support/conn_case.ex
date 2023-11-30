@@ -1,4 +1,4 @@
-defmodule AppOSWeb.ConnCase do
+defmodule PlanetWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -11,7 +11,7 @@ defmodule AppOSWeb.ConnCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use AppOSWeb.ConnCase, async: true`, although
+  by setting `use PlanetWeb.ConnCase, async: true`, although
   this option is not recommended for other databases.
   """
   use ExUnit.CaseTemplate
@@ -19,14 +19,14 @@ defmodule AppOSWeb.ConnCase do
   using do
     quote do
       # The default endpoint for testing
-      @endpoint AppOSWeb.Endpoint
+      @endpoint PlanetWeb.Endpoint
 
-      use AppOSWeb, :verified_routes
+      use PlanetWeb, :verified_routes
 
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
-      import AppOSWeb.ConnCase
+      import PlanetWeb.ConnCase
 
       def session_conn() do
         build_conn() |> Plug.Test.init_test_session(%{})
@@ -35,7 +35,7 @@ defmodule AppOSWeb.ConnCase do
   end
 
   setup tags do
-    AppOS.DataCase.setup_sandbox(tags)
+    Planet.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 
@@ -48,14 +48,14 @@ defmodule AppOSWeb.ConnCase do
   test context.
   """
   def register_and_log_in_user(%{conn: conn}) do
-    user = AppOS.AccountsFixtures.user_fixture()
+    user = Planet.AccountsFixtures.user_fixture()
     %{conn: log_in_user(conn, user), user: user}
   end
 
   def register_and_log_in_paid_user(%{conn: conn}) do
-    user = AppOS.AccountsFixtures.user_fixture()
+    user = Planet.AccountsFixtures.user_fixture()
 
-    AppOS.Subscriptions.update_subscription(user.organization.subscription, %{
+    Planet.Subscriptions.update_subscription(user.organization.subscription, %{
       product_id: "__test__plan__",
       cancel_url: "http://cancel_url",
       update_url: "http://update_url"
@@ -70,7 +70,7 @@ defmodule AppOSWeb.ConnCase do
   It returns an updated `conn`.
   """
   def log_in_user(conn, user) do
-    token = AppOS.Accounts.generate_user_session_token(user)
+    token = Planet.Accounts.generate_user_session_token(user)
 
     conn
     |> Phoenix.ConnTest.init_test_session(%{})

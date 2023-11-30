@@ -1,10 +1,10 @@
-defmodule AppOS.MixProject do
+defmodule Planet.MixProject do
   use Mix.Project
 
   @version "0.1.0"
   def project do
     [
-      app: :appos,
+      app: :planet,
       version: @version,
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -21,11 +21,11 @@ defmodule AppOS.MixProject do
         # "test.run.listen": :test,
         # "test.run.ci": :test
       ],
-      default_release: :appos,
+      default_release: :planet,
       releases: [
-        appos: [
+        planet: [
           include_executables_for: [:unix],
-          applications: [appos: :permanent],
+          applications: [planet: :permanent],
           steps: [:assemble, :tar],
           # version: {:from_app, :app}
           # https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-requirements
@@ -41,7 +41,7 @@ defmodule AppOS.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {AppOS.Application, []},
+      mod: {Planet.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end

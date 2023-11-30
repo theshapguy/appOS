@@ -1,0 +1,42 @@
+<.header>
+  Listing Templates
+  <:actions>
+    <.link patch={~p"/templates/new"}>
+      <.button>New Template</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="templates"
+  rows={@streams.templates}
+  row_click={fn {_id, template} -> JS.navigate(~p"/templates/#{template}") end}
+>
+  <:col :let={{_id, template}} label="Name"><%= template.name %></:col>
+  <:col :let={{_id, template}} label="Age"><%= template.age %></:col>
+  <:action :let={{_id, template}}>
+    <div class="sr-only">
+      <.link navigate={~p"/templates/#{template}"}>Show</.link>
+    </div>
+    <.link patch={~p"/templates/#{template}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, template}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: template.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="template-modal" show on_cancel={JS.patch(~p"/templates")}>
+  <.live_component
+    module={PlanetWeb.TemplateLive.FormComponent}
+    id={@template.id || :new}
+    title={@page_title}
+    action={@live_action}
+    template={@template}
+    patch={~p"/templates"}
+  />
+</.modal>

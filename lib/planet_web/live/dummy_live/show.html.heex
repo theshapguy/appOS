@@ -1,0 +1,27 @@
+<.header>
+  Dummy <%= @dummy.id %>
+  <:subtitle>This is a dummy record from your database.</:subtitle>
+  <:actions>
+    <.link patch={~p"/dummies/#{@dummy}/show/edit"} phx-click={JS.push_focus()}>
+      <.button>Edit dummy</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Name"><%= @dummy.name %></:item>
+  <:item title="Age"><%= @dummy.age %></:item>
+</.list>
+
+<.back navigate={~p"/dummies"}>Back to dummies</.back>
+
+<.modal :if={@live_action == :edit} id="dummy-modal" show on_cancel={JS.patch(~p"/dummies/#{@dummy}")}>
+  <.live_component
+    module={PlanetWeb.DummyLive.FormComponent}
+    id={@dummy.id}
+    title={@page_title}
+    action={@live_action}
+    dummy={@dummy}
+    patch={~p"/dummies/#{@dummy}"}
+  />
+</.modal>

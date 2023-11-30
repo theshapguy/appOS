@@ -1,4 +1,4 @@
-defmodule AppOSWeb.ChannelCase do
+defmodule PlanetWeb.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -11,7 +11,7 @@ defmodule AppOSWeb.ChannelCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use AppOSWeb.ChannelCase, async: true`, although
+  by setting `use PlanetWeb.ChannelCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -21,15 +21,15 @@ defmodule AppOSWeb.ChannelCase do
     quote do
       # Import conveniences for testing with channels
       import Phoenix.ChannelTest
-      import AppOSWeb.ChannelCase
+      import PlanetWeb.ChannelCase
 
       # The default endpoint for testing
-      @endpoint AppOSWeb.Endpoint
+      @endpoint PlanetWeb.Endpoint
     end
   end
 
   setup tags do
-    AppOS.DataCase.setup_sandbox(tags)
+    Planet.DataCase.setup_sandbox(tags)
     :ok
   end
 end

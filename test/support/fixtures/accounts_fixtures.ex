@@ -1,7 +1,7 @@
-defmodule AppOS.AccountsFixtures do
+defmodule Planet.AccountsFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `AppOS.Accounts` context.
+  entities via the `Planet,Accounts` context.
   """
 
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
@@ -25,21 +25,21 @@ defmodule AppOS.AccountsFixtures do
     {:ok, user} =
       attrs
       |> valid_user_attributes()
-      |> AppOS.Accounts.register_user()
+      |> Planet.Accounts.register_user()
 
     user
   end
 
   def user_fixture(
-        %AppOS.Organizations.Organization{} = organization,
-        %AppOS.Roles.Role{} = role,
+        %Planet.Organizations.Organization{} = organization,
+        %Planet.Roles.Role{} = role,
         attrs \\ %{}
       ) do
     attrs =
       attrs
       |> valid_user_attributes()
 
-    {:ok, user} = AppOS.Accounts.register_user_with_organization(organization, role, attrs)
+    {:ok, user} = Planet.Accounts.register_user_with_organization(organization, role, attrs)
 
     user
   end
@@ -48,16 +48,16 @@ defmodule AppOS.AccountsFixtures do
     {:ok, user} =
       attrs
       |> valid_user_attributes()
-      |> AppOS.Accounts.register_user()
+      |> Planet.Accounts.register_user()
 
     user.organization
   end
 
-  def user_credential_fixture(%AppOS.Accounts.User{} = user) do
+  def user_credential_fixture(%Planet.Accounts.User{} = user) do
     unique_data = unique_user_email()
 
     {:ok, credential} =
-      AppOS.UserCredentials.create_user_credentail(
+      Planet.UserCredentials.create_user_credentail(
         user,
         %{
           "credential_id" => unique_data,

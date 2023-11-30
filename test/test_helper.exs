@@ -1,4 +1,4 @@
 Mimic.copy(Wax)
 
 ExUnit.start()
-Ecto.Adapters.SQL.Sandbox.mode(AppOS.Repo, :manual)
+Ecto.Adapters.SQL.Sandbox.mode(Planet.Repo, :manual)

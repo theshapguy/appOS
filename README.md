@@ -1,4 +1,4 @@
-# AppOS - Boilerplate
+# Planet - Boilerplate
 
 To start your Phoenix server:
 

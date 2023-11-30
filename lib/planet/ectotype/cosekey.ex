@@ -1,0 +1,77 @@
+defmodule Planet.EctoType.CoseKey do
+  @moduledoc """
+  https://raw.githubusercontent.com/liveshowy/webauthn_components/e1775e5540a7f553e21e001ba07758f39f03297f/lib/webauthn_components/cose_key.ex
+  Custom `Ecto.Type` for WebAuthn cose keys.
+
+  Use this type for the `:public_key` field in an Ecto schema.
+
+  ## Example
+
+  ```elixir
+  defmodule MyApp.Authentication.UserKey do
+    use Ecto.Schema
+    import Ecto.Changeset
+    alias MyApp.Accounts.User
+    alias WebauthnComponents.CoseKey
+
+    @primary_key {:id, :binary_id, autogenerate: true}
+    @foreign_key_type :binary_id
+    @derive {Jason.Encoder, only: [:key_id, :public_key, :label, :last_used]}
+    schema "user_keys" do
+      field :label, :string, default: "default"
+      field :key_id, :binary
+      field :public_key, CoseKey
+      belongs_to :user, User
+      field :last_used, :utc_datetime
+
+      timestamps()
+    end
+
+    ...
+  end
+  ```
+  """
+  use Ecto.Type
+
+  def type, do: :bytea
+
+  def cast(value) when is_map(value) do
+    try do
+      {:ok, CBOR.encode(value)}
+    rescue
+      Protocol.UndefinedError -> :error
+    end
+  end
+
+  def cast(value) when is_binary(value) do
+    case CBOR.decode(value) do
+      {:ok, _decoded_value, ""} -> value
+      {:error, _error} -> :error
+    end
+  end
+
+  def cast(_), do: :error
+
+  def load(data) when is_binary(data) do
+    case CBOR.decode(data) do
+      {:ok, cose_key, ""} ->
+        {:ok, cose_key}
+
+      _other ->
+        :error
+    end
+  end
+
+  def dump(value) when is_map(value) do
+    {:ok, CBOR.encode(value)}
+  end
+
+  def dump(value) when is_binary(value) do
+    case CBOR.decode(value) do
+      {:ok, _decoded_value, ""} -> {:ok, value}
+      {:error, _error} -> :error
+    end
+  end
+
+  def dump(value), do: {:ok, value}
+end

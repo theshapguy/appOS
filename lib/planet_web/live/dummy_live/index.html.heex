@@ -1,0 +1,42 @@
+<.header>
+  Listing Dummies
+  <:actions>
+    <.link patch={~p"/dummies/new"}>
+      <.button>New Dummy</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="dummies"
+  rows={@streams.dummies}
+  row_click={fn {_id, dummy} -> JS.navigate(~p"/dummies/#{dummy}") end}
+>
+  <:col :let={{_id, dummy}} label="Name"><%= dummy.name %></:col>
+  <:col :let={{_id, dummy}} label="Age"><%= dummy.age %></:col>
+  <:action :let={{_id, dummy}}>
+    <div class="sr-only">
+      <.link navigate={~p"/dummies/#{dummy}"}>Show</.link>
+    </div>
+    <.link patch={~p"/dummies/#{dummy}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, dummy}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: dummy.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="dummy-modal" show on_cancel={JS.patch(~p"/dummies")}>
+  <.live_component
+    module={PlanetWeb.DummyLive.FormComponent}
+    id={@dummy.id || :new}
+    title={@page_title}
+    action={@live_action}
+    dummy={@dummy}
+    patch={~p"/dummies"}
+  />
+</.modal>

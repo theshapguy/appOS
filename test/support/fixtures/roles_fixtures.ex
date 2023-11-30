@@ -1,13 +1,13 @@
-defmodule AppOS.RolesFixtures do
+defmodule Planet.RolesFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `AppOS.Roles` context.
+  entities via the `PlanetRoles` context.
   """
 
   @doc """
   Generate a role.
   """
-  def role_fixture(%AppOS.Organizations.Organization{} = organization, attrs \\ %{}) do
+  def role_fixture(%Planet.Organizations.Organization{} = organization, attrs \\ %{}) do
     attrs =
       attrs
       |> Enum.into(%{
@@ -16,7 +16,7 @@ defmodule AppOS.RolesFixtures do
         permissions: ["billing-view"]
       })
 
-    {:ok, role} = AppOS.Roles.create_role(organization, attrs)
+    {:ok, role} = Planet.Roles.create_role(organization, attrs)
 
     role
   end
@@ -24,8 +24,8 @@ defmodule AppOS.RolesFixtures do
   @doc """
   Generate a role.
   """
-  def user_role_fixture(%AppOS.Accounts.User{} = user, %AppOS.Roles.Role{} = role) do
-    {:ok, users_roles} = AppOS.UsersRoles.create_user_role(user, role)
+  def user_role_fixture(%Planet.Accounts.User{} = user, %Planet.Roles.Role{} = role) do
+    {:ok, users_roles} = Planet.UsersRoles.create_user_role(user, role)
 
     users_roles
   end

@@ -1,10 +1,10 @@
-defmodule AppOS.SubscriptionsFixtures do
+defmodule Planet.SubscriptionsFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `AppOS.Subscriptions` context.
+  entities via the `Planet.Subscriptions` context.
   """
 
-  alias AppOS.Accounts.User
+  alias Planet.Accounts.User
 
   @doc """
   Generate a subscription.
@@ -37,7 +37,7 @@ defmodule AppOS.SubscriptionsFixtures do
         # valid_until: ~U[2023-06-27 13:59:00Z]
       })
 
-    {:ok, subscription} = AppOS.Subscriptions.update_subscription(user_subscription, attrs)
+    {:ok, subscription} = Planet.Subscriptions.update_subscription(user_subscription, attrs)
 
     subscription
   end

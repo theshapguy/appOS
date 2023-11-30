@@ -7,18 +7,18 @@
 # General application configuration
 import Config
 
-
-config :appos,
-  ecto_repos: [AppOS.Repo]
+config :planet,
+  ecto_repos: [Planet.Repo]
 
 # Configures the endpoint
-config :appos, AppOSWeb.Endpoint,
+config :planet, PlanetWeb.Endpoint,
   url: [host: "localhost"],
+  adapter: Phoenix.Endpoint.Cowboy2Adapter,
   render_errors: [
-    formats: [html: AppOSWeb.ErrorHTML, json: AppOSWeb.ErrorJSON],
+    formats: [html: PlanetWeb.ErrorHTML, json: PlanetWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: AppOS.PubSub,
+  pubsub_server: Planet.PubSub,
   live_view: [signing_salt: "tPMgEeKF"]
 
 # Configures the mailer
@@ -28,10 +28,11 @@ config :appos, AppOSWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :appos, AppOS.Mailer, adapter: Swoosh.Adapters.Local,
-  app_name: "AppOS",
+config :planet, Planet.Mailer,
+  adapter: Swoosh.Adapters.Local,
+  app_name: "Planet",
   sender_name: "Shap",
-  sender_email: "shap@appos.com",
+  sender_email: "shap@planet.com",
   # 100px
   icon: "https://i.pravatar.cc/150?u=men"
 
@@ -93,7 +94,7 @@ config :phoenix, :json_library, Jason
 #   httpoison: [recv_timeout: 5000, timeout: 8000]
 
 # [Release] Check Production Or Runtime Variables
-config :appos, :paddle,
+config :planet, :paddle,
   sandbox: true,
   api_key: "3071a1d8b877b7325866d3ece8857018",
   vendor_id: 13057,
@@ -129,7 +130,7 @@ config :wax_,
   origin: "https://658c7343cc71-11974691996598043146.ngrok-free.app",
   rp_id: :auto,
   update_metadata: true,
-  metadata_dir: :appos,
+  metadata_dir: :planet,
   attestation: "none"
 
 # Import environment specific config. This must remain at the bottom

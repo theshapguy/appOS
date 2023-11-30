@@ -1,7 +1,7 @@
-defmodule AppOS.TemplatesFixtures do
+defmodule Planet.TemplatesFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `AppOS.Templates` context.
+  entities via the `Planet.Templates` context.
   """
 
   @doc """
@@ -14,7 +14,7 @@ defmodule AppOS.TemplatesFixtures do
         age: 42,
         name: "some name"
       })
-      |> AppOS.Templates.create_template()
+      |> Planet.Templates.create_template()
 
     template
   end
