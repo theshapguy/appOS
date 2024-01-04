@@ -17,7 +17,8 @@ defmodule Planet.Application do
       # Start Finch
       {Finch, name: Planet.Finch},
       # Start the Endpoint (http/https)
-      PlanetWeb.Endpoint
+      PlanetWeb.Endpoint,
+      # {Planet.Periodic.NewRunner, %{}},
       # Start a worker by calling: PlanetWorker.start_link(arg)
       # {PlanetWorker, arg}
     ]
