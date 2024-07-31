@@ -166,6 +166,66 @@ defmodule PlanetWeb.UserComponents do
 
   def landing_navigation(assigns) do
     ~H"""
+    <nav class="bg-yellow-400 p-4">
+      <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center">
+          <!-- Logo -->
+          <div class="text-3xl font-bold text-black">tails.</div>
+          <!-- Menu Items -->
+          <div class="hidden md:flex space-x-8 text-black font-medium">
+            <a href="#" class="hover:text-gray-700">HOME</a>
+            <a href="#" class="hover:text-gray-700">FEATURES</a>
+            <a href="#" class="hover:text-gray-700">PRICING</a>
+            <a href="#" class="hover:text-gray-700">BLOG</a>
+          </div>
+          <!-- Login and Signup Button -->
+          <div class="hidden md:flex items-center space-x-4">
+            <a href="#" class="text-black font-medium hover:text-gray-700">LOGIN</a>
+            <a
+              href="#"
+              class="px-4 py-2 rounded-md bg-white text-black font-semibold border-2 border-black hover:bg-gray-200"
+            >
+              Signup
+            </a>
+          </div>
+          <!-- Mobile Menu Button -->
+          <div class="md:hidden flex items-center">
+            <button id="menu-toggle" class="text-black focus:outline-none">
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16m-7 6h7"
+                >
+                </path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="hidden md:hidden mt-4 space-y-4 text-center">
+        <a href="#" class="block text-black font-medium hover:text-gray-700">HOME</a>
+        <a href="#" class="block text-black font-medium hover:text-gray-700">FEATURES</a>
+        <a href="#" class="block text-black font-medium hover:text-gray-700">PRICING</a>
+        <a href="#" class="block text-black font-medium hover:text-gray-700">BLOG</a>
+        <a href="#" class="block text-black font-medium hover:text-gray-700">LOGIN</a>
+        <a
+          href="#"
+          class="block px-4 py-2 rounded-md bg-white text-black font-semibold border-2 border-black hover:bg-gray-200"
+        >
+          Signup
+        </a>
+      </div>
+    </nav>
+
     <div x-data="{ open: false }" class="bg-[#100627]">
       <div class="max-w-4xl mx-auto px-4">
         <div class="flex items-center justify-between h-16">
@@ -253,6 +313,32 @@ defmodule PlanetWeb.UserComponents do
         </div>
       </div>
     </div>
+    """
+  end
+
+  def pricing_landing_component(assigns) do
+    ~H"""
+    <section class="bg-white border border-gray-100 rounded-sm shadow-sm mt-4 p-8">
+      <h2 class="text-2xl text-center tracking-tight font-extrabold text-gray-900 dark:text-white">
+        Clear and Simple Pricing
+      </h2>
+
+      <div class="mt-4 select-none text-center">
+        <p class="">
+          <span id="plan-price" class="text-4xl font-bold leading-8">$14</span>
+          <span>/mo</span>
+        </p>
+        <p class="leading-3">
+          <span class="text-sm text-gray-400 leading-3">+ Sales Tax or VAT</span>
+        </p>
+        <div class="text-sm text-gray-400 mt-4">
+          <p>
+            We use Paddle as our primary payment processor and Merchant of Record.
+          </p>
+          <p>Want to use Stripe? Contact me for payment link.</p>
+        </div>
+      </div>
+    </section>
     """
   end
 end

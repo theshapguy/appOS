@@ -21,6 +21,42 @@
 
 <div class="mt-20">
   <.header class="text-center">
+    Timezone Settings
+    <:subtitle>Change your timezone</:subtitle>
+  </.header>
+</div>
+
+<div class="space-y-12 divide-y">
+  <.simple_form
+    :let={f}
+    for={@timezone_changeset}
+    action={~p"/users/settings"}
+    id="update_timezone"
+  >
+    <.error :if={@timezone_changeset.action}>
+      Oops, something went wrong! Please check the errors below.
+    </.error>
+
+    <.input field={f[:action]} type="hidden" name="action" value="update_timezone" />
+
+    <.input field={f[:timezone]} label="Select a timezone" list="timezones_list" required />
+
+    <datalist id="timezones_list">
+      <%= for {tz, humanize_tz} <- humanize_timezone_list() do %>
+        <option value={tz}>
+          <%= humanize_tz %>
+        </option>
+      <% end %>
+    </datalist>
+
+    <:actions>
+      <.button phx-disable-with="Changing...">Change Timezone</.button>
+    </:actions>
+  </.simple_form>
+</div>
+
+<div class="mt-20">
+  <.header class="text-center">
     Account Settings
     <:subtitle>Manage your account email address and password settings</:subtitle>
   </.header>
@@ -85,14 +121,14 @@
   </div>
 </div>
 
-<div class="mt-20">
+<div :if={false} class="mt-20">
   <.header class="text-center">
     Secure Login Settings
     <:subtitle>Login to your account securely using Passkey, TouchID or FaceID</:subtitle>
   </.header>
 </div>
 
-<div class="flex justify-center items-center mt-6">
+<div :if={false} class="flex justify-center items-center mt-6">
   <button
     type="button"
     class="px-3 py-2 w-full text-sm font-medium text-center flex items-center justify-center space-x-2 text-blue-700 border-blue-700 border rounded-lg hover:border-blue-200 focus:ring-4 focus:outline-none focus:ring-blue-300"
@@ -167,8 +203,8 @@
   </.simple_form>
 </div>
 
-<.webauthn_arraybuffer_helpers></.webauthn_arraybuffer_helpers>
-<script>
+<.webauthn_arraybuffer_helpers :if={false}></.webauthn_arraybuffer_helpers>
+<script :if={false}>
   var challenge_b64 = "<%= @challenge_b64 %>";  
   var user = "<%= @conn.assigns.current_user.name %>";
   var email = "<%= @conn.assigns.current_user.email %>";

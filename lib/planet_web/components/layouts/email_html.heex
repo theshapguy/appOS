@@ -4,9 +4,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Welcome to <%= @assigns.app_name %></title>
-    <!--[if mso]><style type="text/css">body, table, td, a { font-family: Arial, Helvetica, sans-serif !important; }</style><![endif]-->
+    <!--[if mso]>
+      <style type="text/css">body, table, td, a { font-family: Arial, Helvetica, sans-serif !important; }</style>
+      <![endif]-->
   </head>
-
   <body style="font-family: Helvetica, Arial, sans-serif; margin: 0px; padding: 0px; background-color: #ffffff;">
     <table
       role="presentation"
@@ -24,24 +25,19 @@
                   <td style="padding: 40px 0px 0px;">
                     <div style="text-align: left;">
                       <div style="padding-bottom: 20px;">
-                        <img
-                          src={@assigns.icon}
-                          alt={ @assigns.app_name }
-                          style="width: 100px;"
-                        />
+                        <img src={@assigns.icon} alt={@assigns.app_name} style="width: 100px;" />
                       </div>
                     </div>
                     <div style="padding: 20px; background-color: rgb(255, 255, 255);">
                       <div style="color: rgb(0, 0, 0); text-align: left;">
-                        
                         <%= @inner_content %>
-
-                        <p style="padding-bottom: 16px">Best regards,<br>Shap<br><span style="color: #999">CEO and Founder</span><br><span
-                          style="color: #999">The Planet team</span></p>
+                        <p style="padding-bottom: 16px">Best regards,<br />Shap<br />
+                          <%!-- <span style="color: #999">CEO and Founder</span><br> --%>
+                          <span style="color: #999">The <%= @assigns.app_name %> team</span></p>
                       </div>
                     </div>
                     <div style="padding-top: 20px; color: rgb(146, 146, 146); text-align: center;">
-                      <p style="padding-bottom: 16px">Made with ♥ in Paris &amp; Kathmandu</p>
+                      <%!-- <p style="padding-bottom: 16px">Made with ♥ in Paris &amp; Kathmandu</p> --%>
                     </div>
                   </td>
                 </tr>

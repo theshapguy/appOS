@@ -46,6 +46,20 @@ config :esbuild,
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
+config :planet, Oban,
+  peer: Oban.Peers.Postgres,
+  repo: Planet.Repo,
+  plugins: [
+    {Oban.Plugins.Cron,
+     crontab: [
+       #  {"* * * * *", Planet.Jobs.DummyJob}
+     ]},
+    {Oban.Plugins.Pruner, max_age: 86_400 * 40}
+  ],
+  queues: [
+    default: 10
+  ]
+
 # Configure tailwind (the version is required)
 config :tailwind,
   version: "3.2.7",
@@ -95,6 +109,11 @@ config :phoenix, :json_library, Jason
 
 # [Release] Check Production Or Runtime Variables
 config :planet, :paddle,
+  # If Unpaid Access Is Allowed, Can Perform Tasks without Active Status
+  # No Billing Required
+  # If False -> Redirect To Billing Page
+  # Can be Read as Allow_Free_Access
+  allow_unpaid_access: true,
   sandbox: true,
   api_key: "3071a1d8b877b7325866d3ece8857018",
   vendor_id: 13057,
@@ -126,12 +145,27 @@ config :planet, :paddle,
   """
 
 # [Release] Check Production Or Runtime Variables
-config :wax_,
-  origin: "https://658c7343cc71-11974691996598043146.ngrok-free.app",
-  rp_id: :auto,
-  update_metadata: true,
-  metadata_dir: :planet,
-  attestation: "none"
+# config :wax_,
+#   origin: "https://658c7343cc71-11974691996598043146.ngrok-free.app",
+#   rp_id: :auto,
+#   update_metadata: true,
+#   metadata_dir: :planet,
+#   attestation: "none"
+
+config :ueberauth, Ueberauth,
+  providers: [
+    google: {Ueberauth.Strategy.Google, [include_granted_scopes: true]},
+    github: {Ueberauth.Strategy.Github, [default_scope: "user:email,read:user"]}
+  ]
+
+config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+  client_id: "291426313678-e9hoqf9e86cmsuj72pdqdokdugoael0o.apps.googleusercontent.com",
+  # System.get_env("GOOGLE_CLIENT_ID"),
+  client_secret: "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"
+
+config :ueberauth, Ueberauth.Strategy.Github.OAuth,
+  client_id: "Ov23liyScVeXFSbUeUEp",
+  client_secret: "30956260a7015511ca56fc14f4ab13eeb7f64449"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

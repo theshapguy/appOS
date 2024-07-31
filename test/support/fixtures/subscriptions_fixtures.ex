@@ -20,7 +20,7 @@ defmodule Planet.SubscriptionsFixtures do
         product_id: "product_id",
         customer_id: "customer_id",
         subscription_id: "subscription_id",
-        subscription_status: "active",
+        status: "active",
         issued_at: ~U[2023-06-27 13:59:00Z],
         valid_until: ~U[2023-07-27 13:59:00Z],
         payment_attempt: nil,

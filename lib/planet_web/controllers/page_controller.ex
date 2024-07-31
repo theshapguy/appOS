@@ -1,6 +1,8 @@
 defmodule PlanetWeb.PageController do
   use PlanetWeb, :controller
 
+  plug PlanetWeb.Plugs.PageTitle, title: "Home"
+
   def home(conn, _params) do
     # The home page is often custom made,
     # so skip the default app layout.

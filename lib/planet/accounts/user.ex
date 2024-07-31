@@ -16,7 +16,9 @@ defmodule Planet.Accounts.User do
     field(:active?, :boolean, default: true, source: :is_active)
 
     belongs_to(:organization, Planet.Organizations.Organization)
+
     has_many(:user_credentials, Planet.UserCredentials.UserCredentail)
+    has_many(:user_providers, Planet.UserProviders.UserProvider)
 
     # Use To Send the Refer Code Of Organization In User Attrs
     # So that Data can be extracted
@@ -26,6 +28,8 @@ defmodule Planet.Accounts.User do
     many_to_many :roles, Planet.Roles.Role,
       join_through: Planet.Accounts.UserRole,
       on_replace: :delete
+
+    field(:timezone, :string)
 
     timestamps()
   end
@@ -179,6 +183,32 @@ defmodule Planet.Accounts.User do
     |> case do
       %{changes: %{name: _}} = changeset -> changeset
       %{} = changeset -> add_error(changeset, :name, "did not change")
+    end
+  end
+
+  @doc """
+  A timezone changeset for changing the timezone
+
+  It requires the name to change otherwise an error is added.
+  """
+  def timezone_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:timezone])
+    |> validate_required([:timezone])
+    |> validate_length(:name, max: 255)
+    |> case do
+      %{changes: %{timezone: _}} = changeset -> changeset
+      %{} = changeset -> add_error(changeset, :timezone, "did not change")
+    end
+    |> validate_timezone()
+  end
+
+  def validate_timezone(changeset) do
+    timezone = changeset |> get_field(:timezone)
+
+    case Tzdata.zone_exists?(timezone) do
+      false -> changeset |> add_error(:timezone, "timezone does not exist")
+      true -> changeset
     end
   end
 

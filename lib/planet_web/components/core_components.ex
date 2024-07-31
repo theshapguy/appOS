@@ -180,11 +180,12 @@ defmodule PlanetWeb.CoreComponents do
 
   slot :inner_block, required: true
   slot :actions, doc: "the slot for form actions, such as a submit button"
+  attr :class, :string, default: nil
 
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white">
+      <div class={["mt-10 space-y-8", @class]}>
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>
@@ -209,12 +210,14 @@ defmodule PlanetWeb.CoreComponents do
   slot :inner_block, required: true
 
   def button(assigns) do
+    # w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none
+
     ~H"""
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-teal-600 hover:bg-teal-700 py-2.5 px-3",
-        "text-sm font-semibold leading-6 text-white active:text-white/80",
+        "phx-submit-loading:opacity-75 rounded-lg bg-primary hover:bg-primary-600 py-3 px-4",
+        "text-sm font-medium leading-6 text-white active:text-white/80 border border-transparent focus:outline-none",
         @class
       ]}
       {@rest}
@@ -254,6 +257,7 @@ defmodule PlanetWeb.CoreComponents do
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
+  attr :class, :string, default: nil
 
   attr :rest, :global,
     include: ~w(autocomplete cols disabled form list max maxlength min minlength
@@ -276,7 +280,7 @@ defmodule PlanetWeb.CoreComponents do
 
     ~H"""
     <div phx-feedback-for={@name}>
-      <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
+      <label class="flex items-center gap-2 text-sm leading-6 text-zinc-600">
         <input type="hidden" name={@name} value="false" />
         <input
           type="checkbox"
@@ -284,7 +288,7 @@ defmodule PlanetWeb.CoreComponents do
           name={@name}
           value="true"
           checked={@checked}
-          class="rounded border-zinc-300 text-zinc-900 focus:ring-0 "
+          class="rounded border-zinc-300 text-primary focus:ring-0 "
           {@rest}
         />
         <%= @label %>
@@ -301,7 +305,7 @@ defmodule PlanetWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="mt-1 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm"
+        class="py-4 px-4 mt-1 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm"
         multiple={@multiple}
         {@rest}
       >
@@ -336,6 +340,7 @@ defmodule PlanetWeb.CoreComponents do
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""
+    <%!--  border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none --%>
     <div phx-feedback-for={@name}>
       <.label for={@id}><%= @label %></.label>
       <input
@@ -344,13 +349,16 @@ defmodule PlanetWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
-          "border-zinc-300 focus:border-zinc-400 read-only:bg-slate-200",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
+          "py-3 px-4 mt-1 block w-full rounded-lg text-zinc-900 focus:ring-1 focus:ring-blue-500 sm:text-sm sm:leading-6",
+          "phx-no-feedback:border-gray-200 phx-no-feedback:focus:border-blue-500",
+          "border-gray-200 focus:border-blue-500 read-only:bg-slate-200",
+          "disabled:pointer-events-none",
+          @errors != [] && "border-rose-400 focus:ring-blue-500",
+          @class
         ]}
         {@rest}
       />
+
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -364,7 +372,7 @@ defmodule PlanetWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
+    <label for={@for} class="block text-sm leading-6 text-zinc-800">
       <%= render_slot(@inner_block) %>
     </label>
     """

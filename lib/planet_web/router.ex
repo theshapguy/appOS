@@ -20,22 +20,31 @@ defmodule PlanetWeb.Router do
   pipeline :landing_layout do
     # Done
     plug :put_layout, html: {PlanetWeb.Layouts, :landing}
+    plug(:put_secure_browser_headers)
   end
 
   pipeline :app_session_layout do
     plug :put_layout, html: {PlanetWeb.Layouts, :app_session}
+    plug(:put_secure_browser_headers)
   end
 
   pipeline :app_settings_layout do
     plug :put_layout, html: {PlanetWeb.Layouts, :app_settings}
+    plug(:put_secure_browser_headers)
+  end
+
+  pipeline :app_layout do
+    plug :put_layout, html: {PlanetWeb.Layouts, :app_dashboard}
+    plug(:put_secure_browser_headers)
   end
 
   pipeline :app_layout_live do
     plug :put_root_layout, {PlanetWeb.Layouts, :root_live}
   end
 
-  pipeline :app_layout do
-    plug :put_layout, html: {PlanetWeb.Layouts, :app_dashboard}
+  pipeline :enforce_user_authentication do
+    plug :require_authenticated_user
+    plug Planet.Plugs.SubscriptionCheck
   end
 
   # pipeline :paddle_webhook do
@@ -80,7 +89,7 @@ defmodule PlanetWeb.Router do
 
   # Dashboard Scope
   scope "/app/", PlanetWeb do
-    pipe_through([:browser, :app_layout, :require_authenticated_user])
+    pipe_through([:browser, :app_layout, :enforce_user_authentication])
 
     get("/", PageController, :app_home)
   end
@@ -142,7 +151,7 @@ defmodule PlanetWeb.Router do
   end
 
   scope "/", PlanetWeb do
-    pipe_through([:browser, :app_settings_layout, :require_authenticated_user])
+    pipe_through([:browser, :app_settings_layout, :enforce_user_authentication])
 
     get("/users/settings", UserSettingsController, :edit)
     put("/users/settings", UserSettingsController, :update)
@@ -158,8 +167,6 @@ defmodule PlanetWeb.Router do
     resources "/users/settings/roles", RoleController,
       only: [:new, :edit, :create, :update, :delete]
 
-    get("/users/billing", SubscriptionController, :edit)
-
     # live_session :roles,
     #   on_mount: [
     #     {PlanetWeb.UserAuthLive, :require_authenticated_user}
@@ -173,9 +180,26 @@ defmodule PlanetWeb.Router do
     # end
   end
 
+  scope "/", PlanetWeb do
+    # :put_user_token
+    pipe_through([:browser, :app_settings_layout, :require_authenticated_user])
+
+    # Payment On SignUp
+    get("/users/billing/signup", SubscriptionController, :payment)
+    get("/users/billing/verify", SubscriptionController, :verify)
+    get("/users/billing", SubscriptionController, :edit)
+  end
+
   scope "/webhook", PlanetWeb do
     pipe_through([:api])
 
     post("/paddle", SubscriptionController, :paddle_webhook)
+  end
+
+  scope "/auth", PlanetWeb do
+    pipe_through [:browser]
+
+    get "/:provider", UberAuthNController, :request
+    get "/:provider/callback", UberAuthNController, :callback
   end
 end

@@ -29,6 +29,8 @@ defmodule Planet.Payments.PaddleWebhookHandler do
       |> Map.put("subscription_id", subscription_id)
       |> Map.put("payment_attempt", nil)
 
+    # IO.inspect(subscription_attrs)
+
     Subscriptions.update_subscription(subscription, subscription_attrs)
   end
 
@@ -93,7 +95,9 @@ defmodule Planet.Payments.PaddleWebhookHandler do
       |> Map.put("product_id", "default")
       |> Map.put("payment_attempt", nil)
       # Active Because Changed Product ID to Default
-      |> Map.put("subscription_status", "active")
+      |> Map.put("status", "unpaid")
+      # Reupdate processor when subscription deleted, not longer paddle processor
+      |> Map.put("processor", "manual")
       |> Map.put("update_url", nil)
       |> Map.put("cancel_url", nil)
 
@@ -145,8 +149,7 @@ defmodule Planet.Payments.PaddleWebhookHandler do
       # Converting to Free Plan
       |> Map.put("product_id", "default")
       |> Map.put("payment_attempt", nil)
-      # Active Because Changed Product ID to Default
-      |> Map.put("subscription_status", "active")
+      |> Map.put("status", "unpaid")
       |> Map.put("update_url", nil)
       |> Map.put("cancel_url", nil)
 
@@ -197,16 +200,31 @@ defmodule Planet.Payments.PaddleWebhookHandler do
   defp webhook_params_to_subscription_attrs(params) do
     %{
       # Required
-      "subscription_status" => Map.get(params, "status", "past_due"),
-      "product_id" => Map.get(params, "subscription_plan_id", nil)
+      "status" => Map.get(params, "status", "past_due"),
+      "product_id" => Map.get(params, "subscription_plan_id", nil),
+      "processor" => "paddle"
     }
   end
 
   defp convert_paddle_webhook_datetime(datetime_str) do
+    # IO.inspect(datetime_str)
+
+    # Calendar.strftime(
+    # datetime_str,
+    # "%Y-%m-%d %X"
+    # )
+
     Timex.parse!(datetime_str, "{YYYY}-{0M}-{0D} {h24}:{m}:{s}")
   end
 
   defp convert_paddle_webhook_date(date) do
+    # IO.inspect(date)
+
+    # Calendar.strftime(
+    #   date,
+    #   "%Y-%m-%d %X"
+    # )
+
     Timex.parse!(date, "{YYYY}-{0M}-{0D}")
   end
 end

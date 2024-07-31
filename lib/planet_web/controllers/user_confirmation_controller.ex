@@ -3,6 +3,8 @@ defmodule PlanetWeb.UserConfirmationController do
 
   alias Planet.Accounts
 
+  plug PlanetWeb.Plugs.PageTitle, title: "Confirmation"
+
   plug(:get_user_by_invite_token when action in [:confirm_invite_edit, :confirm_invite_update])
 
   def new(conn, _params) do
@@ -65,7 +67,7 @@ defmodule PlanetWeb.UserConfirmationController do
     case Accounts.update_user_password(conn.assigns.user, user_params) do
       {:ok, _user} ->
         conn
-        |> put_flash(:info, "Invited accepted successfully. Please login.")
+        |> put_flash(:info, "Invite accepted successfully.")
         |> redirect(to: ~p"/users/log_in")
 
       {:error, changeset} ->

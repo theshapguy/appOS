@@ -148,6 +148,48 @@ defmodule PlanetWeb.UserSettingsControllerTest do
     end
   end
 
+  describe "PUT /users/settings (change timezone form)" do
+    @tag :capture_log
+    test "updates the user timezone", %{conn: conn} do
+      conn =
+        put(conn, ~p"/users/settings", %{
+          "action" => "update_timezone",
+          "user" => %{"timezone" => "Asia/Kathmandu"}
+        })
+
+      assert redirected_to(conn) == ~p"/users/settings/"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
+               "Timezone updated successfully"
+    end
+
+    test "does not update name on invalid data", %{conn: conn} do
+      conn =
+        put(conn, ~p"/users/settings", %{
+          "action" => "update_timezone",
+          "user" => %{"timezone" => "Apple/Ball"}
+        })
+
+      response = html_response(conn, 200)
+      assert response =~ "Settings"
+      assert response =~ "Oops, something went wrong! Please check the errors below"
+      assert response =~ " timezone does not exist"
+    end
+
+    test "does not update name on same data", %{conn: conn} do
+      conn =
+        put(conn, ~p"/users/settings", %{
+          "action" => "update_timezone",
+          "user" => %{"timezone" => "UTC"}
+        })
+
+      response = html_response(conn, 200)
+      assert response =~ "Settings"
+      assert response =~ "Oops, something went wrong! Please check the errors below"
+      assert response =~ "did not change"
+    end
+  end
+
   describe "GET /users/settings/confirm_email/:token" do
     setup %{user: user} do
       email = unique_user_email()
@@ -195,106 +237,106 @@ defmodule PlanetWeb.UserSettingsControllerTest do
     end
   end
 
-  describe "PUT /users/settings: WebAuthN Add Passkey" do
-    test "creates credential", %{conn: conn} do
-      # Mocking So That Can Test Passkeys
-      Wax
-      |> stub(:register, fn _x, _y, _z -> :stub end)
-      |> expect(:register, fn _x, _y, _z -> {:ok, {wax_authentication_data_fixture(), -1}} end)
+  # describe "PUT /users/settings: WebAuthN Add Passkey" do
+  # test "creates credential", %{conn: conn} do
+  #   # Mocking So That Can Test Passkeys
+  #   Wax
+  #   |> stub(:register, fn _x, _y, _z -> :stub end)
+  #   |> expect(:register, fn _x, _y, _z -> {:ok, {wax_authentication_data_fixture(), -1}} end)
 
-      conn =
-        conn
-        |> put(~p"/users/settings", %{
-          "action" => "add_credential_key",
-          "webauthn" => %{
-            "attestationObject" => "VGVzdERhdGE=",
-            "clientDataJSON" => "client_data_json",
-            "rawID" => "raw_id_b64",
-            "type" => "public-key",
-            "deviceName" => "Test Device [Phoenix]"
-          }
-        })
+  #   conn =
+  #     conn
+  #     |> put(~p"/users/settings", %{
+  #       "action" => "add_credential_key",
+  #       "webauthn" => %{
+  #         "attestationObject" => "VGVzdERhdGE=",
+  #         "clientDataJSON" => "client_data_json",
+  #         "rawID" => "raw_id_b64",
+  #         "type" => "public-key",
+  #         "deviceName" => "Test Device [Phoenix]"
+  #       }
+  #     })
 
-      assert redirected_to(conn) == ~p"/users/settings"
+  #   assert redirected_to(conn) == ~p"/users/settings"
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
-               "Passkey added successfully"
+  #   assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
+  #            "Passkey added successfully"
 
-      conn = get(conn, ~p"/users/settings")
-      response = html_response(conn, 200)
+  #   conn = get(conn, ~p"/users/settings")
+  #   response = html_response(conn, 200)
 
-      assert response =~ "Test Device [Phoenix]"
-    end
+  #   assert response =~ "Test Device [Phoenix]"
+  # end
 
-    test "fails to credential on wax error", %{conn: conn} do
-      # Mocking So That Can Test Passkeys
-      Wax
-      |> stub(:register, fn _x, _y, _z -> :stub end)
-      |> expect(:register, fn _x, _y, _z -> {:error, :error} end)
+  # test "fails to credential on wax error", %{conn: conn} do
+  #   # Mocking So That Can Test Passkeys
+  #   Wax
+  #   |> stub(:register, fn _x, _y, _z -> :stub end)
+  #   |> expect(:register, fn _x, _y, _z -> {:error, :error} end)
 
-      conn =
-        conn
-        |> put(~p"/users/settings", %{
-          "action" => "add_credential_key",
-          "webauthn" => %{
-            "attestationObject" => "VGVzdERhdGE=",
-            "clientDataJSON" => "client_data_json",
-            "rawID" => "raw_id_b64",
-            "type" => "public-key",
-            "deviceName" => "Test Device [Phoenix]"
-          }
-        })
+  #   conn =
+  #     conn
+  #     |> put(~p"/users/settings", %{
+  #       "action" => "add_credential_key",
+  #       "webauthn" => %{
+  #         "attestationObject" => "VGVzdERhdGE=",
+  #         "clientDataJSON" => "client_data_json",
+  #         "rawID" => "raw_id_b64",
+  #         "type" => "public-key",
+  #         "deviceName" => "Test Device [Phoenix]"
+  #       }
+  #     })
 
-      assert redirected_to(conn) == ~p"/users/settings"
+  #   assert redirected_to(conn) == ~p"/users/settings"
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
-               "Failed to add passkey."
-    end
+  #   assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
+  #            "Failed to add passkey."
+  # end
 
-    test "fails to credential on changeset", %{conn: conn, user: user} do
-      user_credential = user_credential_fixture(user)
+  #   test "fails to credential on changeset", %{conn: conn, user: user} do
+  #     user_credential = user_credential_fixture(user)
 
-      # Mocking So That Can Test Passkeys
-      Wax
-      |> stub(:register, fn _x, _y, _z -> :stub end)
-      |> expect(:register, fn _x, _y, _z -> {:ok, {wax_authentication_data_fixture(), -1}} end)
+  #     # Mocking So That Can Test Passkeys
+  #     Wax
+  #     |> stub(:register, fn _x, _y, _z -> :stub end)
+  #     |> expect(:register, fn _x, _y, _z -> {:ok, {wax_authentication_data_fixture(), -1}} end)
 
-      conn =
-        conn
-        |> put(~p"/users/settings", %{
-          "action" => "add_credential_key",
-          "webauthn" => %{
-            "attestationObject" => "VGVzdERhdGE=",
-            "clientDataJSON" => "client_data_json",
-            "rawID" => user_credential.credential_id,
-            "type" => "public-key",
-            "deviceName" => "Test Device [Phoenix]"
-          }
-        })
+  #     conn =
+  #       conn
+  #       |> put(~p"/users/settings", %{
+  #         "action" => "add_credential_key",
+  #         "webauthn" => %{
+  #           "attestationObject" => "VGVzdERhdGE=",
+  #           "clientDataJSON" => "client_data_json",
+  #           "rawID" => user_credential.credential_id,
+  #           "type" => "public-key",
+  #           "deviceName" => "Test Device [Phoenix]"
+  #         }
+  #       })
 
-      assert redirected_to(conn) == ~p"/users/settings"
+  #     assert redirected_to(conn) == ~p"/users/settings"
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
-               "Failed to add passkey."
-    end
-  end
+  #     assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
+  #              "Failed to add passkey."
+  #   end
+  # end
 
-  describe "DELETE /users/settings: WebAuthN Delete Passkey" do
-    test "delete credential", %{conn: conn, user: user} do
-      user_credential = user_credential_fixture(user)
+  # describe "DELETE /users/settings: WebAuthN Delete Passkey" do
+  #   test "delete credential", %{conn: conn, user: user} do
+  #     user_credential = user_credential_fixture(user)
 
-      conn =
-        delete(conn, ~p"/users/settings/credentials/#{user_credential.id}")
+  #     conn =
+  #       delete(conn, ~p"/users/settings/credentials/#{user_credential.id}")
 
-      assert redirected_to(conn) == ~p"/users/settings"
+  #     assert redirected_to(conn) == ~p"/users/settings"
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
-               "Passkey sucessfully removed."
+  #     assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
+  #              "Passkey sucessfully removed."
 
-      conn = get(conn, ~p"/users/settings")
-      response = html_response(conn, 200)
+  #     conn = get(conn, ~p"/users/settings")
+  #     response = html_response(conn, 200)
 
-      refute response == user_credential.nickname
-    end
-  end
+  #     refute response == user_credential.nickname
+  #   end
+  # end
 end

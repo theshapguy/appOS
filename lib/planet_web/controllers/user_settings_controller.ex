@@ -1,6 +1,8 @@
 defmodule PlanetWeb.UserSettingsController do
   use PlanetWeb, :controller
 
+  plug PlanetWeb.Plugs.PageTitle, title: "Settings"
+
   require Logger
 
   alias Planet.Accounts
@@ -8,8 +10,6 @@ defmodule PlanetWeb.UserSettingsController do
   alias PlanetWeb.UserAuth
 
   plug(:setup_and_changesets)
-  # plug :setup_webauthn_challenge
-  plug(:put_webauthn_challenge when action in [:edit, :update])
 
   def edit(conn, _params) do
     conn
@@ -71,60 +71,18 @@ defmodule PlanetWeb.UserSettingsController do
     end
   end
 
-  def update(
-        conn,
-        %{
-          "action" => "add_credential_key",
-          "webauthn" => %{
-            "attestationObject" => attestation_object_b64,
-            "clientDataJSON" => client_data_json,
-            "rawID" => raw_id_b64,
-            "type" => "public-key",
-            "deviceName" => device_name
-          }
-        }
-      ) do
-    challenge = get_session(conn, :challenge)
-    attestation_object = Base.decode64!(attestation_object_b64)
+  def update(conn, %{"action" => "update_timezone"} = params) do
+    %{"user" => user_params} = params
+    user = conn.assigns.current_user
 
-    with {:ok, {authenticator_data, _result}} <-
-           Wax.register(
-             attestation_object,
-             client_data_json,
-             challenge
-           ),
-         {:ok, _credential} <-
-           Planet.UserCredentials.create_user_credentail(
-             conn.assigns.current_user,
-             %{
-               "credential_id" => raw_id_b64,
-               "credential_public_key" =>
-                 authenticator_data.attested_credential_data.credential_public_key,
-               "aaguid" => Wax.AuthenticatorData.get_aaguid(authenticator_data),
-               "nickname" => device_name
-             }
-           ) do
-      conn
-      |> put_flash(:info, "Passkey added successfully.")
-      |> redirect(to: ~p"/users/settings")
-    else
-      {:error, %Ecto.Changeset{} = changeset} ->
-        Logger.debug(changeset)
-
+    case Accounts.update_user_timezone(user, user_params) do
+      {:ok, _user} ->
         conn
-        |> put_flash(
-          :error,
-          "Failed to add passkey. #{Planet.Utils.traverse_changeset_errors_for_flash(changeset)}"
-        )
-        |> redirect(to: ~p"/users/settings")
+        |> put_flash(:info, "Timezone updated successfully.")
+        |> redirect(to: ~p"/users/settings/")
 
-      {:error, _e} = error ->
-        Logger.debug("Wax: attestation object validation failed with error #{inspect(error)}")
-
-        # (#{Exception.message(e)})
-        conn
-        |> put_flash(:error, "Failed to add passkey.")
-        |> redirect(to: ~p"/users/settings")
+      {:error, changeset} ->
+        render(conn, :edit, timezone_changeset: changeset)
     end
   end
 
@@ -142,26 +100,6 @@ defmodule PlanetWeb.UserSettingsController do
     end
   end
 
-  def delete(
-        conn,
-        %{"credential_id" => credential_id}
-      ) do
-    case UserCredentials.delete_user_credentail(
-           conn.assigns.current_user,
-           credential_id
-         ) do
-      {:ok, _} ->
-        conn
-        |> put_flash(:info, "Passkey sucessfully removed.")
-        |> redirect(to: ~p"/users/settings")
-
-      {:error, _changeset} ->
-        conn
-        |> put_flash(:error, "Failed to remove PassKey.")
-        |> redirect(to: ~p"/users/settings")
-    end
-  end
-
   defp setup_and_changesets(conn, _opts) do
     user = conn.assigns.current_user
 
@@ -169,28 +107,11 @@ defmodule PlanetWeb.UserSettingsController do
 
     conn
     |> assign(:timezone, timezone)
+    |> assign(:timezone_changeset, Accounts.change_user_timezone(user))
     |> assign(:email_changeset, Accounts.change_user_email(user))
     |> assign(:password_changeset, Accounts.change_user_password(user))
     |> assign(:name_changeset, Accounts.change_user_fullname(user))
     |> assign(:credentials, UserCredentials.list_user_credentials(conn.assigns.current_user))
     |> assign(:page_title, "Settings")
-  end
-
-  defp put_webauthn_challenge(conn, _opts) do
-    case conn.params do
-      %{"action" => "add_credential_key"} ->
-        # Bypass Adding Challenge
-        # If Add Credential Key, Don't Add New Challenge As Challege Gets Updated From the One That Is Sent Before via Edit
-
-        conn
-
-      _ ->
-        challenge =
-          Wax.new_registration_challenge()
-
-        conn
-        |> put_session(:challenge, challenge)
-        |> assign(:challenge_b64, Base.encode64(challenge.bytes))
-    end
   end
 end

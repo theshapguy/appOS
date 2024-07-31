@@ -19,13 +19,13 @@ defmodule Planet.Periodic.Runner do
     {:noreply, Map.put(state, :btc, "123")}
   end
 
-  defp coin_price do
-    "https://api.coincap.io/v2/assets/bitcoin"
-    |> HTTPoison.get!()
-    |> Map.get(:body)
-    |> Jason.decode!()
-    |> Map.get("data")
-  end
+  # defp coin_price do
+  #   "https://api.coincap.io/v2/assets/bitcoin"
+  #   |> HTTPoison.get!()
+  #   |> Map.get(:body)
+  #   |> Jason.decode!()
+  #   |> Map.get("data")
+  # end
 
   defp schedule_coin_fetch do
     Process.send_after(self(), :coin_fetch, 5_000)

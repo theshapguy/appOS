@@ -1,6 +1,8 @@
 defmodule PlanetWeb.RoleController do
   use PlanetWeb, :controller
 
+  plug PlanetWeb.Plugs.PageTitle, title: "Roles"
+
   alias Planet.Roles
   alias Planet.Roles.Role
 

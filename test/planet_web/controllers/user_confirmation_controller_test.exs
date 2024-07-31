@@ -69,7 +69,7 @@ defmodule PlanetWeb.UserConfirmationControllerTest do
       token_path = ~p"/users/confirm/some-token"
       conn = get(conn, token_path)
       response = html_response(conn, 200)
-      assert response =~ "Confirm account"
+      assert response =~ "Confirm Your Account"
 
       assert response =~ "action=\"#{token_path}\""
     end
@@ -130,7 +130,7 @@ defmodule PlanetWeb.UserConfirmationControllerTest do
       token_path = ~p"/users/confirm/invite/#{token}"
       conn = get(conn, token_path)
       response = html_response(conn, 200)
-      assert response =~ "Confirm Your Team Invite"
+      assert response =~ "Confirm Invite"
 
       assert response =~ "Accept Invite & Create Account"
       assert response =~ "#{user.email}"
@@ -169,7 +169,7 @@ defmodule PlanetWeb.UserConfirmationControllerTest do
       refute get_session(conn, :user_token)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
-               "Invited accepted successfully. Please login"
+               "Invite accepted successfully."
 
       assert Accounts.get_user_by_email_and_password(user.email, "password_accept_invite")
     end

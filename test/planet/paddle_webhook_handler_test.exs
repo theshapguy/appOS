@@ -59,7 +59,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
           }
         )
 
-      assert subscription.subscription_status == :active
+      assert subscription.status == :active
       assert subscription.issued_at == ~U[2023-07-08 01:00:10Z]
       assert subscription.valid_until == ~U[2023-07-11 00:00:00Z]
       assert subscription.customer_id == "5"
@@ -102,7 +102,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
           }
         )
 
-      assert subscription.subscription_status == :active
+      assert subscription.status == :active
 
       assert subscription.issued_at == ~U[2023-07-08 01:13:19Z]
       assert subscription.valid_until == ~U[2023-09-01 00:00:00Z]
@@ -148,7 +148,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
         )
 
       # Through Free Plan
-      assert subscription.subscription_status == :active
+      assert subscription.status == :unpaid
 
       assert subscription.issued_at == ~U[2023-07-08 01:18:44Z]
       assert subscription.valid_until == ~U[2023-07-19 00:00:00Z]
@@ -199,7 +199,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
         )
 
       # Through Free Plan
-      assert subscription.subscription_status == :active
+      assert subscription.status == :active
 
       assert subscription.issued_at == s.issued_at
       assert subscription.valid_until == s.valid_until
@@ -243,7 +243,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
         )
 
       # Through Free Plan
-      assert subscription.subscription_status == :active
+      assert subscription.status == :unpaid
 
       assert subscription.issued_at == ~U[2023-07-08 01:48:54Z]
       assert subscription.valid_until == ~U[2023-07-08 01:48:54Z]
@@ -296,7 +296,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
         )
 
       # Through Free Plan
-      assert subscription.subscription_status == :active
+      assert subscription.status == :active
 
       assert subscription.issued_at == ~U[2023-07-08 01:53:27Z]
       assert subscription.valid_until == ~U[2023-07-21 00:00:00Z]

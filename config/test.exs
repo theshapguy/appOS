@@ -14,7 +14,7 @@ config :planet, Planet.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "#{project_name}_test#{System.get_env("MIX_TEST_PARTITION")}",
+  database: "#{project_name}_1_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
@@ -35,3 +35,5 @@ config :logger, level: :warning
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :planet, Oban, testing: :inline

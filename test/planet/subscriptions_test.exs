@@ -16,7 +16,7 @@ defmodule Planet.SubscriptionsTest do
       product_id: nil,
       customer_id: nil,
       subscription_id: nil,
-      subscription_status: nil,
+      status: nil,
       issued_at: nil,
       valid_until: nil,
       payment_attempt: nil,
@@ -41,12 +41,13 @@ defmodule Planet.SubscriptionsTest do
         product_id: "product_id",
         customer_id: "customer_id",
         subscription_id: "subscription_id",
-        subscription_status: "active",
+        status: "active",
         issued_at: ~U[2023-06-27 13:59:00Z],
         valid_until: ~U[2023-07-27 13:59:00Z],
         payment_attempt: "payment attempt",
         update_url: "some update url",
-        cancel_url: "some cancel url"
+        cancel_url: "some cancel url",
+        processor: "manual"
       }
 
       user = user_fixture()
@@ -67,7 +68,7 @@ defmodule Planet.SubscriptionsTest do
         product_id: "updated_product_id",
         customer_id: "updated_customer_id",
         subscription_id: "updated_subscription_id",
-        subscription_status: :free,
+        status: :free,
         issued_at: ~U[2023-06-28 13:59:00Z],
         valid_until: ~U[2023-07-30 13:59:00Z],
         payment_attempt: "updated payment attempt",
@@ -81,7 +82,7 @@ defmodule Planet.SubscriptionsTest do
       assert subscription.product_id == "updated_product_id"
       assert subscription.customer_id == "updated_customer_id"
       assert subscription.subscription_id == "updated_subscription_id"
-      assert subscription.subscription_status == :free
+      assert subscription.status == :free
       assert subscription.issued_at == ~U[2023-06-28 13:59:00Z]
       assert subscription.valid_until == ~U[2023-07-30 13:59:00Z]
       assert subscription.payment_attempt == "updated payment attempt"

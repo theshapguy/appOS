@@ -1,6 +1,8 @@
 defmodule PlanetWeb.UserResetPasswordController do
   use PlanetWeb, :controller
 
+  plug PlanetWeb.Plugs.PageTitle, title: "Reset"
+
   alias Planet.Accounts
 
   plug :get_user_by_reset_password_token when action in [:edit, :update]

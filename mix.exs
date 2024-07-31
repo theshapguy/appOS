@@ -2,6 +2,8 @@ defmodule Planet.MixProject do
   use Mix.Project
 
   @version "0.1.0"
+  @version_code "1"
+
   def project do
     [
       app: :planet,
@@ -29,7 +31,8 @@ defmodule Planet.MixProject do
           steps: [:assemble, :tar],
           # version: {:from_app, :app}
           # https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-requirements
-          version: @version
+          # version: @version,
+          version: "#{@version_code}-#{branch_version()}" <> "+" <> "#{target_triple()}"
           # version: "123123" <> "+" <> "darwin_x84",
         ]
       ]
@@ -82,9 +85,15 @@ defmodule Planet.MixProject do
       # https://hexdocs.pm/timex/Timex.Format.DateTime.Formatters.Default.html
       {:timex, "~> 3.0"},
       {:bodyguard, path: "./modified_deps/bodyguard"},
-      {:wax_, "~> 0.6.0"},
+      # {:wax_, "~> 0.6.0"},
+      {:cbor, "~> 1.0.0"},
       {:mimic, "~> 1.7", only: :test},
-      {:excoveralls, "~> 0.18.0", only: :test}
+      {:excoveralls, "~> 0.18.0", only: :test},
+      {:oban, "~> 2.16"},
+      {:oban_live_dashboard, "~> 0.1.0"},
+      {:ueberauth, "~> 0.10"},
+      {:ueberauth_github, "~> 0.7"},
+      {:ueberauth_google, "~> 0.8"}
     ]
   end
 
@@ -110,33 +119,32 @@ defmodule Planet.MixProject do
     ]
   end
 
-  # # TODO Add Git Commit ID
-  # defp target_triple do
-  #   # https://fiqus.coop/en/2019/07/15/add-git-commit-info-to-your-elixir-phoenix-app/
-  #   System.cmd("gcc", ["-dumpmachine"]) |> elem(0) |> String.trim()
-  # end
+  defp target_triple do
+    # https://fiqus.coop/en/2019/07/15/add-git-commit-info-to-your-elixir-phoenix-app/
+    System.cmd("gcc", ["-dumpmachine"]) |> elem(0) |> String.trim()
+  end
 
-  # def get_commit_sha() do
-  #   System.cmd("git", ["rev-parse", "--short", "HEAD"])
-  #   |> elem(0)
-  #   |> String.trim()
-  # end
+  defp get_commit_sha() do
+    System.cmd("git", ["rev-parse", "--short", "HEAD"])
+    |> elem(0)
+    |> String.trim()
+  end
 
-  # def get_commit_branch() do
-  #   System.cmd("git", ["rev-parse", "--abbrev-ref", "HEAD"])
-  #   |> elem(0)
-  #   |> String.trim()
-  # end
+  defp get_commit_branch() do
+    System.cmd("git", ["rev-parse", "--abbrev-ref", "HEAD"])
+    |> elem(0)
+    |> String.trim()
+  end
 
-  # def branch_version() do
-  #   # If git repo generate from git repo
-  #   case File.exists?(".git") do
-  #     true -> get_commit_branch() <> "-" <> get_commit_sha()
-  #     false -> "#{DateTime.to_unix(DateTime.utc_now())}"
-  #   end
+  defp branch_version() do
+    # If git repo generate from git repo
+    case File.exists?(".git") do
+      true -> get_commit_branch() <> "-" <> get_commit_sha()
+      false -> "#{DateTime.to_unix(DateTime.utc_now())}"
+    end
 
-  #   # https://stackoverflow.com/a/52074767
-  #   # https://fiqus.coop/en/2019/07/15/add-git-commit-info-to-your-elixir-phoenix-app/
-  #   # System.cmd("gcc", ["-dumpmachine"]) |> elem(0) |> String.trim()
-  # end
+    # https://stackoverflow.com/a/52074767
+    # https://fiqus.coop/en/2019/07/15/add-git-commit-info-to-your-elixir-phoenix-app/
+    # System.cmd("gcc", ["-dumpmachine"]) |> elem(0) |> String.trim()
+  end
 end

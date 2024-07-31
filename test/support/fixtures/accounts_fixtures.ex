@@ -80,41 +80,41 @@ defmodule Planet.AccountsFixtures do
     credential
   end
 
-  def wax_authentication_data_fixture() do
-    %Wax.AuthenticatorData{
-      rp_id_hash:
-        <<126, 106, 62, 157, 108, 120, 148, 121, 196, 13, 5, 240, 249, 223, 169, 31, 139, 118,
-          180, 241, 120, 31, 94, 118, 46, 15, 145, 9, 97, 158, 251, 155>>,
-      flag_user_present: true,
-      flag_user_verified: true,
-      flag_backup_eligible: true,
-      flag_credential_backed_up: true,
-      flag_attested_credential_data: true,
-      flag_extension_data_included: false,
-      sign_count: 0,
-      attested_credential_data: %Wax.AttestedCredentialData{
-        aaguid: <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0>>,
-        credential_id:
-          <<175, 145, 48, 63, 105, 93, 104, 57, 169, 43, 196, 241, 211, 180, 103, 202, 62, 251,
-            124, 169>>,
-        credential_public_key: %{
-          -3 =>
-            <<187, 3, 15, 51, 4, 72, 243, 75, 149, 158, 35, 211, 43, 119, 186, 143, 186, 221, 98,
-              28, 225, 123, 181, 120, 213, 124, 65, 53, 160, 136, 59, 111>>,
-          -2 =>
-            <<1, 84, 168, 218, 170, 174, 217, 37, 11, 115, 219, 85, 88, 82, 89, 149, 230, 68, 42,
-              156, 5, 59, 65, 223, 229, 139, 131, 19, 90, 249, 195, 3>>,
-          -1 => 1,
-          1 => 2,
-          3 => -7
-        }
-      },
-      extensions: nil,
-      raw_bytes:
-        <<126, 106, 62, 157, 108, 120, 148, 121, 196, 13, 5, 240, 249, 223, 169, 31, 139, 118,
-          180, 241, 120, 31, 94, 118, 46, 15, 145, 9, 97, 158, 251, 155, 93, 0, 0, 0, 0, 0, 0>>
-    }
-  end
+  # def wax_authentication_data_fixture() do
+  #   %Wax.AuthenticatorData{
+  #     rp_id_hash:
+  #       <<126, 106, 62, 157, 108, 120, 148, 121, 196, 13, 5, 240, 249, 223, 169, 31, 139, 118,
+  #         180, 241, 120, 31, 94, 118, 46, 15, 145, 9, 97, 158, 251, 155>>,
+  #     flag_user_present: true,
+  #     flag_user_verified: true,
+  #     flag_backup_eligible: true,
+  #     flag_credential_backed_up: true,
+  #     flag_attested_credential_data: true,
+  #     flag_extension_data_included: false,
+  #     sign_count: 0,
+  #     attested_credential_data: %Wax.AttestedCredentialData{
+  #       aaguid: <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0>>,
+  #       credential_id:
+  #         <<175, 145, 48, 63, 105, 93, 104, 57, 169, 43, 196, 241, 211, 180, 103, 202, 62, 251,
+  #           124, 169>>,
+  #       credential_public_key: %{
+  #         -3 =>
+  #           <<187, 3, 15, 51, 4, 72, 243, 75, 149, 158, 35, 211, 43, 119, 186, 143, 186, 221, 98,
+  #             28, 225, 123, 181, 120, 213, 124, 65, 53, 160, 136, 59, 111>>,
+  #         -2 =>
+  #           <<1, 84, 168, 218, 170, 174, 217, 37, 11, 115, 219, 85, 88, 82, 89, 149, 230, 68, 42,
+  #             156, 5, 59, 65, 223, 229, 139, 131, 19, 90, 249, 195, 3>>,
+  #         -1 => 1,
+  #         1 => 2,
+  #         3 => -7
+  #       }
+  #     },
+  #     extensions: nil,
+  #     raw_bytes:
+  #       <<126, 106, 62, 157, 108, 120, 148, 121, 196, 13, 5, 240, 249, 223, 169, 31, 139, 118,
+  #         180, 241, 120, 31, 94, 118, 46, 15, 145, 9, 97, 158, 251, 155, 93, 0, 0, 0, 0, 0, 0>>
+  #   }
+  # end
 
   def extract_user_token(fun) do
     {:ok, captured_email} = fun.(&"[TOKEN]#{&1}[TOKEN]")

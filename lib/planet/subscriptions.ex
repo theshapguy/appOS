@@ -80,12 +80,72 @@ defmodule Planet.Subscriptions do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_subscription(%Subscription{} = subscription, attrs) do
-    # subscription = reload!(subscription)
 
-    subscription
-    |> Subscription.changeset(attrs)
-    |> Repo.update()
+  # def update_subscription(%Subscription{} = subscription, attrs) do
+  #   # subscription = reload!(subscription)
+
+  #   subscription
+  #   |> Subscription.changeset(attrs)
+  #   |> Repo.update()
+  # end
+
+  def update_subscription(%Subscription{} = subscription, attrs) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:subscription, fn repo, _changes ->
+      {
+        :ok,
+        Subscription
+        |> Subscription.query_by_id(subscription.organization_id)
+        |> Subscription.query_for_lock()
+        |> repo.one()
+      }
+
+      # query =
+      #   from(
+      #     s in Subscription,
+      #     where: s.organization_id == ^subscription.organization_id,
+      #     lock: "FOR UPDATE"
+      #   )
+
+      # Since it is update there has to be one item already existing
+      # {:ok, repo.one!(query)}
+    end)
+    |> Ecto.Multi.run(:update_subscription, fn repo, %{subscription: subscription} ->
+      subscription
+      |> Subscription.changeset(attrs)
+      |> repo.update()
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{update_subscription: subscription}} -> {:ok, subscription}
+      {:error, :update_subscription, changeset, _changes} -> {:error, changeset}
+    end
+  end
+
+  def maybe_force_active(%{"timestamp" => timestamp, "organization_id" => id}) do
+    # Add 1 hour to timestamp (3600s)
+    timestamp_plus_1hr = Timex.from_unix(String.to_integer(timestamp) + 3600, :seconds)
+
+    Repo.transaction(fn ->
+      Subscription
+      |> Subscription.query_by_id(id)
+      |> Subscription.query_by_status(:unpaid)
+      |> Subscription.query_for_lock()
+      |> Repo.one()
+      |> case do
+        nil ->
+          {:ok, :subscriber_not_found}
+
+        %Subscription{} = subscription ->
+          subscription
+          |> Subscription.changeset(%{
+            status: :active,
+            valid_until: timestamp_plus_1hr,
+            processor: :manual
+          })
+          |> Repo.update!()
+      end
+    end)
   end
 
   @doc """

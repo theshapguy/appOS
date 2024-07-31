@@ -47,7 +47,7 @@ defmodule Planet.Subscriptions.Plans do
 
   def get_default_plan do
     %{
-      "subscription_status" => :active,
+      "status" => :active,
       "product_id" => "default",
       "issued_at" => DateTime.utc_now(),
       # Date Plus 100 years for Free Plan

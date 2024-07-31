@@ -52,6 +52,7 @@ if config_env() == :prod do
   port = String.to_integer(System.get_env("PORT") || "4000")
 
   config :planet, PlanetWeb.Endpoint,
+    # Used To Generate URL In Static URL/Images
     url: [host: host, port: 443, scheme: "https"],
     http: [
       # Enable IPv6 and bind on all interfaces.
@@ -64,12 +65,12 @@ if config_env() == :prod do
     secret_key_base: secret_key_base
 
   # TODO Change In Production
-  config :wax_,
-    origin: host,
-    rp_id: :auto,
-    update_metadata: true,
-    metadata_dir: :planet,
-    attestation: "none"
+  # config :wax_,
+  #   origin: host,
+  #   rp_id: :auto,
+  #   update_metadata: true,
+  #   metadata_dir: :planet,
+  #   attestation: "none"
 
   # ## SSL Support
   #

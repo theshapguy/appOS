@@ -4,6 +4,8 @@ defmodule Planet.Accounts do
   """
 
   import Ecto.Query, warn: false
+  alias Planet.Utils
+  alias Planet.UserProviders.UserProvider
   alias Planet.Repo
 
   alias Planet.Accounts.{User, UserToken, UserNotifier}
@@ -109,7 +111,7 @@ defmodule Planet.Accounts do
   #   |> Repo.insert()
   # end
 
-  def register_user(attrs) do
+  def register_user(attrs, social_auth \\ nil) do
     user_changeset =
       %User{organization_admin?: true}
       |> User.registration_changeset(attrs)
@@ -136,11 +138,12 @@ defmodule Planet.Accounts do
       Subscriptions.change_subscription(
         %Subscription{},
         %{
-          "subscription_status" => :active,
+          "status" => "unpaid",
           "product_id" => "default",
           "issued_at" => DateTime.utc_now(),
           # Date Plus 100 years for Free Plan
-          "valid_until" => DateTime.utc_now() |> DateTime.add(3_153_600_000, :second)
+          "valid_until" => DateTime.utc_now() |> DateTime.add(3_153_600_000, :second),
+          "processor" => "manual"
         }
       )
 
@@ -185,8 +188,24 @@ defmodule Planet.Accounts do
       user_changeset
       |> Ecto.Changeset.put_assoc(:organization, organization)
       |> Ecto.Changeset.put_assoc(:roles, [admin_role])
+      |> Ecto.Changeset.put_assoc(:user_providers, [])
       |> repo.insert()
     end)
+    |> maybe_insert_provider(social_auth)
+    # |> Ecto.Multi.run(:user_providers, fn repo, %{user: user} ->
+    #   # IO.inspect(social_auth)
+    #   # IO.inspect(social_auth.extra.raw_info, label: "Raw Info")
+    #   # convert(social_auth.extra.raw_info) |> IO.inspect()
+
+    #   %UserProvider{}
+    #   |> UserProvider.changeset(%{
+    #     "token" => social_auth.credentials.token,
+    #     "provider" => Atom.to_string(social_auth.provider),
+    #     "object" => Utils.convert(social_auth.extra.raw_info)
+    #   })
+    #   |> Ecto.Changeset.put_assoc(:user, user)
+    #   |> repo.insert()
+    # end)
 
     # |> maybe_add_user_credential_changeset(user_credential_attrs)
 
@@ -210,6 +229,10 @@ defmodule Planet.Accounts do
 
       {:error, :subscription, changeset, _} ->
         {:error, changeset}
+
+        # {:error, _, changeset, _} ->
+        #   IO.inspect(changeset)
+        #   {:error, changeset}
         # {:error, :user_credential, changeset, _} -> {:error, changeset}
     end
   end
@@ -226,6 +249,40 @@ defmodule Planet.Accounts do
         #   changeset: changeset
     end
   end
+
+  def maybe_insert_provider(multi, %Ueberauth.Auth{} = social_auth) do
+    multi
+    |> Ecto.Multi.run(:user_providers, fn repo, %{user: user} ->
+      # IO.inspect(social_auth)
+      # IO.inspect(social_auth.extra.raw_info, label: "Raw Info")
+      # convert(social_auth.extra.raw_info) |> IO.inspect()
+
+      %UserProvider{}
+      |> UserProvider.changeset(%{
+        "token" => social_auth.credentials.token,
+        "provider" => Atom.to_string(social_auth.provider),
+        "object" => Utils.convert(social_auth.extra.raw_info)
+      })
+      |> Ecto.Changeset.put_assoc(:user, user)
+      |> repo.insert()
+    end)
+  end
+
+  def maybe_insert_provider(multi, nil) do
+    multi
+  end
+
+  # def convert(map) when is_map(map) do
+  #   Map.new(map, fn {k, v} -> {k, v} end)
+  # end
+
+  # def convert(struct) when is_struct(struct) do
+  #   struct
+  #   |> Map.from_struct()
+  #   |> convert()
+  # end
+
+  # def convert(value), do: value
 
   # Not Used For Now
   # defp maybe_add_user_credential_changeset(
@@ -334,6 +391,19 @@ defmodule Planet.Accounts do
   end
 
   @doc """
+  Returns an `%Ecto.Changeset{}` for changing the user timezone.
+
+  ## Examples
+
+      iex> change_user_name(user)
+      %Ecto.Changeset{data: %User{}}
+
+  """
+  def change_user_timezone(user, attrs \\ %{}) do
+    User.timezone_changeset(user, attrs)
+  end
+
+  @doc """
   Returns an `%Ecto.Changeset{}` for changing the user email.
 
   ## Examples
@@ -372,6 +442,15 @@ defmodule Planet.Accounts do
   def update_user_fullname(%User{} = user, attrs) do
     user
     |> User.name_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Updates the user timezone
+  """
+  def update_user_timezone(%User{} = user, attrs) do
+    user
+    |> User.timezone_changeset(attrs)
     |> Repo.update()
   end
 

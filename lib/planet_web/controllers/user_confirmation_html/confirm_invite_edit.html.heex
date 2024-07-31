@@ -1,12 +1,25 @@
 <div class="mx-auto max-w-md bg-white p-10 border border-zinc-200 rounded-sm">
   <.header class="text-center">
-    Confirm Your Team Invite
-    <:subtitle>
-      Enter your password below and you are all set!
-    </:subtitle>
+    <p class="text-2xl font-bold text-gray-800">Confirm Invite</p>
+
+    <p class="mt-2 text-sm text-gray-600 font-normal">
+      Already have an account?
+      <.link navigate={~p"/users/log_in"} class="font-semibold text-primary hover:underline">
+        Sign in here
+      </.link>
+    </p>
   </.header>
 
-  <.simple_form :let={f} for={@changeset} action={~p"/users/confirm/invite/#{@token}"}>
+  <div class="mt-5">
+    <div class="py-3 flex items-center text-xs text-gray-400 uppercase before:flex-1 before:border-t before:border-gray-200 before:me-6 after:flex-1 after:border-t after:border-gray-200 after:ms-6">
+    </div>
+  </div>
+  <.simple_form
+    :let={f}
+    class="!mt-0 !space-y-4"
+    for={@changeset}
+    action={~p"/users/confirm/invite/#{@token}"}
+  >
     <.error :if={@changeset.action == :update}>
       Oops, something went wrong! Please check the errors below.
     </.error>
@@ -15,8 +28,8 @@
     <.input field={f[:password]} type="password" label="Password" required />
 
     <:actions>
-      <.button phx-disable-with="Accepting Invite..." class="w-full">
-        Accept Invite & Create Account
+      <.button phx-disable-with="Accepting Invite..." class="w-full mt-4">
+        Accept Invite & Create Account <span aria-hidden="true">→</span>
       </.button>
     </:actions>
   </.simple_form>

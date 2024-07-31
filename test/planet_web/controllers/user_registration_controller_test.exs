@@ -7,7 +7,7 @@ defmodule PlanetWeb.UserRegistrationControllerTest do
     test "renders registration page", %{conn: conn} do
       conn = get(conn, ~p"/users/register")
       response = html_response(conn, 200)
-      assert response =~ "Register"
+      assert response =~ "Sign Up"
       assert response =~ ~p"/users/log_in"
       assert response =~ ~p"/users/register"
     end
@@ -47,7 +47,7 @@ defmodule PlanetWeb.UserRegistrationControllerTest do
         })
 
       response = html_response(conn, 200)
-      assert response =~ "Register"
+      assert response =~ "Sign Up"
       assert response =~ "must have the @ sign and no spaces"
       assert response =~ "should be at least 12 character"
     end

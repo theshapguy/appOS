@@ -1,0 +1,38 @@
+# Location /etc/systemd/system/boringnewsletters.service
+# sudo systemctl daemon-reload
+# Start At Boot
+# sudo systemctl enable boringnewsletters.service
+# sudo systemctl start boringnewsletters.service
+
+
+# tar -zxvf planet-3 --one-top-level=planet_main
+[Unit]
+Description=BoringNewsletters
+After=local-fs.target network.target
+
+[Service]
+Type=simple
+User=deploy
+Group=deploy
+WorkingDirectory=/home/deploy/releases/planet_main/bin
+ExecStart=/home/deploy/releases/planet_main/bin/server start
+ExecStop=/home/deploy/releases/planet_main/bin/stop stop
+#EnvironmentFile=/etc/default/myApp.env
+Environment=LANG=en_US.utf8
+Environment=MIX_ENV=prod
+
+Environment=PORT=4000
+Environment=DATABASE_URL=postgresql://app:DNpBhxuCzMoP2RNgzEx4@127.0.0.1/boring_newsletters_prod 
+Environment=SECRET_KEY_BASE=4gX34ebM1uwPeF6rvo/w/5fERI7zBMr9p9JvtlFi9gNH5rMrBEJSLrAoJbDwCxPS 
+Environment=PHX_HOST=boringnewsletters.com 
+Environment=SES_API_KEY=AKIAVIYILJTHDAOOZ7GU 
+Environment=SES_SECRET=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
+
+LimitNOFILE=65535
+UMask=0027
+SyslogIdentifier=BoringNewsletters
+Restart=always
+
+
+[Install]
+WantedBy=multi-user.target

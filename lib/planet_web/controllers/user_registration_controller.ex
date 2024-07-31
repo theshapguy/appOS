@@ -1,6 +1,8 @@
 defmodule PlanetWeb.UserRegistrationController do
   use PlanetWeb, :controller
 
+  plug PlanetWeb.Plugs.PageTitle, title: "Register"
+
   alias Planet.Accounts
   alias Planet.Accounts.User
   alias PlanetWeb.UserAuth
@@ -12,6 +14,12 @@ defmodule PlanetWeb.UserRegistrationController do
   end
 
   def create(conn, %{"user" => user_params}) do
+    redirect_url =
+      case Planet.Plugs.SubscriptionCheck.state() do
+        false -> %{"redirect_url" => ~p"/users/billing/signup"}
+        true -> %{}
+      end
+
     case Accounts.register_user(user_params) do
       {:ok, user} ->
         {:ok, _} =
@@ -22,7 +30,9 @@ defmodule PlanetWeb.UserRegistrationController do
 
         conn
         |> put_flash(:info, "User created successfully.")
-        |> UserAuth.log_in_user(user)
+        |> UserAuth.log_in_user(user, redirect_url)
+
+      # |> UserAuth.log_in_user(user)
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :new, changeset: changeset)

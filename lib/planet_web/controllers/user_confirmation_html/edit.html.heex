@@ -1,14 +1,16 @@
 <div class="mx-auto max-w-md bg-white p-10 border border-zinc-200 rounded-sm">
-  <.header class="text-center">Confirm account</.header>
+  <.header class="text-center">
+    <p class="text-2xl font-bold text-gray-800">Confirm Your Account</p>
+  </.header>
 
-  <.simple_form for={@conn.params["user"]} as={:user} action={~p"/users/confirm/#{@token}"}>
+  <.simple_form
+    class="!mt-0 !space-y-4"
+    for={@conn.params["user"]}
+    as={:user}
+    action={~p"/users/confirm/#{@token}"}
+  >
     <:actions>
-      <.button class="w-full">Confirm my account</.button>
+      <.button class="w-full mt-4">Confirm my account <span aria-hidden="true">→</span></.button>
     </:actions>
   </.simple_form>
-
-  <p class="text-center mt-4">
-    <.link href={~p"/users/register"}>Register</.link>
-    | <.link href={~p"/users/log_in"}>Log in</.link>
-  </p>
 </div>

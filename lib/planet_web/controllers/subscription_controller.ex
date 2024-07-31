@@ -1,8 +1,12 @@
 defmodule PlanetWeb.SubscriptionController do
   use PlanetWeb, :controller
 
+  plug PlanetWeb.Plugs.PageTitle, title: "Billing"
+
   require Logger
 
+  alias Planet.Subscriptions
+  alias Planet.Utils
   alias Planet.Payments.PaddleWebhookHandler
 
   plug(Planet.Payments.PaddleWhitelist when action in [:paddle_webhook])
@@ -68,6 +72,8 @@ defmodule PlanetWeb.SubscriptionController do
         conn
       end
 
+    challenge = "organization_id=#{organization.id},timestamp=#{Timex.now() |> Timex.to_unix()}"
+
     conn
     |> render(:edit,
       license: subscription,
@@ -75,7 +81,62 @@ defmodule PlanetWeb.SubscriptionController do
       vendor_id: vendor_id,
       paddle_sandbox?: paddle_sandbox?,
       bank_statement: bank_statement,
-      paddle_success_redirect_url: "#{current_url(conn)}?paddle_success=1"
+      paddle_success_redirect_url:
+        "/users/billing/verify?paddle=1&challenge=#{Utils.encrypt_string(challenge)}"
     )
+  end
+
+  # Payment On Signup
+  def payment(conn, _params) do
+    organization = conn.assigns.current_user.organization
+
+    vendor_id =
+      Application.fetch_env!(:planet, :paddle)
+      |> Keyword.fetch!(:vendor_id)
+
+    paddle_sandbox? =
+      Application.fetch_env!(:planet, :paddle)
+      |> Keyword.fetch!(:sandbox)
+
+    challenge = "organization_id=#{organization.id},timestamp=#{Timex.now() |> Timex.to_unix()}"
+
+    conn
+    |> render(:payment,
+      vendor_id: vendor_id,
+      paddle_sandbox?: paddle_sandbox?,
+      paddle_success_redirect_url:
+        "/users/billing/verify?paddle=1&challenge=#{Utils.encrypt_string(challenge)}"
+      # paddle_success_redirect_url: "#{current_url(conn)}?paddle_success=1"
+    )
+  end
+
+  @doc """
+  This method allows a temporary access to the app for 60 minutes,
+  since paddle redirects it into this method.
+  """
+  def verify(conn, %{"challenge" => token}) do
+    # %{"organiaztion_id" => "gKg12n", "timestamp" => "1720526761"}
+
+    attrs =
+      Utils.decrypt_string!(token)
+      |> Utils.string_to_attrs()
+
+    case Subscriptions.maybe_force_active(attrs) do
+      {:ok, _subscription} ->
+        conn
+        |> put_flash(:info, "Your subscription has been activated.")
+        |> redirect(to: "/app")
+
+      {:error, _error} ->
+        conn
+        |> put_flash(:error, "Failed to activate subscription.")
+        |> redirect(to: "/users/billing/signup")
+    end
+
+    # conn
+    # |> redirect(to: "/app")
+
+    # conn
+    # |> render(:verify)
   end
 end

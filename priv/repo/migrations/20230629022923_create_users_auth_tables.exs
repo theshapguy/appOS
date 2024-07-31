@@ -31,6 +31,10 @@ defmodule Planet.Repo.Migrations.CreateUsersAuthTables do
       add(:is_active, :boolean, null: false, default: true)
 
       add(:organization_id, references(:organizations, on_delete: :delete_all))
+      add(:timezone, :string, default: "UTC", null: false)
+
+      # If Oauth, Provider Is Changed to That User
+      # add(:provider, :string, default: "local")
 
       timestamps()
     end
@@ -54,7 +58,7 @@ defmodule Planet.Repo.Migrations.CreateUsersAuthTables do
       add(:product_id, :string, null: false)
 
       add(:subscription_id, :string)
-      add(:subscription_status, :string, null: false)
+      add(:status, :string, null: false)
 
       add(:customer_id, :string)
 
@@ -66,6 +70,8 @@ defmodule Planet.Repo.Migrations.CreateUsersAuthTables do
 
       add(:cancel_url, :string)
       add(:update_url, :string)
+
+      add(:processor, :string, null: false)
 
       # add(:is_paddle, :boolean, default: false, null: false)
       # add(:paddle, {:array, :map}, default: [], null: false)
@@ -113,5 +119,16 @@ defmodule Planet.Repo.Migrations.CreateUsersAuthTables do
 
     # TODO
     # create(unique_index(:users_roles, [:user_id, :role_id]))
+
+    create table(:user_providers) do
+      add :provider, :string, null: false
+      add :token, :string, null: false
+      add :object, :map, default: %{}, null: false
+      add :user_id, references(:users, on_delete: :nothing), null: false
+
+      timestamps()
+    end
+
+    create unique_index(:user_providers, [:user_id, :provider])
   end
 end
