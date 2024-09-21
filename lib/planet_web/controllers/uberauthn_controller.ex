@@ -24,8 +24,7 @@ defmodule PlanetWeb.UberAuthNController do
   # end
 
   def callback(%{assigns: %{ueberauth_auth: ueberauth_auth}} = conn, %{"provider" => provider}) do
-    IO.inspect(provider)
-    IO.inspect(ueberauth_auth)
+    IO.inspect(conn)
 
     case Accounts.get_user_by_email(ueberauth_auth.info.email) do
       %User{} = user ->
@@ -60,7 +59,7 @@ defmodule PlanetWeb.UberAuthNController do
             |> put_flash(:info, "User created successfully.")
             |> UserAuth.log_in_user(user)
 
-          {:error, %Ecto.Changeset{} = changeset} ->
+          {:error, %Ecto.Changeset{} = _changeset} ->
             conn
             |> put_flash(:error, "Failed to authenticate using #{String.capitalize(provider)}.")
             |> redirect(to: ~p"/users/log_in")
@@ -68,12 +67,9 @@ defmodule PlanetWeb.UberAuthNController do
     end
   end
 
-  def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
-    IO.inspect("FAILED TO AUTH")
-    IO.inspect(conn)
-
+  def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, %{"provider" => provider}) do
     conn
-    |> put_flash(:error, "Failed to authenticate.")
-    |> redirect(to: "/")
+    |> put_flash(:error, "Failed to authenticate with #{String.capitalize(provider)}")
+    |> redirect(to: ~p"/users/log_in")
   end
 end

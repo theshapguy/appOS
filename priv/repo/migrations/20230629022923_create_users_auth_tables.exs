@@ -117,8 +117,7 @@ defmodule Planet.Repo.Migrations.CreateUsersAuthTables do
     create index(:users_roles, [:user_id])
     create index(:users_roles, [:role_id])
 
-    # TODO
-    # create(unique_index(:users_roles, [:user_id, :role_id]))
+    create(unique_index(:users_roles, [:user_id, :role_id]))
 
     create table(:user_providers) do
       add :provider, :string, null: false
@@ -129,6 +128,8 @@ defmodule Planet.Repo.Migrations.CreateUsersAuthTables do
       timestamps()
     end
 
-    create unique_index(:user_providers, [:user_id, :provider])
+    create unique_index(:user_providers, [:user_id, :provider],
+             name: :user_providers_user_provider_index
+           )
   end
 end

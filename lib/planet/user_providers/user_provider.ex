@@ -18,5 +18,9 @@ defmodule Planet.UserProviders.UserProvider do
     user_provider
     |> cast(attrs, [:provider, :token, :object, :user_id])
     |> validate_required([:provider, :token])
+    |> unique_constraint([:user_id, :provider],
+      name: :user_providers_user_provider_index,
+      message: "user id with provider already exists"
+    )
   end
 end

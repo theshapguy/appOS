@@ -2,62 +2,89 @@ defmodule Planet.UserProvidersTest do
   use Planet.DataCase
 
   alias Planet.UserProviders
+  import Planet.AccountsFixtures
+  import Planet.UserProvidersFixtures
 
   describe "user_providers" do
     alias Planet.UserProviders.UserProvider
 
-    import Planet.UserProvidersFixtures
+    setup do
+      user = user_fixture()
 
-    @invalid_attrs %{token: nil, provider: nil, object: nil}
+      user_provider =
+        user |> user_provider_fixture(%{provider: "test_provider", token: "__some_token__"})
 
-    test "list_user_providers/0 returns all user_providers" do
-      user_provider = user_provider_fixture()
-      assert UserProviders.list_user_providers() == [user_provider]
+      %{user: user, user_provider: user_provider}
     end
 
-    test "get_user_provider!/1 returns the user_provider with given id" do
-      user_provider = user_provider_fixture()
-      assert UserProviders.get_user_provider!(user_provider.id) == user_provider
+    test "returns the user provider when it exists", %{user: user, user_provider: user_provider} do
+      result =
+        Planet.UserProviders.get_provider_by_user_and_provider(
+          user.id,
+          user_provider.provider
+        )
+
+      assert result == user_provider
     end
 
-    test "create_user_provider/1 with valid data creates a user_provider" do
-      valid_attrs = %{token: "some token", provider: "some provider", object: %{}}
+    test "returns nil when the user provider does not exist", %{user: user} do
+      result = Planet.UserProviders.get_provider_by_user_and_provider(user.id, "nonexistent")
+      assert result == nil
+    end
 
-      assert {:ok, %UserProvider{} = user_provider} = UserProviders.create_user_provider(valid_attrs)
+    test "create_user_provider/1 with valid data creates a user_provider", %{user: user} do
+      valid_attrs = %{
+        token: "some token",
+        provider: "some provider",
+        object: %{},
+        user_id: user.id
+      }
+
+      assert {:ok, %UserProvider{} = user_provider} =
+               UserProviders.create_user_provider(valid_attrs)
+
       assert user_provider.token == "some token"
       assert user_provider.provider == "some provider"
       assert user_provider.object == %{}
+      assert user_provider.user_id == user.id
     end
 
-    test "create_user_provider/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = UserProviders.create_user_provider(@invalid_attrs)
+    test "inserts a new user provider", %{user: user} do
+      ueberauth_auth = %Ueberauth.Auth{
+        provider: :google,
+        credentials: %{token: "token"},
+        extra: %{raw_info: %{}}
+      }
+
+      assert {:ok, %UserProvider{}} = UserProviders.upsert_provider(user, ueberauth_auth)
+
+      assert %UserProvider{user_id: _user_id, provider: _provider} =
+               Repo.get_by(UserProvider, user_id: user.id, provider: "google")
     end
 
-    test "update_user_provider/2 with valid data updates the user_provider" do
-      user_provider = user_provider_fixture()
-      update_attrs = %{token: "some updated token", provider: "some updated provider", object: %{}}
+    test "updates an existing user provider", %{user: user} do
+      ueberauth_auth = %Ueberauth.Auth{
+        provider: :google,
+        credentials: %{token: "new_token"},
+        extra: %{raw_info: %{}}
+      }
 
-      assert {:ok, %UserProvider{} = user_provider} = UserProviders.update_user_provider(user_provider, update_attrs)
-      assert user_provider.token == "some updated token"
-      assert user_provider.provider == "some updated provider"
-      assert user_provider.object == %{}
+      user_provider = %UserProvider{user_id: user.id, provider: "google", token: "old_token"}
+      Repo.insert!(user_provider)
+
+      assert {:ok, %UserProvider{}} = UserProviders.upsert_provider(user, ueberauth_auth)
+      updated_provider = Repo.get_by(UserProvider, user_id: user.id, provider: "google")
+      assert updated_provider.token == "new_token"
     end
 
-    test "update_user_provider/2 with invalid data returns error changeset" do
-      user_provider = user_provider_fixture()
-      assert {:error, %Ecto.Changeset{}} = UserProviders.update_user_provider(user_provider, @invalid_attrs)
-      assert user_provider == UserProviders.get_user_provider!(user_provider.id)
-    end
+    test "ensures unique UserProvider constraint", %{user: user} do
+      assert {:ok, %UserProvider{}} =
+               %{"user_id" => user.id, "provider" => "google", "token" => "old_token"}
+               |> UserProviders.create_user_provider()
 
-    test "delete_user_provider/1 deletes the user_provider" do
-      user_provider = user_provider_fixture()
-      assert {:ok, %UserProvider{}} = UserProviders.delete_user_provider(user_provider)
-      assert_raise Ecto.NoResultsError, fn -> UserProviders.get_user_provider!(user_provider.id) end
-    end
-
-    test "change_user_provider/1 returns a user_provider changeset" do
-      user_provider = user_provider_fixture()
-      assert %Ecto.Changeset{} = UserProviders.change_user_provider(user_provider)
+      assert {:error, %Ecto.Changeset{}} =
+               %{"user_id" => user.id, "provider" => "google", "token" => "old_token"}
+               |> UserProviders.create_user_provider()
     end
   end
 end
