@@ -93,7 +93,8 @@ defmodule Planet.MixProject do
       {:oban_live_dashboard, "~> 0.1.0"},
       {:ueberauth, "~> 0.10"},
       {:ueberauth_github, "~> 0.7"},
-      {:ueberauth_google, "~> 0.8"}
+      {:ueberauth_google, "~> 0.8"},
+      {:ecto_sqlite3, "~> 0.17"}
     ]
   end
 

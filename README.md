@@ -24,3 +24,9 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 ```
 DATABASE_URL=postgresql://shapathneupane@127.0.0.1/send_inspector_prod3 SECRET_KEY_BASE=4gX34ebM1uwPeF6rvo/w/5fERI7zBMr9p9JvtlFi9gNH5rMrBEJSLrAoJbDwCxPS PHX_HOST=sendinspector.com ./server
 ```
+
+If *SQLite* is used; need to change the migration file from 
+
+`add :email, :citext, null: false`
+to 
+`add :email, :string, collate: :nocase` 

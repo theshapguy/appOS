@@ -9,7 +9,7 @@ config :planet, Planet.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "#{project_name}_1_dev",
+  database: "#{project_name}_7_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
