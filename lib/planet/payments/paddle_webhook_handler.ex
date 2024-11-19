@@ -1,6 +1,5 @@
 defmodule Planet.Payments.PaddleWebhookHandler do
   require Logger
-
   alias Planet.Subscriptions
   alias Planet.Organizations
 

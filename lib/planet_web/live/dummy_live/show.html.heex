@@ -15,7 +15,12 @@
 
 <.back navigate={~p"/dummies"}>Back to dummies</.back>
 
-<.modal :if={@live_action == :edit} id="dummy-modal" show on_cancel={JS.patch(~p"/dummies/#{@dummy}")}>
+<.modal
+  :if={@live_action == :edit}
+  id="dummy-modal"
+  show
+  on_cancel={JS.patch(~p"/dummies/#{@dummy}")}
+>
   <.live_component
     module={PlanetWeb.DummyLive.FormComponent}
     id={@dummy.id}

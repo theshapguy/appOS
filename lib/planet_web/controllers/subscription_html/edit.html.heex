@@ -70,7 +70,16 @@
           </a>
         <% end %>
       </li>
-      <li></li>
+      <li :if={@license.cancel_url == nil && @license.update_url == nil}>
+        <a
+          class="text-blue-500"
+          href="https://sandbox-customer-portal.paddle.com/cpl_01h411b80rvpnhgcb87qktvg1n"
+          target="_blank"
+        >
+          Billing Portal
+        </a>
+        — Manage Your Subscription
+      </li>
     </ul>
   </div>
 <% else %>

@@ -30,7 +30,12 @@
   </:action>
 </.table>
 
-<.modal :if={@live_action in [:new, :edit]} id="template-modal" show on_cancel={JS.patch(~p"/templates")}>
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="template-modal"
+  show
+  on_cancel={JS.patch(~p"/templates")}
+>
   <.live_component
     module={PlanetWeb.TemplateLive.FormComponent}
     id={@template.id || :new}

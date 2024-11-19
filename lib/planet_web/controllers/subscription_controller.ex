@@ -12,6 +12,8 @@ defmodule PlanetWeb.SubscriptionController do
   plug(Planet.Payments.PaddleWhitelist when action in [:paddle_webhook])
   plug(Planet.Payments.PaddleSignatureAndPassthrough when action in [:paddle_webhook])
 
+  plug(Planet.Payments.PaddleBillingSignature when action in [:paddle_billing_webhook])
+
   plug Bodyguard.Plug.Authorize,
        [
          policy: Planet.Policies.Organization,
@@ -20,6 +22,29 @@ defmodule PlanetWeb.SubscriptionController do
          fallback: PlanetWeb.BodyguardFallbackController
        ]
        when action in [:edit]
+
+  def paddle_billing_webhook(conn, params) do
+    # IO.inspect(params)
+
+    case Planet.Payments.PaddleBillingHandler.handler(conn, params) do
+      {:ok, _} ->
+        conn
+        |> put_status(:ok)
+        |> json(%{message: "success"})
+
+      {:error, changeset} ->
+        Logger.error(changeset.errors)
+
+        conn
+        |> put_status(:bad_request)
+        |> json(%{message: "failed"})
+
+      :unhandled ->
+        conn
+        |> put_status(:ok)
+        |> json(%{message: "no content"})
+    end
+  end
 
   def paddle_webhook(conn, params) do
     case PaddleWebhookHandler.handler(conn, params) do
@@ -74,9 +99,17 @@ defmodule PlanetWeb.SubscriptionController do
 
     challenge = "organization_id=#{organization.id},timestamp=#{Timex.now() |> Timex.to_unix()}"
 
+    # Need to fetch subscription urls
+    subscription_with_portal =
+      case Planet.Payments.PaddleBillingHandler.create_portal_session(subscription) do
+        {:ok, portal} -> portal
+        # if error use old one
+        {:error, _error} -> subscription
+      end
+
     conn
     |> render(:edit,
-      license: subscription,
+      license: subscription_with_portal,
       plans: Planet.Subscriptions.Plans.list(paddle_sandbox?),
       vendor_id: vendor_id,
       paddle_sandbox?: paddle_sandbox?,
@@ -100,12 +133,17 @@ defmodule PlanetWeb.SubscriptionController do
 
     challenge = "organization_id=#{organization.id},timestamp=#{Timex.now() |> Timex.to_unix()}"
 
+    # IO.inspect(
+    #   "#{PlanetWeb.Endpoint.url()}/users/billing/verify?paddle=1&challenge=#{Utils.encrypt_string(challenge)}"
+    # )
+
     conn
     |> render(:payment,
       vendor_id: vendor_id,
       paddle_sandbox?: paddle_sandbox?,
+      # removed &paddle=1
       paddle_success_redirect_url:
-        "/users/billing/verify?paddle=1&challenge=#{Utils.encrypt_string(challenge)}"
+        "#{PlanetWeb.Endpoint.url()}/users/billing/verify?challenge=#{Utils.encrypt_string(challenge)}"
       # paddle_success_redirect_url: "#{current_url(conn)}?paddle_success=1"
     )
   end

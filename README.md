@@ -30,3 +30,7 @@ If *SQLite* is used; need to change the migration file from
 `add :email, :citext, null: false`
 to 
 `add :email, :string, collate: :nocase` 
+
+
+subsriptions
+product_id should be changed to list - see webhook data

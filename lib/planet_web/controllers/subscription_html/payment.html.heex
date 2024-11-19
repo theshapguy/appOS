@@ -3,12 +3,14 @@
 <section class="">
   <div class="flex justify-center mt-4 w-full" id="subscrible-paddle-button">
     <div
+      onclick="openCheckout()"
       class="w-full text-center bg-primary hover:bg-rouge-400 px-8 py-4 rounded-md text-white font-semibold cursor-pointer"
-      onclick="openCheckout();"
     >
       Subscribe
     </div>
   </div>
+
+  <div id="inline-checkout-area"></div>
 
   <div class="text-center mt-4 hidden" id="subscrible-paddle-verify">
     <p class="blink">Verifying your payment...</p>
@@ -20,55 +22,56 @@
   <div class="checkout-container-paddle"></div>
 </section>
 
-<script src="https://cdn.paddle.com/paddle/paddle.js">
+<%!-- <script src="https://cdn.paddle.com/paddle/paddle.js"> --%>
+
+<%!-- </script> --%>
+
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js">
 </script>
 
-<script type="text/javascript">
-  <%= if @paddle_sandbox? do %>
-      Paddle.Environment.set('sandbox');
-  <% end %>
+<script>
+    <%= if @paddle_sandbox? do %>
+        Paddle.Environment.set('sandbox');
+    <% end %>
 
-  Paddle.Setup({
-      vendor: <%= @vendor_id %>
-  });
+    Paddle.Initialize({ 
+      token: 'test_89a7fedf85d036d2351afdafa35', // replace with a client-side token
+      pwCustomer: {
+        email: '<%= @current_user.email %>'
+      },
+      
+    });
 
-  function checkoutClosed(data) {
-    // openCheckout();
-      //console.log(data);
-      //alert('Your purchase has been cancelled, we hope to see you again soon!');
-  }
+    var itemsList = [
+      {
+        priceId: 'pri_01jczwfy1wwejsm0zw7yzc1qze',
+        quantity: 1
+      }
+    ];
 
-  function checkoutSuccess(data) {
+       function openCheckout() {
 
-    document.getElementById("subscrible-paddle-button").style.display = "none";
-    document.getElementById("subscrible-paddle-verify").style.display = "block";
-
-    //console.log(data)
-
-    // console.log("Checkout Success")
-
-  }
-
-   function openCheckout() {
-
-      Paddle.Checkout.open({
-          frameTarget: 'checkout-container-paddle',
-          //frameInitialHeight: "800",
-          //frameStyle: "width: 100%; min-width: 312px; background-color: transparent; border: none;",
-          method: "overlay",
-          product: "54520",
-          success: "<%= @paddle_success_redirect_url %>",
-          // successCallback: "checkoutSuccess",
-          disableLogout: true,
-          allowQuantity: false,
+    Paddle.Checkout.open({
+      customer: {
           email: "<%= @current_user.email %>",
-          passthrough: 'organization_id;<%= @current_user.organization.id %>;user_id;<%= @current_user.id %>',
-          closeCallback: "checkoutClosed"
-      });
+      },
+      settings: {
+        allowLogout: false,
+        displayMode: "overlay",
+        variant: "multi-page",
+        frameTarget: "checkout-container-paddle",
+        frameInitialHeight: "800",
+        frameStyle: "width: 100%; min-width: 312px; max-width: 600px; background-color: transparent; border: none;",      
+        successUrl: "<%= @paddle_success_redirect_url %>"
+      },
+      items: itemsList,
+      customData: {
+        organization_id: '<%= @current_user.organization.id %>',
+        user_id: '<%= @current_user.id %>'
+      }
+    });
 
   }
 
   openCheckout();
-
-  // window.history.replaceState(null, null, '/users/billing');
 </script>

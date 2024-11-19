@@ -194,6 +194,7 @@ defmodule PlanetWeb.Router do
     pipe_through([:api])
 
     post("/paddle", SubscriptionController, :paddle_webhook)
+    post("/paddle-billing", SubscriptionController, :paddle_billing_webhook)
   end
 
   scope "/auth", PlanetWeb do

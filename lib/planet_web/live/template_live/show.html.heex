@@ -15,7 +15,12 @@
 
 <.back navigate={~p"/templates"}>Back to templates</.back>
 
-<.modal :if={@live_action == :edit} id="template-modal" show on_cancel={JS.patch(~p"/templates/#{@template}")}>
+<.modal
+  :if={@live_action == :edit}
+  id="template-modal"
+  show
+  on_cancel={JS.patch(~p"/templates/#{@template}")}
+>
   <.live_component
     module={PlanetWeb.TemplateLive.FormComponent}
     id={@template.id}

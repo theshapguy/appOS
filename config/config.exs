@@ -127,6 +127,9 @@ config :planet, :paddle,
     "100.20.172.113",
     "127.0.0.1"
   ],
+  webhook_secret_key: "pdl_ntfset_01jczc5vydss955aacd0z4yphp_Qt2m7phZuwzI70qWldEWpfoGb3fzuZG1",
+  client_key: "test_89a7fedf85d036d2351afdafa35",
+  billing_api_key: "5a8ddb7c702b9ba0608a94b109e37f34c947b97b1d81b7c29f",
   public_key: """
   -----BEGIN PUBLIC KEY-----
   MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEArYwvvhCBpT956KQ7qUJ/

@@ -12,7 +12,7 @@ defmodule Planet.Subscriptions.Plans do
         level: 10
       },
       %Subscription{
-        product_id: "54520",
+        product_id: "pro_01jczp7xcy9wsszr9r5nx26qzh",
         price: "$10",
         title: "Plus Plan",
         subtitle: "Starter plus more",
