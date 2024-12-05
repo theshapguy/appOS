@@ -7,7 +7,7 @@
 
     <%!-- TODO Make Page Titles --%>
     <.live_title suffix=" · Planet">
-      <%= assigns[:page_title] || "Page" %>
+      {assigns[:page_title] || "Page"}
     </.live_title>
     <%!-- <.live_title>
       Planet
@@ -23,7 +23,7 @@
     </script>
   </head>
   <body class="antialiased">
-    <%= @inner_content %>
+    {@inner_content}
     <%!-- For Timezone Suport: User Settings  --%>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.5/js.cookie.min.js"

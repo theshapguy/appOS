@@ -1,0 +1,147 @@
+{
+    "plans": [
+      {
+        "productFamily": "free",
+        "name": "Free Plan",
+        "variations": [
+          {
+            "id": "free_monthly",
+            "billingFrequency": "lifetime",
+            "price": 0.00,
+            "stripeProductId": "free_lifetime",
+            "paddleProductId": "free_lifetime",
+            "paddlePriceId": "free_lifetime",
+            "stripePriceId": "free_lifetime"
+
+          }
+        ]
+      },      
+      {
+        "productFamily": "basic",
+        "name": "Basic Plan",
+        "variations": [
+          {
+            "id": "basic_monthly",
+            "billingFrequency": "monthly",
+            "price": 9.99,
+            "stripeProductId": "prod_basic_monthly",
+            "paddleProductId": "paddle_basic_monthly",
+            "paddlePriceId": "paddle_basic_monthly",
+            "stripePriceId": "paddle_basic_monthly"
+
+          },
+          {
+            "id": "basic_quarterly",
+            "billingFrequency": "quarterly",
+            "price": 27.99,
+            "savings": {
+              "amount": 2.00,
+              "percentage": 6.67
+            },
+            "stripeProductId": "prod_basic_quarterly",
+            "paddleProductId": "paddle_basic_quarterly"
+          },
+          {
+            "id": "basic_annually",
+            "billingFrequency": "annually",
+            "price": 99.99,
+            "savings": {
+              "amount": 19.89,
+              "percentage": 16.67
+            },
+            "stripeProductId": "prod_basic_annually",
+            "paddleProductId": "paddle_basic_annually"
+          }
+        ]
+      },
+      {
+        "productFamily": "pro",
+        "name": "Pro Plan",
+        "variations": [
+          {
+            "id": "pro_monthly",
+            "billingFrequency": "monthly",
+            "price": 19.99,
+            "stripeProductId": "prod_pro_monthly",
+            "paddleProductId": "paddle_pro_monthly"
+          },
+          {
+            "id": "pro_quarterly",
+            "billingFrequency": "quarterly",
+            "price": 54.99,
+            "savings": {
+              "amount": 5.00,
+              "percentage": 8.33
+            },
+            "stripeProductId": "prod_pro_quarterly",
+            "paddleProductId": "paddle_pro_quarterly"
+          },
+          {
+            "id": "pro_annually",
+            "billingFrequency": "annually",
+            "price": 199.99,
+            "savings": {
+              "amount": 39.89,
+              "percentage": 16.67
+            },
+            "stripeProductId": "prod_pro_annually",
+            "paddleProductId": "paddle_pro_annually"
+          }
+        ],
+        "features": [
+          "Pro access",
+          "Priority support",
+          "Advanced features"
+        ],
+        "metadata": {
+          "tier": "pro",
+          "recommendedFor": "power users"
+        }
+      },
+      {
+        "productFamily": "enterprise",
+        "name": "Enterprise Plan",
+        "variations": [
+          {
+            "id": "enterprise_monthly",
+            "billingFrequency": "monthly",
+            "price": 49.99,
+            "stripeProductId": "prod_enterprise_monthly",
+            "paddleProductId": "paddle_enterprise_monthly"
+          },
+          {
+            "id": "enterprise_quarterly",
+            "billingFrequency": "quarterly",
+            "price": 134.99,
+            "savings": {
+              "amount": 15.00,
+              "percentage": 10
+            },
+            "stripeProductId": "prod_enterprise_quarterly",
+            "paddleProductId": "paddle_enterprise_quarterly"
+          },
+          {
+            "id": "enterprise_annually",
+            "billingFrequency": "annually",
+            "price": 499.99,
+            "savings": {
+              "amount": 99.89,
+              "percentage": 16.67
+            },
+            "stripeProductId": "prod_enterprise_annually",
+            "paddleProductId": "paddle_enterprise_annually"
+          }
+        ],
+        "features": [
+          "Full access",
+          "24/7 dedicated support",
+          "All premium features",
+          "Custom integrations"
+        ],
+        "metadata": {
+          "tier": "enterprise",
+          "recommendedFor": "large organizations"
+        }
+      }
+    ]
+  }

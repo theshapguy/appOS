@@ -4,13 +4,13 @@ defmodule Planet.Plugs.SubscriptionCheck do
 
   # Doing this so that we can access the state in the init function,
   # and from outside the module
-  def state() do
+  def check_allow_unpaid_access() do
     Application.fetch_env!(:planet, :paddle)
     |> Keyword.fetch!(:allow_unpaid_access)
   end
 
   def init(_default) do
-    state()
+    check_allow_unpaid_access()
   end
 
   # If Unpaid Access Is Allowed, Can Perform Tasks without Active Status

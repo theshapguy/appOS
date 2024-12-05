@@ -190,6 +190,14 @@ defmodule PlanetWeb.Router do
     get("/users/billing", SubscriptionController, :edit)
   end
 
+  scope "/", PlanetWeb do
+    # :put_user_token
+    pipe_through([:browser, :landing_layout])
+
+    get("/plans", SubscriptionController, :plans)
+    get("/transaction/pay", SubscriptionController, :transaction)
+  end
+
   scope "/webhook", PlanetWeb do
     pipe_through([:api])
 

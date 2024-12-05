@@ -7,7 +7,7 @@
 
     <%!-- TODO Make Page Titles --%>
     <.live_title suffix=" · Planet">
-      <%= assigns[:page_title] || "Page" %>
+      {assigns[:page_title] || "Page"}
     </.live_title>
     <%!-- <.live_title>
       Planet
@@ -107,7 +107,7 @@
     <ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
       <%= if @current_user do %>
         <li class="text-[0.8125rem] leading-6 text-zinc-900">
-          <%= @current_user.email %>
+          {@current_user.email}
         </li>
         <li>
           <.link
@@ -162,7 +162,7 @@
       <% end %>
     </ul>
 
-    <%= @inner_content %>
+    {@inner_content}
 
     <%!-- For Timezone Suport: User Settings  --%>
     <script

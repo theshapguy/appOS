@@ -27,6 +27,7 @@ defmodule Planet.Subscriptions.Subscription do
     :paddle,
     :"paddle-billing",
     :stripe,
+    :"lemon-squeezy",
     # When things get manual
     :manual
   ]
@@ -45,6 +46,7 @@ defmodule Planet.Subscriptions.Subscription do
     belongs_to(:organization, Planet.Organizations.Organization, primary_key: true)
 
     field(:product_id, :string)
+    field(:price_id, :string)
 
     field(:customer_id, :string)
     field(:subscription_id, :string)
@@ -71,7 +73,9 @@ defmodule Planet.Subscriptions.Subscription do
     field(:title, :string, virtual: true)
     field(:subtitle, :string, virtual: true)
     field(:price, :string, virtual: true)
+
     field(:level, :integer, virtual: true)
+    field(:period, Ecto.Enum, virtual: true, values: [:month, :year, :lifetime])
 
     timestamps()
   end
@@ -107,6 +111,7 @@ defmodule Planet.Subscriptions.Subscription do
     subscription
     |> cast(attrs, [
       :product_id,
+      :price_id,
       :customer_id,
       :subscription_id,
       :status,
@@ -120,6 +125,7 @@ defmodule Planet.Subscriptions.Subscription do
     ])
     |> validate_required([
       :product_id,
+      :price_id,
       :status,
       :issued_at,
       :valid_until

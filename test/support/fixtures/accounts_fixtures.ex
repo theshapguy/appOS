@@ -21,16 +21,16 @@ defmodule Planet.AccountsFixtures do
     })
   end
 
-  def user_fixture(attrs \\ %{}) do
+  def user_fixture(attrs \\ %{}, subscription_status \\ "active") do
     {:ok, user} =
       attrs
       |> valid_user_attributes()
-      |> Planet.Accounts.register_user()
+      |> Planet.Accounts.register_user(nil, subscription_status)
 
     user
   end
 
-  def user_fixture(
+  def user_fixture_with_organization(
         %Planet.Organizations.Organization{} = organization,
         %Planet.Roles.Role{} = role,
         attrs \\ %{}

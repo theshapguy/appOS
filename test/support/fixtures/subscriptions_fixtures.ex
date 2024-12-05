@@ -18,6 +18,7 @@ defmodule Planet.SubscriptionsFixtures do
         # Primary Key
         # user_id: user.id,
         product_id: "product_id",
+        price_id: "price_id",
         customer_id: "customer_id",
         subscription_id: "subscription_id",
         status: "active",

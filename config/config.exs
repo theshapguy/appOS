@@ -13,7 +13,8 @@ config :planet,
 # Configures the endpoint
 config :planet, PlanetWeb.Endpoint,
   url: [host: "localhost"],
-  adapter: Phoenix.Endpoint.Cowboy2Adapter,
+  # adapter: Phoenix.Endpoint.Cowboy2Adapter,
+  adapter: Bandit.PhoenixAdapter,
   render_errors: [
     formats: [html: PlanetWeb.ErrorHTML, json: PlanetWeb.ErrorJSON],
     layout: false
@@ -127,9 +128,6 @@ config :planet, :paddle,
     "100.20.172.113",
     "127.0.0.1"
   ],
-  webhook_secret_key: "pdl_ntfset_01jczc5vydss955aacd0z4yphp_Qt2m7phZuwzI70qWldEWpfoGb3fzuZG1",
-  client_key: "test_89a7fedf85d036d2351afdafa35",
-  billing_api_key: "5a8ddb7c702b9ba0608a94b109e37f34c947b97b1d81b7c29f",
   public_key: """
   -----BEGIN PUBLIC KEY-----
   MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEArYwvvhCBpT956KQ7qUJ/
@@ -145,7 +143,13 @@ config :planet, :paddle,
   mOQ/2uOU0uuJSPwrYYLTjWWbziovMphTU9VpZbx3AOy2XL+HejxNZQWYZnQF089l
   6w/lkLugrM5x0h7+6Vj3rOUCAwEAAQ==
   -----END PUBLIC KEY-----
-  """
+  """,
+  # paddle billing
+  webhook_secret_key: "pdl_ntfset_01jczc5vydss955aacd0z4yphp_Qt2m7phZuwzI70qWldEWpfoGb3fzuZG1",
+  client_key: "test_89a7fedf85d036d2351afdafa35",
+  billing_api_key: "5a8ddb7c702b9ba0608a94b109e37f34c947b97b1d81b7c29f",
+  api_endpoint: "https://sandbox-api.paddle.com",
+  portal_endpoint: "https://sandbox-customer-portal.paddle.com"
 
 # [Release] Check Production Or Runtime Variables
 # config :wax_,

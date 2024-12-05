@@ -111,7 +111,7 @@ defmodule Planet.Accounts do
   #   |> Repo.insert()
   # end
 
-  def register_user(attrs, social_auth \\ nil) do
+  def register_user(attrs, ueberauth_auth \\ nil, subscription_status \\ "unpaid") do
     user_changeset =
       %User{organization_admin?: true}
       |> User.registration_changeset(attrs)
@@ -138,8 +138,9 @@ defmodule Planet.Accounts do
       Subscriptions.change_subscription(
         %Subscription{},
         %{
-          "status" => "unpaid",
+          "status" => subscription_status,
           "product_id" => "default",
+          "price_id" => "default",
           "issued_at" => DateTime.utc_now(),
           # Date Plus 100 years for Free Plan
           "valid_until" => DateTime.utc_now() |> DateTime.add(3_153_600_000, :second),
@@ -191,7 +192,8 @@ defmodule Planet.Accounts do
       |> Ecto.Changeset.put_assoc(:user_providers, [])
       |> repo.insert()
     end)
-    |> maybe_insert_provider(social_auth)
+    |> maybe_insert_provider(ueberauth_auth)
+
     # |> Ecto.Multi.run(:user_providers, fn repo, %{user: user} ->
     #   # IO.inspect(social_auth)
     #   # IO.inspect(social_auth.extra.raw_info, label: "Raw Info")

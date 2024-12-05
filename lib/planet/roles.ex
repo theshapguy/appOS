@@ -122,7 +122,7 @@ defmodule Planet.Roles do
   def delete_role(%Role{} = role) do
     role
     |> Ecto.Changeset.change()
-    |> Ecto.Changeset.foreign_key_constraint(:name,
+    |> Ecto.Changeset.foreign_key_constraint(:users_roles_role_id_fkey,
       name: :users_roles_role_id_fkey,
       message:
         "This role is still associated to an user. Remove all users from this role to delete."

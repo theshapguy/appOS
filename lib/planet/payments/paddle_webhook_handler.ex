@@ -201,7 +201,8 @@ defmodule Planet.Payments.PaddleWebhookHandler do
       # Required
       "status" => Map.get(params, "status", "past_due"),
       "product_id" => Map.get(params, "subscription_plan_id", nil),
-      "processor" => "paddle"
+      "processor" => "paddle",
+      "price_id" => "default"
     }
   end
 

@@ -67,7 +67,7 @@
     as={:user}
     action={~p"/users/log_in"}
   >
-    <.error :if={@error_message}><%= @error_message %></.error>
+    <.error :if={@error_message}>{@error_message}</.error>
 
     <.input field={f[:email]} type="email" label="Email" required />
     <.input field={f[:password]} type="password" label="Password" required />

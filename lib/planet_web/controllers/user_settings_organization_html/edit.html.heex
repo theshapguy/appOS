@@ -86,9 +86,9 @@
       class="p-4 bg-white border border-gray-300 rounded-md hover:border-zinc-400"
     >
       <p class="font-medium -mb-8">
-        <%= user.name %>&nbsp;
+        {user.name}&nbsp;
         <span class="text-zinc-400 font-mono">
-          — <%= user.email %>
+          — {user.email}
         </span>
 
         <%= if @conn.assigns.current_user.id == user.id do %>
@@ -147,7 +147,7 @@
   <%= for role <- @roles do %>
     <div class="p-4 bg-white border border-gray-300 rounded-md hover:border-zinc-300 hover:bg-gray-50 flex justify-between items-center">
       <div class={"font-medium #{if !role.editable?, do: "underline underline-offset-4" }"}>
-        <%= role.name %>
+        {role.name}
       </div>
       <%= if role.editable? do %>
         <a href={~p"/users/settings/roles/#{role.id}/edit"} class="text-blue-600 font-mono">

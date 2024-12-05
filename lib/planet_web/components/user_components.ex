@@ -104,7 +104,7 @@ defmodule PlanetWeb.UserComponents do
         <fieldset id={@field.id}>
           <div class="bg-white border border-gray-300">
             <div class="flex items-center py-2 px-4">
-              <div class="w-1/3 sm:w-1/2 font-medium"><%= permission_group.name %></div>
+              <div class="w-1/3 sm:w-1/2 font-medium">{permission_group.name}</div>
               <div class="w-2/3 my-5 sm:w-1/2">
                 <div class="space-y-5">
                   <%= for permission <- permission_group.permissions do %>
@@ -117,9 +117,9 @@ defmodule PlanetWeb.UserComponents do
                         checked={permission.slug in @selected_permissions}
                       />
                       <div>
-                        <div class="ml-2 select-none"><%= permission.name %></div>
+                        <div class="ml-2 select-none">{permission.name}</div>
                         <div class="ml-2 select-none text-xs text-zinc-500">
-                          <%= permission.descriptor %>
+                          {permission.descriptor}
                         </div>
                       </div>
                     </label>
@@ -151,9 +151,9 @@ defmodule PlanetWeb.UserComponents do
   def localtime(assigns) do
     ~H"""
     <div title={@datetime}>
-      <%= @datetime
+      {@datetime
       |> Timex.Timezone.convert(@timezone)
-      |> Timex.format!("{Mshort} {D}, {YYYY} {h12}:{m}{am}") %>
+      |> Timex.format!("{Mshort} {D}, {YYYY} {h12}:{m}{am}")}
     </div>
     """
   end

@@ -44,7 +44,7 @@
           title={@current_user.email}
           class="m-1 mr-2 w-8 h-8 relative flex justify-center items-center rounded-md cursor-default bg-teal-600 text-sm text-white uppercase"
         >
-          <%= String.at(@current_user.email, 0) %>
+          {String.at(@current_user.email, 0)}
         </div>
       </div>
       <!-- Mobile menu toggle -->
@@ -84,7 +84,7 @@
         method="delete"
         class="text-white block px-3 py-2 rounded-md text-base font-medium"
       >
-        Logout - <%= @current_user.email %>
+        Logout - {@current_user.email}
       </.link>
     </div>
   </div>
@@ -93,6 +93,6 @@
 <main class="px-4 py-20 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-4xl">
     <.flash_group flash={@flash} />
-    <%= @inner_content %>
+    {@inner_content}
   </div>
 </main>

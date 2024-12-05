@@ -8,7 +8,7 @@ defmodule PlanetWeb.TemplateLive.FormComponent do
     ~H"""
     <div>
       <.header>
-        <%= @title %>
+        {@title}
         <:subtitle>Use this form to manage template records in your database.</:subtitle>
       </.header>
 

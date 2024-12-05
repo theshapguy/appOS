@@ -9,21 +9,36 @@ defmodule Planet.Subscriptions.Plans do
         price: "",
         title: "Starter",
         subtitle: "Free plan with all the basics",
-        level: 10
+        level: 10,
+        period: :month,
+        price_id: ""
       },
       %Subscription{
         product_id: "pro_01jczp7xcy9wsszr9r5nx26qzh",
-        price: "$10",
+        price_id: "pri_01jczwfy1wwejsm0zw7yzc1qze",
+        price: "$50",
         title: "Plus Plan",
         subtitle: "Starter plus more",
-        level: 20
+        level: 20,
+        period: :month
       },
       %Subscription{
-        product_id: "54405",
-        price: "$20",
+        product_id: "pro_01jczp7xcy9wsszr9r5nx26qzh",
+        price_id: "pri_01je03xvqpmaxc2xvz27dqwm88",
+        price: "$100",
         title: "Pro Plan",
         subtitle: "Plus plus more",
-        level: 30
+        level: 30,
+        period: :month
+      },
+      %Subscription{
+        product_id: "pro_01jczp7xcy9wsszr9r5nx26qzh",
+        price_id: "pri_01je046z9z9cz6sqt73ggrwyde",
+        price: "$500",
+        title: "Lifetime Plan",
+        subtitle: "Lifetime access to all features",
+        level: -1,
+        period: :lifetime
       }
     ]
 

@@ -12,8 +12,8 @@
   rows={@streams.dummies}
   row_click={fn {_id, dummy} -> JS.navigate(~p"/dummies/#{dummy}") end}
 >
-  <:col :let={{_id, dummy}} label="Name"><%= dummy.name %></:col>
-  <:col :let={{_id, dummy}} label="Age"><%= dummy.age %></:col>
+  <:col :let={{_id, dummy}} label="Name">{dummy.name}</:col>
+  <:col :let={{_id, dummy}} label="Age">{dummy.age}</:col>
   <:action :let={{_id, dummy}}>
     <div class="sr-only">
       <.link navigate={~p"/dummies/#{dummy}"}>Show</.link>

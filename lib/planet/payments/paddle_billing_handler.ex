@@ -111,6 +111,7 @@ defmodule Planet.Payments.PaddleBillingHandler do
       |> Map.put("subscription_id", subscription_id)
       # Converting to Free Plan
       |> Map.put("product_id", "default")
+      |> Map.put("price_id", "default")
       |> Map.put("payment_attempt", nil)
       # Active Because Changed Product ID to Default
       |> Map.put("status", "unpaid")
@@ -151,6 +152,7 @@ defmodule Planet.Payments.PaddleBillingHandler do
       |> Map.put("subscription_id", nil)
       # Converting to Free Plan
       |> Map.put("product_id", "default")
+      |> Map.put("price_id", "default")
       |> Map.put("payment_attempt", nil)
       # Active Because Changed Product ID to Default
       |> Map.put("status", "unpaid")
@@ -238,6 +240,14 @@ defmodule Planet.Payments.PaddleBillingHandler do
     Subscriptions.update_subscription(subscription, subscription_attrs)
   end
 
+  # def handler(
+  #       _conn,
+  #       %{"event_type" => "transaction.payment_failed"} = params
+  #     ) do
+  #   Logger.info(params)
+  #   :unhandled
+  # end
+
   def handler(
         _conn,
         %{"event_type" => _event_type} = params
@@ -247,16 +257,25 @@ defmodule Planet.Payments.PaddleBillingHandler do
   end
 
   defp webhook_params_to_subscription_attrs(params) do
-    product_id =
+    items =
       Map.get(params, "items")
       |> List.first()
+
+    product_id =
+      items
       |> Map.get("product", %{})
-      |> Map.get("id", nil)
+      |> Map.get("id", "default")
+
+    price_id =
+      items
+      |> Map.get("price", %{})
+      |> Map.get("id", "default")
 
     %{
       # Required
       "status" => Map.get(params, "status", "past_due"),
       "product_id" => product_id,
+      "price_id" => price_id,
       "processor" => "paddle-billing"
     }
   end
@@ -274,8 +293,11 @@ defmodule Planet.Payments.PaddleBillingHandler do
       Application.fetch_env!(:planet, :paddle)
       |> Keyword.fetch!(:billing_api_key)
 
-    # TODO Change with the correct URL: Prod and Live
-    url = "https://sandbox-api.paddle.com/customers/#{subscription.customer_id}/portal-sessions"
+    api_endpoint =
+      Application.fetch_env!(:planet, :paddle)
+      |> Keyword.fetch!(:api_endpoint)
+
+    url = "#{api_endpoint}/customers/#{subscription.customer_id}/portal-sessions"
 
     headers = [
       {"Authorization", "Bearer #{api_key}"},

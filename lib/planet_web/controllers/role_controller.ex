@@ -67,8 +67,23 @@ defmodule PlanetWeb.RoleController do
         |> put_flash(:info, "Role deleted successfully.")
         |> redirect(to: ~p"/users/settings/team")
 
+      {:error,
+       %Ecto.Changeset{
+         errors: [
+           users_roles_role_id_fkey: {message, _}
+         ]
+       } = changeset} ->
+        conn
+        |> put_flash(:error, message)
+        |> render("edit.html",
+          role: role,
+          changeset: changeset,
+          selected_permissions: role.permissions
+        )
+
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html",
+        conn
+        |> render("edit.html",
           role: role,
           changeset: changeset,
           selected_permissions: role.permissions

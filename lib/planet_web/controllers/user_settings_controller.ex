@@ -6,7 +6,7 @@ defmodule PlanetWeb.UserSettingsController do
   require Logger
 
   alias Planet.Accounts
-  alias Planet.UserCredentials
+  # alias Planet.UserCredentials
   alias PlanetWeb.UserAuth
 
   plug(:setup_and_changesets)
@@ -111,7 +111,8 @@ defmodule PlanetWeb.UserSettingsController do
     |> assign(:email_changeset, Accounts.change_user_email(user))
     |> assign(:password_changeset, Accounts.change_user_password(user))
     |> assign(:name_changeset, Accounts.change_user_fullname(user))
-    |> assign(:credentials, UserCredentials.list_user_credentials(conn.assigns.current_user))
+    |> assign(:credentials, [])
+    # |> assign(:credentials, UserCredentials.list_user_credentials(conn.assigns.current_user))
     |> assign(:page_title, "Settings")
   end
 end

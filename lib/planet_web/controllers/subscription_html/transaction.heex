@@ -1,0 +1,33 @@
+<a onclick="openCheckout()"><b>Open Checkout</b></a>
+
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js">
+</script>
+<script type="text/javascript">
+      const urlParams = new URLSearchParams(window.location.search);
+      var transactionId = urlParams.get('_ptxn')
+
+      <%= if @paddle_sandbox? do %>
+          Paddle.Environment.set('sandbox');
+      <% end %>
+
+    Paddle.Initialize({
+      token: "test_9e241383b6688aa9dd498b878e1", // replace with a client-side token
+      // prints events to console for debugging
+      eventCallback: function(data) {
+        console.log(data);
+      },
+      checkout: {
+        settings: {
+            variant: "one-page",
+            allowLogout: false
+        }
+      }
+    });
+
+  function openCheckout() {
+    Paddle.Checkout.open({
+      transactionId: transactionId,
+
+    });
+  }
+</script>

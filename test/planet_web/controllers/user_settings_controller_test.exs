@@ -15,10 +15,14 @@ defmodule PlanetWeb.UserSettingsControllerTest do
 
   describe "GET /users/settings" do
     test "renders settings page", %{conn: conn} do
-      conn =
-        conn
-        |> get(~p"/users/settings")
+      # conn =
+      #   conn
+      #   |> get(~p"/users/settings")
 
+      # response = html_response(conn, 200)
+      # assert response =~ "Settings"
+
+      conn = get(conn, ~p"/users/settings")
       response = html_response(conn, 200)
       assert response =~ "Settings"
     end

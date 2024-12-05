@@ -57,7 +57,7 @@ defmodule PlanetWeb.UserSettingsOrganizationControllerTest do
       user: user
     } do
       another_user_in_same_org =
-        user_fixture(user.organization, role_fixture(user.organization))
+        user_fixture_with_organization(user.organization, role_fixture(user.organization))
 
       role = role_fixture(user.organization)
 
@@ -81,7 +81,7 @@ defmodule PlanetWeb.UserSettingsOrganizationControllerTest do
       user: user
     } do
       role = role_fixture(user.organization)
-      another_user = user_fixture(user.organization, role)
+      another_user = user_fixture_with_organization(user.organization, role)
 
       [%Planet.Roles.Role{} = admin_role] = user.roles
 
@@ -132,7 +132,7 @@ defmodule PlanetWeb.UserSettingsOrganizationControllerTest do
       [%Planet.Roles.Role{} = admin_role] = user.roles
 
       _another_user_in_same_org_who_is_admin =
-        user_fixture(user.organization, admin_role)
+        user_fixture_with_organization(user.organization, admin_role)
         |> Planet.Accounts.update_user_organization_admin(%{
           "organization_admin?" => "true"
         })

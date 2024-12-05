@@ -39,6 +39,15 @@
       pwCustomer: {
         email: '<%= @current_user.email %>'
       },
+    eventCallback: function(data) {
+        // console.log(data.name);
+        if (data.name == "checkout.completed") {
+          console.log(data);
+
+          window.location.replace("/users/billing/signup?transaction_id=" + data.data.transaction_id);
+          
+        }
+      }
       
     });
 
@@ -62,7 +71,7 @@
         frameTarget: "checkout-container-paddle",
         frameInitialHeight: "800",
         frameStyle: "width: 100%; min-width: 312px; max-width: 600px; background-color: transparent; border: none;",      
-        successUrl: "<%= @paddle_success_redirect_url %>"
+        //successUrl: "<%= @paddle_success_redirect_url %>"
       },
       items: itemsList,
       customData: {

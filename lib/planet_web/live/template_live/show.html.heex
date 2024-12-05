@@ -1,5 +1,5 @@
 <.header>
-  Template <%= @template.id %>
+  Template {@template.id}
   <:subtitle>This is a template record from your database.</:subtitle>
   <:actions>
     <.link patch={~p"/templates/#{@template}/show/edit"} phx-click={JS.push_focus()}>
@@ -9,8 +9,8 @@
 </.header>
 
 <.list>
-  <:item title="Name"><%= @template.name %></:item>
-  <:item title="Age"><%= @template.age %></:item>
+  <:item title="Name">{@template.name}</:item>
+  <:item title="Age">{@template.age}</:item>
 </.list>
 
 <.back navigate={~p"/templates"}>Back to templates</.back>

@@ -56,6 +56,7 @@ defmodule Planet.Repo.Migrations.CreateUsersAuthTables do
       add(:organization_id, references(:organizations, on_delete: :delete_all), primary_key: true)
 
       add(:product_id, :string, null: false)
+      add(:price_id, :string, null: false)
 
       add(:subscription_id, :string)
       add(:status, :string, null: false)

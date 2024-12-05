@@ -15,7 +15,7 @@ defmodule PlanetWeb.UserRegistrationController do
 
   def create(conn, %{"user" => user_params}) do
     redirect_url =
-      case Planet.Plugs.SubscriptionCheck.state() do
+      case Planet.Plugs.SubscriptionCheck.check_allow_unpaid_access() do
         false -> %{"redirect_url" => ~p"/users/billing/signup"}
         true -> %{}
       end

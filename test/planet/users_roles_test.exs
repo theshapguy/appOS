@@ -44,7 +44,7 @@ defmodule Planet.UsersRolesTest do
            role: role
          } do
       _another_user_in_same_org_who_is_admin =
-        user_fixture(user.organization, role_fixture(user.organization))
+        user_fixture_with_organization(user.organization, role_fixture(user.organization))
         |> Planet.Accounts.update_user_organization_admin(%{
           "organization_admin?" => "true"
         })
