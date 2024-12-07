@@ -3,123 +3,50 @@
   <:subtitle>Manage your card, subscription, and billing details.</:subtitle>
 </.header>
 
-<%= for item <- @plans do %>
-  <div
-    id={"product-id-#{item.product_id}"}
-    class={"
-    border w-full p-4 mt-4 rounded-md
-    #{if item.product_id == @license.product_id, do: "bg-blue-50 border-blue-100"}"
-  }
-  >
-    <div class="flex justify-between items-center">
-      <div class="flex items-center gap-4">
-        <div>
-          <h1 class="text-base font-semibold leading-5 text-zinc-800">
-            {item.title} {item.price}
-          </h1>
-          <p class="text-sm text-zinc-600">{item.subtitle}</p>
-        </div>
-      </div>
-
-      <%!-- If Default License --%>
-      <%= if item.product_id == @license.product_id do %>
-        <div class="inline-flex items-center px-3 py-2.5 text-sm font-medium leading-none rounded-md bg-blue-600 text-white select-none cursor-pointer">
-          Current Plan
-        </div>
-      <% else %>
-        <%!-- Only Show Upgrade Button if Currently On a Free/Default Plan --%>
-        <%!-- If Not on Default Plan; Upgrades and Downgrades will need to be processed manually --%>
-        <%= if @license.product_id == "default" do %>
-          <div
-            class="inline-flex items-center px-3 py-2.5 text-sm font-medium leading-none rounded-md bg-teal-600 text-white select-none cursor-pointer"
-            onclick={"openCheckout('#{item.product_id}')"}
-          >
-            Subscribe
-          </div>
-        <% end %>
-      <% end %>
-    </div>
+<div class="space-y-12 divide-y">
+  <div :if={@current_plan}>
+    <% plan_description =
+      "#{@current_plan.name} - $#{@current_plan.price} #{if @current_plan.billingFrequency != "lifetime", do: "every #{@current_plan.billingFrequency}", else: ""}" %>
+    <.form :let={f} for={%{}}>
+      <.input
+        field={f[:plan_description]}
+        data-current-price-id={@license.price_id}
+        value={plan_description}
+        type="text"
+        label="Current Plan"
+        disabled
+      />
+    </.form>
   </div>
-<% end %>
-
-<%= if @license.product_id != "default" do %>
-  <div class="text-zinc-400 text-sm my-5">
-    <ul class="space-y-4">
-      <li>
-        Your next payment is on {Timex.format!(@license.valid_until, "{D} {Mfull} {YYYY}")}.
-        <%= if @license.update_url do %>
-          If you are having billing issues
-          <a class="text-blue-500" href={@license.update_url} target="_blank">
-            click here to update your payment details.
-          </a>
-        <% end %>
-        <a
-          href="https://www.paddle.com/help/manage/your-customers/what-will-customers-see-on-their-statement"
-          target="_blank"
-        >
-          Bank statement will show {@bank_statement}
-        </a>
-      </li>
-      <li>
-        Please <a class="text-blue-500" href="" target="_blank">contact us</a>
-        to upgrade or downgrade your plan.
-        <%= if @license.cancel_url do %>
-          Alternatively, if you wish to cancel your subscription,
-          <a class="text-red-500" href={@license.cancel_url} target="_blank">
-            please click here.
-          </a>
-        <% end %>
-      </li>
-      <li :if={@license.cancel_url == nil && @license.update_url == nil}>
-        <a
-          class="text-blue-500"
-          href="https://sandbox-customer-portal.paddle.com/cpl_01h411b80rvpnhgcb87qktvg1n"
-          target="_blank"
-        >
-          Billing Portal
-        </a>
-        — Manage Your Subscription
-      </li>
-    </ul>
-  </div>
-<% else %>
-  <div class="text-zinc-400 text-sm my-5">
-    Payment processing for all subscriptions and payments is conducted by our online reseller & Merchant of Record,
-    <a target="_blank" href="https://www.paddle.com/">Paddle.com</a>
-  </div>
-<% end %>
-
-<script src="https://cdn.paddle.com/paddle/paddle.js">
-</script>
-
-<script type="text/javascript">
-  <%= if @paddle_sandbox? do %>
-      Paddle.Environment.set('sandbox');
+</div>
+<%= if @current_user.organization_admin?  do %>
+  <%= case @license.processor do %>
+    <% :paddle -> %>
+      <.billing_subtext_paddle license={@license} bank_statement={@bank_statement} />
+    <% :stripe -> %>
+      <.billing_subtext_stripe license={@license} bank_statement={@bank_statement} />
+    <% :creem -> %>
+      <.billing_subtext_creem license={@license} bank_statement={@bank_statement} />
+    <% _ -> %>
+      &nbsp;
   <% end %>
 
-  Paddle.Setup({
-      vendor: <%= @vendor_id %>
-  });
-
-  function checkoutClosed(data) {
-      //console.log(data);
-      //alert('Your purchase has been cancelled, we hope to see you again soon!');
-  }
-
-  function openCheckout(product_id) {
-
-      <%!-- Paddle.Checkout.open({
-          method: "overlay",
-          product: product_id,
-          success: "<%= @paddle_success_redirect_url %>",
-          disableLogout: true,
-          country: 'NP',
-          email: "<%= @current_user.email %>",
-          passthrough: 'organization_id;<%= @current_user.organization.id %>;user_id;<%= @current_user.id %>',
-          closeCallback: "checkoutClosed"
-      }); --%>
-
-  }
-
-  window.history.replaceState(null, null, '/users/billing');
-</script>
+  <%= if @current_plan.billingFrequency != "lifetime"  do %>
+    <%!-- If not lfetime plan show upgrade to lifetime plan --%>
+    <div class="flex justify-center mt-12 w-full" id="subscrible-paddle-button">
+      <.link
+        navigate={~p"/users/billing/signup?lifetime=yes"}
+        class="w-full text-center bg-brand hover:bg-rouge-400 px-8 py-4 rounded-md text-white font-semibold cursor-pointer"
+      >
+        Upgrade to Lifetime Plan - $499
+      </.link>
+    </div>
+  <% end %>
+<% else %>
+  <div class="text-zinc-400 text-sm my-5">
+    <b>Manage Your Subscription</b>
+    <p>
+      All subscriptions and payments are managed by your organization's admin.
+    </p>
+  </div>
+<% end %>

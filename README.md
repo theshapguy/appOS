@@ -34,3 +34,12 @@ to
 
 subsriptions
 product_id should be changed to list - see webhook data
+
+
+# If Lifetime Plan Is being Subscribed, Remove All Subscriptions From Stripe Paddle
+# Ignore All Webhook Events After That So That If Webhook Events Cannot Update The Subscription Item
+
+
+rm -r ~/.hex/cache.ets
+rm -r .elixir_ls/
+rm -r _build/

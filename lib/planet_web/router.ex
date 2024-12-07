@@ -17,6 +17,12 @@ defmodule PlanetWeb.Router do
     plug(:accepts, ["json"])
   end
 
+  pipeline :api_with_session do
+    plug(:accepts, ["json"])
+    plug(:fetch_session)
+    plug(:fetch_current_user)
+  end
+
   pipeline :landing_layout do
     # Done
     plug :put_layout, html: {PlanetWeb.Layouts, :landing}
@@ -47,24 +53,18 @@ defmodule PlanetWeb.Router do
     plug Planet.Plugs.SubscriptionCheck
   end
 
-  # pipeline :paddle_webhook do
-  #   plug(:accepts, ["json"])
-  # end
-
-  # pipeline :paddle_webhook do
-  #   # plug(RemoteIp)
-  #   # plug(PaddleWhitelist)
-  #   plug(PlanetSubscriptions.PaddleSignature)
-  # end
-
   # Landing Pages
   scope "/", PlanetWeb do
     pipe_through([:browser, :landing_layout])
 
     get("/", PageController, :home)
-    # get("/terms", PageController, :home)
-    # get("/privacy", PageController, :home)
-    # get("/contact", PageController, :home)
+
+    get("/privacy", PageController, :privacy)
+    get("/terms", PageController, :terms)
+    get("/refund", PageController, :refund)
+
+    get("/version", PageController, :version)
+    get("/health", PageController, :health)
   end
 
   # Dashboard Scope
@@ -131,6 +131,13 @@ defmodule PlanetWeb.Router do
     put("/users/reset_password/:token", UserResetPasswordController, :update)
   end
 
+  scope "/auth", PlanetWeb do
+    pipe_through [:browser]
+
+    get "/:provider", UberAuthNController, :request
+    get "/:provider/callback", UberAuthNController, :callback
+  end
+
   scope "/", PlanetWeb do
     pipe_through([:browser, :app_session_layout])
 
@@ -166,18 +173,6 @@ defmodule PlanetWeb.Router do
 
     resources "/users/settings/roles", RoleController,
       only: [:new, :edit, :create, :update, :delete]
-
-    # live_session :roles,
-    #   on_mount: [
-    #     {PlanetWeb.UserAuthLive, :require_authenticated_user}
-    #   ] do
-    #   live "/roles", RoleLive.Index, :index
-    #   live "/roles/new", RoleLive.Index, :new
-    #   live "/roles/:id/edit", RoleLive.Index, :edit
-
-    #   live "/roles/:id", RoleLive.Show, :show
-    #   live "/roles/:id/show/edit", RoleLive.Show, :edit
-    # end
   end
 
   scope "/", PlanetWeb do
@@ -201,14 +196,20 @@ defmodule PlanetWeb.Router do
   scope "/webhook", PlanetWeb do
     pipe_through([:api])
 
-    post("/paddle", SubscriptionController, :paddle_webhook)
-    post("/paddle-billing", SubscriptionController, :paddle_billing_webhook)
+    # post("/paddle-classic", SubscriptionController, :paddle_webhook)
+
+    # Payment Webhooks
+    post("/paddle-billing", PaymentWebhookController, :paddle_webhook)
+    post("/stripe", PaymentWebhookController, :stripe_webhook)
+    post("/creem", PaymentWebhookController, :creem_webhook)
   end
 
-  scope "/auth", PlanetWeb do
-    pipe_through [:browser]
+  scope "/", PlanetWeb do
+    pipe_through([
+      :api_with_session,
+      :require_authenticated_user
+    ])
 
-    get "/:provider", UberAuthNController, :request
-    get "/:provider/callback", UberAuthNController, :callback
+    post("/formdata-api/checkout-session", PaymentWebhookController, :payment_checkout_session)
   end
 end

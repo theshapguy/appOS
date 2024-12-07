@@ -5,3 +5,32 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=fallback');
 /* This file is for your main application CSS */
+
+@keyframes gradientBG {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  .gradient-hover:hover {
+    background: linear-gradient(-45deg, 
+      rgba(255, 241, 235, 0.8), /* Light peach */
+      rgba(255, 235, 245, 0.8), /* Light pink */
+      rgba(230, 245, 255, 0.8), /* Light blue */
+      rgba(235, 255, 250, 0.8)  /* Light teal */
+    );
+    background-size: 400% 400%;
+    animation: gradientBG 3s ease infinite;
+    transition: all 0.3s ease;
+  }
+  
+  /* Optional: add a subtle text shadow to improve readability further */
+  .gradient-hover:hover * {
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+  }

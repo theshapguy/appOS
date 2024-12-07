@@ -63,6 +63,11 @@ defmodule Planet.Repo.Migrations.CreateUsersAuthTables do
 
       add(:customer_id, :string)
 
+      add(:previous_customer_ids, :map,
+        default: %{},
+        null: false
+      )
+
       add(:issued_at, :utc_datetime, null: false)
       add(:valid_until, :utc_datetime, null: false)
 

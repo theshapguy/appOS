@@ -37,6 +37,24 @@ defmodule Planet.Accounts do
     Repo.get_by(User, email: email)
   end
 
+  def get_user_by_email(email, :subscription) when is_binary(email) do
+    Repo.get_by(User, email: email) |> Repo.preload(organization: [:subscription])
+  end
+
+  # def get_user_by_customer_id(payment_processor_customer_id) when is_binary(payment_processor_customer_id) do
+  #   User
+  #   |> where([u], u.organization_admin? == true)
+  #   |> where([u, o, s], s.customer_id == ^payment_processor_customer_id)
+  #   |> join(:inner, [u], o in assoc(u, :organization))
+  #   |> join(:inner, [u, o], s in assoc(o, :subscription))
+  #   |> preload([u, o, s], organization: {o, subscription: s})
+  #   |> Repo.one()
+  # end
+
+  # def get_user_by_email(email, :subscription) when is_binary(email) do
+  #   Repo.get_by(User, email: email) |> Repo.preload(organization: [:subscription])
+  # end
+
   @doc """
   Gets a user by email and password.
 
@@ -111,7 +129,7 @@ defmodule Planet.Accounts do
   #   |> Repo.insert()
   # end
 
-  def register_user(attrs, ueberauth_auth \\ nil, subscription_status \\ "unpaid") do
+  def register_user(attrs, ueberauth_auth \\ nil) do
     user_changeset =
       %User{organization_admin?: true}
       |> User.registration_changeset(attrs)
@@ -137,15 +155,16 @@ defmodule Planet.Accounts do
     subscription_changeset =
       Subscriptions.change_subscription(
         %Subscription{},
-        %{
-          "status" => subscription_status,
-          "product_id" => "default",
-          "price_id" => "default",
-          "issued_at" => DateTime.utc_now(),
-          # Date Plus 100 years for Free Plan
-          "valid_until" => DateTime.utc_now() |> DateTime.add(3_153_600_000, :second),
-          "processor" => "manual"
-        }
+        Planet.Payments.Plans.free_default_plan_as_subscription_attrs()
+        # %{
+        #   "status" => subscription_status,
+        #   "product_id" => "default",
+        #   "price_id" => "default",
+        #   "issued_at" => DateTime.utc_now(),
+        #   # Date Plus 100 years for Free Plan
+        #   "valid_until" => DateTime.utc_now() |> DateTime.add(3_153_600_000, :second),
+        #   "processor" => "manual"
+        # }
       )
 
     administrator_role_changeset =

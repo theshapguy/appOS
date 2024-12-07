@@ -22,7 +22,7 @@ config :logger, level: :info
 
 # TODO Configure Before Going Live
 config :planet, :paddle,
-  sandbox: false,
+  # sandbox: false,
   api_key: "3071a1d8b877b7325866d3ece8857018",
   vendor_id: 13057,
   bank_statement: "PADDLE.NET* RINKO",
@@ -52,3 +52,4 @@ config :planet, :paddle,
   """
 
 # [Release] Check Runtime As Well
+config :mnesia, dir: ~c"priv/mnesia"

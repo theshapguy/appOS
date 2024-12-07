@@ -29,9 +29,10 @@ defmodule Planet.Payments.PaddleWhitelist do
   end
 
   def ip_whitelist do
-    Application.fetch_env!(:planet, :paddle)
-    |> Keyword.fetch!(:ip_whitelist)
-    |> Enum.map(fn ip -> :inet.parse_address(Kernel.to_charlist(ip)) end)
-    |> Enum.map(fn {:ok, ip} -> ip end)
+    []
+    # Application.fetch_env!(:planet, :paddle)
+    # |> Keyword.fetch!(:ip_whitelist)
+    # |> Enum.map(fn ip -> :inet.parse_address(Kernel.to_charlist(ip)) end)
+    # |> Enum.map(fn {:ok, ip} -> ip end)
   end
 end

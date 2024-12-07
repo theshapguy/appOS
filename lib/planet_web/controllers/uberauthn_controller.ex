@@ -24,7 +24,7 @@ defmodule PlanetWeb.UberAuthNController do
   # end
 
   def callback(%{assigns: %{ueberauth_auth: ueberauth_auth}} = conn, %{"provider" => provider}) do
-    IO.inspect(conn)
+    # IO.inspect(conn)
 
     case Accounts.get_user_by_email(ueberauth_auth.info.email) do
       %User{} = user ->

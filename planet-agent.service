@@ -1,13 +1,13 @@
-# Location /etc/systemd/system/boringnewsletters.service
+# Location /etc/systemd/system/planet.service
 # sudo systemctl daemon-reload
 # Start At Boot
-# sudo systemctl enable boringnewsletters.service
-# sudo systemctl start boringnewsletters.service
+# sudo systemctl enable planet.service
+# sudo systemctl start planet.service
 
 
 # tar -zxvf planet-3 --one-top-level=planet_main
 [Unit]
-Description=BoringNewsletters
+Description=PlanetService
 After=local-fs.target network.target
 
 [Service]
@@ -21,16 +21,15 @@ ExecStop=/home/deploy/releases/planet_main/bin/stop stop
 Environment=LANG=en_US.utf8
 Environment=MIX_ENV=prod
 
+# Change Database URL & Hostname
 Environment=PORT=4000
-Environment=DATABASE_URL=postgresql://app:DNpBhxuCzMoP2RNgzEx4@127.0.0.1/boring_newsletters_prod 
+Environment=DATABASE_URL=postgresql://app:DNpBhxuCzMoP2RNgzEx4@127.0.0.1/planet_prod_database 
 Environment=SECRET_KEY_BASE=4gX34ebM1uwPeF6rvo/w/5fERI7zBMr9p9JvtlFi9gNH5rMrBEJSLrAoJbDwCxPS 
-Environment=PHX_HOST=boringnewsletters.com 
-Environment=SES_API_KEY=AKIAVIYILJTHDAOOZ7GU 
-Environment=SES_SECRET=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
+Environment=PHX_HOST=planet_hostname.com 
 
 LimitNOFILE=65535
 UMask=0027
-SyslogIdentifier=BoringNewsletters
+SyslogIdentifier=PlanetService
 Restart=always
 
 

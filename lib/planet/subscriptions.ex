@@ -41,6 +41,10 @@ defmodule Planet.Subscriptions do
   """
   def get_subscription!(id), do: Repo.get!(Subscription, id)
 
+  def get_subscription_by_customer_id(customer_id) when is_binary(customer_id) do
+    Repo.get_by(Subscription, customer_id: customer_id)
+  end
+
   @doc """
   Reload a single subscription.
   """
@@ -134,6 +138,7 @@ defmodule Planet.Subscriptions do
       |> Repo.one()
       |> case do
         nil ->
+          # Unpaid Subsriber Not Found, Probably Already Updated Via Webhook
           {:ok, :subscriber_not_found}
 
         %Subscription{} = subscription ->

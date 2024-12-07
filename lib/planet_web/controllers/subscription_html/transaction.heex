@@ -6,7 +6,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       var transactionId = urlParams.get('_ptxn')
 
-      <%= if @paddle_sandbox? do %>
+      <%= if @payment_debug? do %>
           Paddle.Environment.set('sandbox');
       <% end %>
 

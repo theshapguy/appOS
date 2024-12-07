@@ -14,12 +14,11 @@ echo """
 """
 
 sudo -S --validate
-# 
 
 # Stop the service
 echo "Stopping the service..."
-# Stop Service Named: boringnewsletters
-sudo service boringnewsletters stop
+# Stop Service Named: planet
+sudo service planet stop
 
 # Delete the directory named "app"
 echo "Deleting the directory named 'planet'..."
@@ -33,15 +32,15 @@ mv planet_red planet
 
 # Start the service
 echo "Starting the service..."
-sudo service boringnewsletters start
+sudo service planet start
 
 # Check if the service is active
-while ! systemctl is-active --quiet boringnewsletters.service; do
+while ! systemctl is-active --quiet planet.service; do
     echo "Waiting for the service to start..."
     sleep 5
 done
 
 echo "Show the service logs..."
-journalctl -u boringnewsletters.service -b  -n 20 --no-pager
+journalctl -u planet.service -b  -n 20 --no-pager
 
 echo "Service restart complete.\n"

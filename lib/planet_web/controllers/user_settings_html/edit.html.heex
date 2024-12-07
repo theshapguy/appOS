@@ -1,6 +1,6 @@
 <.header class="text-center">
   Name Settings
-  <:subtitle>Change your name</:subtitle>
+  <:subtitle>Update the name associated with your account</:subtitle>
 </.header>
 
 <div class="space-y-12 divide-y">
@@ -44,7 +44,7 @@
     <datalist id="timezones_list">
       <%= for {tz, humanize_tz} <- humanize_timezone_list() do %>
         <option value={tz}>
-          <%= humanize_tz %>
+          {humanize_tz}
         </option>
       <% end %>
     </datalist>
@@ -167,7 +167,7 @@
   <%= for item <- @credentials do %>
     <div class="flex justify-between items-center py-6">
       <div>
-        <div class="text-base"><%= item.nickname %></div>
+        <div class="text-base">{item.nickname}</div>
         <div class="text-sm text-zinc-500" title={item.inserted_at}>
           <.localtime datetime={item.inserted_at} timezone={@timezone} />
         </div>

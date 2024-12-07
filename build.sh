@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
+# exit on error
+set -xo errexit
 
 # Source
 # https://render.com/docs/deploy-phoenix#create-a-build-script
-
-# exit on error
 
 CLEAN="0"
 
@@ -66,6 +66,7 @@ MIX_ENV=prod mix phx.digest.clean --all
 
 echo "****** Copy Release To Release Directory ******"
 if [ "$IN_VAGRANT" = "1" ]; then
+    # mkdir -p /tmp/release
     cp -p -v -f ./_build/prod/planet* /tmp/release
 else
     cp -p -v -f ./_build/prod/planet* ./release

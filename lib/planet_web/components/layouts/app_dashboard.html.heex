@@ -1,98 +1,118 @@
-<%!-- Layout For Dashboard Logged In Area --%>
-<div x-data="{ open: false }" class="bg-[#100627]">
-  <div class="max-w-4xl mx-auto px-4">
-    <div class="flex items-center justify-between h-16">
-      <!-- Logo -->
-      <div class="flex-shrink-0 flex items-center">
-        <!-- Replace 'logo.png' with your actual logo path -->
-        <%!-- <img class="hidden h-8 w-auto" src="logo.png" alt="Logo" /> --%>
-
-        <a href="/">
-          <img class="block h-8 w-auto" src={~p"/images/logo.svg"} width="36" />
-        </a>
-      </div>
-      <!-- Menu items -->
-      <div class="justify-center flex-grow hidden sm:flex">
-        <!-- Add your menu items here -->
-        <!-- For example, you can add links to different pages -->
-        <ul class="flex space-x-4">
-          <li>
-            <.link href={~p"/app"} class="text-white px-3 py-2 rounded-md text-sm font-medium">
-              Home
-            </.link>
-          </li>
-          <li>
-            <.link
-              href={~p"/users/settings"}
-              class="text-white px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Settings
-            </.link>
-          </li>
-        </ul>
-      </div>
-      <!-- Login and Signup buttons -->
-      <div class="items-center gap-2 hidden sm:flex">
-        <.link
-          href={~p"/users/log_out"}
-          method="delete"
-          class="text-white px-3 py-2 rounded-md text-sm font-medium"
-        >
-          Log out
-        </.link>
-        <div
-          title={@current_user.email}
-          class="m-1 mr-2 w-8 h-8 relative flex justify-center items-center rounded-md cursor-default bg-teal-600 text-sm text-white uppercase"
-        >
-          {String.at(@current_user.email, 0)}
-        </div>
-      </div>
-      <!-- Mobile menu toggle -->
-      <div class="flex items-center sm:hidden">
-        <button @click="open = !open" class="text-white p-2 rounded-md">
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16m-7 6h7"
-            >
-            </path>
-          </svg>
-        </button>
-      </div>
+<nav class="fixed top-0 left-0 right-0 z-50 border-b border-neutral-200 bg-white/80 backdrop-blur-lg ">
+  <div class="container max-w-5xl mx-auto flex items-center justify-between px-4 xl:px-0 py-3">
+    <!-- Logo and App Name Section -->
+    <div class="flex items-center">
+      <.link
+        href={~p"/"}
+        class="text-xl font-bold text-neutral-900 hover:text-neutral-700 transition-colors"
+      >
+        {Application.get_env(:planet, Planet.Mailer)[:app_name]}
+      </.link>
     </div>
-  </div>
-  <!-- Mobile menu -->
-  <div x-show="open" class="sm:hidden">
-    <div class="px-2 pt-2 pb-3 space-y-1">
-      <!-- Add mobile version of menu items here -->
-      <!-- For example, you can add links to different pages -->
-      <.link href={~p"/app"} class="text-white block px-3 py-2 rounded-md text-base font-medium">
+    
+<!-- Desktop Navigation Links -->
+    <div class="sm:flex items-center space-x-4 hidden" id="desktopNav">
+      <.link
+        href={~p"/app"}
+        class="text-sm font-medium text-neutral-600 hover:text-blue-500 transition-colors"
+      >
         Home
       </.link>
 
       <.link
         href={~p"/users/settings"}
-        class="text-white block px-3 py-2 rounded-md text-base font-medium"
+        class="text-sm font-medium text-neutral-600 hover:text-blue-500 transition-colors"
       >
         Settings
       </.link>
+      
+<!-- Login/Logout Toggle -->
+      <.link
+        href={~p"/users/log_out"}
+        method="delete"
+        class="text-sm font-medium text-neutral-600 hover:text-red-500 transition-colors"
+      >
+        Logout
+      </.link>
+    </div>
+    
+<!-- Mobile Menu Toggle -->
+    <div class="sm:hidden flex items-center">
+      <button
+        id="mobileMenuToggle"
+        class="text-neutral-600 hover:text-neutral-900 focus:outline-none"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+  
+<!-- Mobile Menu Dropdown -->
+  <div
+    id="mobileMenu"
+    class="sm:hidden absolute top-full left-0 right-0 bg-white shadow-lg hidden"
+  >
+    <div class="flex flex-col px-4 py-4 space-y-2">
+      <.link
+        href={~p"/app"}
+        class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors py-2 border-b border-neutral-200"
+      >
+        Home
+      </.link>
+
+      <.link
+        href={~p"/users/settings"}
+        class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors py-2 border-b border-neutral-200"
+      >
+        Settings
+      </.link>
+      
+<!-- Mobile Login/Logout Toggle -->
 
       <.link
         href={~p"/users/log_out"}
         method="delete"
-        class="text-white block px-3 py-2 rounded-md text-base font-medium"
+        class="text-sm font-medium text-neutral-600 hover:text-red-500 transition-colors py-2 border-b border-neutral-200"
       >
-        Logout - {@current_user.email}
+        Logout
       </.link>
     </div>
   </div>
-</div>
+</nav>
 
 <main class="px-4 py-20 sm:px-6 lg:px-8">
-  <div class="mx-auto max-w-4xl">
+  <div class="mx-auto max-w-5xl">
     <.flash_group flash={@flash} />
     {@inner_content}
   </div>
 </main>
+
+<script>
+  <%!-- TODO Toggle With AlpineJS --%>
+      // Mobile Menu Toggle
+      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+      const mobileMenu = document.getElementById('mobileMenu');
+
+      mobileMenuToggle.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+      });
+
+    document.addEventListener('click', (event) => {
+                if (!mobileMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+</script>

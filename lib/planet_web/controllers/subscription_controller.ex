@@ -1,19 +1,18 @@
 defmodule PlanetWeb.SubscriptionController do
   use PlanetWeb, :controller
 
-  plug PlanetWeb.Plugs.PageTitle, title: "Billing"
-
-  require Logger
-
-  alias Planet.Payments.Paddle
   alias Planet.Subscriptions
-  alias Planet.Utils
-  alias Planet.Payments.PaddleWebhookHandler
+  alias Planet.Payments.Plans
 
-  plug(Planet.Payments.PaddleWhitelist when action in [:paddle_webhook])
-  plug(Planet.Payments.PaddleSignatureAndPassthrough when action in [:paddle_webhook])
+  alias Planet.Payments.Creem
+  alias Planet.Payments.Stripe
+  alias Planet.Payments.Paddle
 
-  plug(Planet.Payments.PaddleBillingSignature when action in [:paddle_billing_webhook])
+  import Planet.Payments.PaddleHandler, only: [convert_paddle_webhook_datetime: 1]
+  import Planet.Payments.CreemHandler, only: [convert_creem_webhook_datetime: 1]
+
+  plug(Planet.Plugs.SubscriptionManagementRedirect when action in [:edit, :payment])
+  plug PlanetWeb.Plugs.PageTitle, title: "Billing"
 
   plug Bodyguard.Plug.Authorize,
        [
@@ -24,239 +23,238 @@ defmodule PlanetWeb.SubscriptionController do
        ]
        when action in [:edit]
 
-  def paddle_billing_webhook(conn, params) do
-    # IO.inspect(params)
+  def edit(conn, _params) do
+    current_user = conn.assigns.current_user
+    subscription = current_user.organization.subscription
 
-    case Planet.Payments.PaddleBillingHandler.handler(conn, params) do
-      {:ok, _} ->
-        conn
-        |> put_status(:ok)
-        |> json(%{message: "success"})
-
-      {:error, changeset} ->
-        Logger.error(changeset.errors)
-
-        conn
-        |> put_status(:bad_request)
-        |> json(%{message: "failed"})
-
-      :unhandled ->
-        conn
-        |> put_status(:ok)
-        |> json(%{message: "no content"})
-    end
-  end
-
-  def paddle_webhook(conn, params) do
-    case PaddleWebhookHandler.handler(conn, params) do
-      # If attrs is same as update what happens,
-      # send subscription created then payment succeded to chck
-
-      {:ok, _} ->
-        conn
-        |> put_status(:ok)
-        |> json(%{message: "success"})
-
-      {:error, changeset} ->
-        Logger.error(changeset.errors)
-
-        conn
-        |> put_status(:bad_request)
-        |> json(%{message: "failed"})
-
-      :unhandled ->
-        conn
-        |> put_status(:ok)
-        |> json(%{message: "no content"})
-    end
-  end
-
-  def edit(conn, params) do
-    organization = conn.assigns.current_user.organization
-    subscription = organization.subscription
-
-    vendor_id =
-      Application.fetch_env!(:planet, :paddle)
-      |> Keyword.fetch!(:vendor_id)
-
-    paddle_sandbox? =
-      Application.fetch_env!(:planet, :paddle)
-      |> Keyword.fetch!(:sandbox)
+    payment_processor =
+      Application.fetch_env!(:planet, :payment)
+      |> Keyword.fetch!(:processor)
 
     bank_statement =
-      Application.fetch_env!(:planet, :paddle)
+      Application.fetch_env!(:planet, payment_processor)
       |> Keyword.fetch!(:bank_statement)
 
-    conn =
-      if Map.get(params, "paddle_success", nil) == "1" do
-        conn
-        |> put_flash(
-          :info,
-          "It may take a few seconds for your plan to activate."
-        )
-      else
-        conn
-      end
-
-    challenge = "organization_id=#{organization.id},timestamp=#{Timex.now() |> Timex.to_unix()}"
-
-    # Need to fetch subscription urls
-    subscription_with_portal =
-      case Planet.Payments.PaddleBillingHandler.create_portal_session(subscription) do
-        {:ok, portal} -> portal
-        # if error use old one
-        {:error, _error} -> subscription
-      end
+    {:ok, subscription_with_portal} =
+      Planet.Payments.Plans.enrich_subscription(subscription)
 
     conn
     |> render(:edit,
+      current_user: current_user,
       license: subscription_with_portal,
-      plans: Planet.Subscriptions.Plans.list(paddle_sandbox?),
-      vendor_id: vendor_id,
-      paddle_sandbox?: paddle_sandbox?,
       bank_statement: bank_statement,
-      paddle_success_redirect_url:
-        "/users/billing/verify?paddle=1&challenge=#{Utils.encrypt_string(challenge)}"
+      current_plan: Plans.variant_by_price_id(subscription.processor, subscription.price_id)
     )
-  end
-
-  def payment(conn, %{"transaction_id" => transacion_id, "processor" => "paddle"}) do
-    # organization = conn.assigns.current_user.organization
-
-    case Paddle.request(transacion_id) do
-      {:ok, %{"data" => %{"status" => status, "subscription_id" => _subscription_id}}}
-      when status in ["billed", "completed", "paid"] ->
-        conn
-        |> put_flash(:info, "Your subscription has been activated.")
-        |> redirect(to: "/app")
-
-      {:ok, _} ->
-        conn
-        |> put_flash(:error, "Failed to activate subscription.")
-        |> redirect(
-          to: "/users/billing/signup?verification_failed=1&transaction_id=#{transacion_id}"
-        )
-
-      {:error, _} ->
-        conn
-        |> put_flash(:error, "Failed to activate subscription.")
-        |> redirect(
-          to: "/users/billing/signup?verification_failed=1&transaction_id=#{transacion_id}"
-        )
-    end
-
-    # IO.inspect(transaction)
-
-    # conn |> redirect(to: "/app")
-
-    # vendor_id =
-    #   Application.fetch_env!(:planet, :paddle)
-    #   |> Keyword.fetch!(:vendor_id)
-
-    # paddle_sandbox? =
-    #   Application.fetch_env!(:planet, :paddle)
-    #   |> Keyword.fetch!(:sandbox)
-
-    # challenge = "organization_id=#{organization.id},timestamp=#{Timex.now() |> Timex.to_unix()}"
-
-    # # IO.inspect(
-    # #   "#{PlanetWeb.Endpoint.url()}/users/billing/verify?paddle=1&challenge=#{Utils.encrypt_string(challenge)}"
-    # # )
-
-    # conn
-    # |> render(:payment,
-    #   vendor_id: vendor_id,
-    #   paddle_sandbox?: paddle_sandbox?,
-    #   # removed &paddle=1
-    #   paddle_success_redirect_url:
-    #     "#{PlanetWeb.Endpoint.url()}/users/billing/verify?challenge=#{Utils.encrypt_string(challenge)}"
-    #   # paddle_success_redirect_url: "#{current_url(conn)}?paddle_success=1"
-    # )
   end
 
   # Payment On Signup
-  def payment(conn, _params) do
-    organization = conn.assigns.current_user.organization
+  def payment(conn, params) do
+    filter_lifetime_querystring = if Map.get(params, "lifetime") == "yes", do: "lifetime"
+    subscription = conn.assigns.current_user.organization.subscription
 
-    vendor_id =
-      Application.fetch_env!(:planet, :paddle)
-      |> Keyword.fetch!(:vendor_id)
+    payment_sandbox? =
+      Application.fetch_env!(:planet, :payment)
+      |> Keyword.fetch!(:sandbox?)
 
-    paddle_sandbox? =
-      Application.fetch_env!(:planet, :paddle)
-      |> Keyword.fetch!(:sandbox)
-
-    challenge = "organization_id=#{organization.id},timestamp=#{Timex.now() |> Timex.to_unix()}"
-
-    # IO.inspect(
-    #   "#{PlanetWeb.Endpoint.url()}/users/billing/verify?paddle=1&challenge=#{Utils.encrypt_string(challenge)}"
-    # )
+    selected_processor = Plans.processor(subscription)
 
     conn
+    |> maybe_add_payment_failed_flash(params)
     |> render(:payment,
-      vendor_id: vendor_id,
-      paddle_sandbox?: paddle_sandbox?,
-      # removed &paddle=1
-      paddle_success_redirect_url:
-        "#{PlanetWeb.Endpoint.url()}/users/billing/verify?challenge=#{Utils.encrypt_string(challenge)}"
-      # paddle_success_redirect_url: "#{current_url(conn)}?paddle_success=1"
+      payment_sandbox?: payment_sandbox?,
+      subscription_plans: Planet.Payments.Plans.list(filter_lifetime_querystring, true),
+      lifetime_plans_only?: filter_lifetime_querystring == "lifetime",
+      processor: selected_processor,
+      processor_humanized: Plans.processor_humanized(selected_processor),
+      vat_included?: Plans.vat_included?(subscription),
+      success_redirect_url: Plans.checkout_success_redirect_url(selected_processor)
     )
+  end
+
+  defp maybe_add_payment_failed_flash(conn, %{"payment_failed" => "1"}) do
+    conn
+    |> put_flash(:error, "We could not process/verify your payment. Refresh & Try Again.")
+  end
+
+  defp maybe_add_payment_failed_flash(conn, _) do
+    conn
   end
 
   @doc """
   This method allows a temporary access to the app for 60 minutes,
   since paddle redirects it into this method.
   """
-  def verify(conn, %{"challenge" => token}) do
-    # attrs = %{"organiaztion_id" => "gKg12n", "timestamp" => "1720526761"}
-    attrs =
-      Utils.decrypt_string!(token)
-      |> Utils.string_to_attrs()
+  def verify(conn, %{
+        "transaction_id" => "txn_" <> _id = transaction_id,
+        "processor" => "paddle" = processor
+      }) do
+    failed_redirect_url =
+      Plans.checkout_failed_redirect_url(String.to_existing_atom(processor), transaction_id)
 
-    # Check Paddle API For Payment
+    case Paddle.request(transaction_id) do
+      {:ok,
+       %{
+         "data" => %{
+           "status" => status,
+           "created_at" => created_at,
+           "custom_data" => %{
+             "organization_id" => organization_id
+           }
+         }
+       }}
+      when status in ["billed", "completed", "paid"] ->
+        case Subscriptions.maybe_force_active(%{
+               "organization_id" => organization_id,
+               "timestamp" => "#{convert_paddle_webhook_datetime(created_at) |> Timex.to_unix()}"
+             }) do
+          {:ok, _subscription} ->
+            conn
+            |> put_flash(:info, "Your subscription has been activated.")
+            |> redirect(to: ~p"/app?greeting=hi")
 
-    case Subscriptions.maybe_force_active(attrs) do
-      {:ok, _subscription} ->
-        conn
-        |> put_flash(:info, "Your subscription has been activated.")
-        |> redirect(to: "/app")
+          {:error, _error} ->
+            conn |> failed_to_activate(failed_redirect_url)
+        end
 
-      {:error, _error} ->
-        conn
-        |> put_flash(:error, "Failed to activate subscription.")
-        |> redirect(to: "/users/billing/signup")
+      {:ok, _} ->
+        conn |> failed_to_activate(failed_redirect_url)
+
+      {:error, _} ->
+        conn |> failed_to_activate(failed_redirect_url)
     end
-
-    # conn
-    # |> redirect(to: "/app")
-
-    # conn
-    # |> render(:verify)
   end
 
-  # Payment On Signup
-  def transaction(conn, %{"_ptxn" => _}) do
-    paddle_sandbox? =
-      Application.fetch_env!(:planet, :paddle)
-      |> Keyword.fetch!(:sandbox)
+  def verify(conn, %{
+        "processor" => "stripe" = processor,
+        "session_id" => "cs_" <> _id = session_id
+      }) do
+    failed_redirect_url =
+      Plans.checkout_failed_redirect_url(String.to_existing_atom(processor), session_id)
 
+    case Stripe.request(session_id) do
+      {:ok,
+       %{
+         "status" => "complete",
+         "created" => created,
+         "metadata" => %{
+           "organization_id" => organization_id,
+           "price_id" => _price_id,
+           "product_id" => _product_id
+         }
+       }} ->
+        case Subscriptions.maybe_force_active(%{
+               "organization_id" => organization_id,
+               "timestamp" => "#{created}"
+             }) do
+          {:ok, _subscription} ->
+            conn
+            |> put_flash(:info, "Your subscription has been activated.")
+            |> redirect(to: "/app?greeting=hi")
+
+          {:error, _error} ->
+            conn |> failed_to_activate(failed_redirect_url)
+        end
+
+      {:ok, _} ->
+        conn |> failed_to_activate(failed_redirect_url)
+
+      {:error, _} ->
+        conn |> failed_to_activate(failed_redirect_url)
+    end
+  end
+
+  def verify(
+        conn,
+        %{
+          "processor" => "creem" = processor,
+          "checkout_id" => checkout_id,
+          "signature" => signature,
+          # Using Request Id In Organzation Id, Since No Order Verification API available
+          "request_id" => _organization_id
+        } = params
+      ) do
+    failed_redirect_url =
+      Plans.checkout_failed_redirect_url(String.to_existing_atom(processor), checkout_id)
+
+    subscription_id = Map.get(params, "subscription_id", nil)
+
+    with true <- Creem.verify_signature(params, signature),
+         {:ok,
+          %{
+            "status" => "active",
+            "current_period_start_date" => start_date,
+            "metadata" => %{"organization_id" => organization_id}
+          }} <- maybe_verify_creem_order_id(params, subscription_id),
+         {:ok, _subscription} <-
+           activate_subscription(%{
+             "organization_id" => organization_id,
+             "current_period_start_date" => start_date
+           }) do
+      conn
+      |> put_flash(:info, "Your subscription has been activated.")
+      |> redirect(to: "/app?greeting=hi")
+    else
+      _ -> failed_to_activate(conn, failed_redirect_url)
+    end
+  end
+
+  defp maybe_verify_creem_order_id(params, nil) do
+    # Mock since one time payment is not verifiable yet
+    {:ok,
+     %{
+       "status" => "active",
+       "current_period_start_date" =>
+         Timex.now()
+         |> Timex.set(timezone: "UTC")
+         |> Timex.format!("{ISO:Extended:Z}"),
+       "metadata" => %{
+         "organization_id" => Map.fetch!(params, "request_id")
+       }
+     }}
+  end
+
+  defp maybe_verify_creem_order_id(_, subscription_id) do
+    Creem.request(subscription_id)
+  end
+
+  defp failed_to_activate(conn, failed_redirect_url) do
     conn
-    |> render(
-      :transaction,
-      paddle_sandbox?: paddle_sandbox?
-    )
+    |> put_flash(:error, "Failed to activate subscription.")
+    |> redirect(to: failed_redirect_url)
+  end
+
+  defp activate_subscription(%{
+         "organization_id" => org_id,
+         "current_period_start_date" => start_date
+       }) do
+    timestamp =
+      start_date
+      |> convert_creem_webhook_datetime()
+      |> Timex.to_unix()
+      |> to_string()
+
+    Subscriptions.maybe_force_active(%{
+      "organization_id" => org_id,
+      "timestamp" => timestamp
+    })
   end
 
   # Payment On Signup
   def plans(conn, _) do
-    # paddle_sandbox? =
-    # Application.fetch_env!(:planet, :paddle)
-    # |> Keyword.fetch!(:sandbox)
+    conn
+    |> render(:plans)
+  end
+
+  # Payment On Signup #For Paddle
+  def transaction(conn, %{"_ptxn" => _}) do
+    payment_debug? =
+      Application.fetch_env!(:planet, :payment)
+      |> Keyword.fetch!(:sandbox?)
 
     conn
     |> render(
-      :plans
-      # paddle_sandbox?: paddle_sandbox?
+      :transaction,
+      payment_debug?: payment_debug?
     )
   end
 end

@@ -35,7 +35,11 @@ config :planet, Planet.Mailer,
   sender_name: "Shap",
   sender_email: "shap@planet.com",
   # 100px
-  icon: "https://i.pravatar.cc/150?u=men"
+  icon: "https://i.pravatar.cc/150?u=men",
+  hostname: "planet.com",
+  company_name: "Planet Inc.",
+  support_email: "help@planet.inc"
+
 
 # Configure esbuild (the version is required)
 config :esbuild,
@@ -82,74 +86,58 @@ config :logger, :console,
 config :phoenix, :json_library, Jason
 
 # Added
-
-# # Need to move these to prod and dev respectively
-# config :stripy,
-#   # stripe development key
-#   secret_key: "sk_test_LTxLpQv9BFYdWI6ulWA0J51Z",
-#   publish_key: "pk_test_Xvhna4CeSxcU8hywnhPcRCLR",
-#   # All these attributes being inside conn,
-#   # we can pattern match against them.
-#   # request_path is a good fit but it
-#   # may contain trailing slashes.
-#   # Instead, path_info is a list of each segment in the path,
-#   #  so we don’t have to bother with slashes at all,
-#   #  making it a better choice here.
-#   webhook_endpoint_info: ["webhook", "stripe"],
-#   webhook_secret: "whsec_NHSDIddjRRHz8Cseevhm74Fhoq13PSY9",
-#   cancel_url: ["settings", "billing"],
-#   success_url: ["settings", "billing"],
-#   return_url: ["settings", "billing"],
-#   on_create_plan_price_id: "price_free_id_monthly",
-#   # optional
-#   endpoint: "https://api.stripe.com/v1/",
-#   # optional
-#   version: "2020-08-27",
-#   # optional
-#   httpoison: [recv_timeout: 5000, timeout: 8000]
+config :mnesia, dir: ~c"mnesia/#{Mix.env()}/#{node()}"
 
 # [Release] Check Production Or Runtime Variables
+config :planet, :payment,
+  sandbox?: false,
+  processor: :stripe,
+  # If Free Plan Allows Access, Don't Redirect to Billing Page On Free Plan
+  allow_free_plan_access: true
+
+
+config :planet, :stripe,
+  description: "Stripe. Secure payment processing.",
+  client_key: "pk_test_Xvhna4CeSxcU8hywnhPcRCLR",
+  api_key: "sk_test_LTxLpQv9BFYdWI6ulWA0J51Z",
+  webhook_secret_key: "whsec_kT9OoRnIbrZCke6PbFkVdxQ3a2KDSjMo",
+  api_endpoint: "https://api.stripe.com/v1",
+  portal_endpoint: "https://billing.stripe.com/p/login/test_cN28xS7YC7LM53ieUU",
+  vat_included: true,
+  bank_statement: "SOCIAL REECH CRM",
+  version: "2024-11-20.acacia"
+
 config :planet, :paddle,
-  # If Unpaid Access Is Allowed, Can Perform Tasks without Active Status
-  # No Billing Required
-  # If False -> Redirect To Billing Page
-  # Can be Read as Allow_Free_Access
-  allow_unpaid_access: true,
-  sandbox: true,
-  api_key: "3071a1d8b877b7325866d3ece8857018",
-  vendor_id: 13057,
-  bank_statement: "PADDLE.NET* RINKO",
-  ip_whitelist: [
-    "34.194.127.46",
-    "54.234.237.108",
-    "3.208.120.145",
-    "44.226.236.210",
-    "44.241.183.62",
-    "100.20.172.113",
-    "127.0.0.1"
-  ],
-  public_key: """
-  -----BEGIN PUBLIC KEY-----
-  MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEArYwvvhCBpT956KQ7qUJ/
-  7RNcI9rEwwMfR1XbJSJdDOsI8WEIvnXvlHTYbtESry4h9Il+5xFhIcpjP9SpC+LL
-  LWnJk+g+kQ5INE3jlABZc3hgMzN9/zgUwuQ7FiCukRvwQmxUTMIt/O2Y27l+zpWe
-  450mPg7qqqhobPrkm+HL2xqNPK0rBOEryCx217ifvdMSORMw1NORm5c8wbxtayMf
-  4pScjzyz2Xb8NXLkdV2FAu0oUFrQQlQoMiWMhQJYxI/fB+51k0XYHN5qurQo9Vsn
-  hR4pGHf8gpYY1JZ/sJtJKI1DW5k14pNq8nP8G2OlPHSg4RNzMpgnuaKFdvTDCgKa
-  jYRSS1pqU+TumYWX3+5hRxtOfZ/Lhuk0d/vrd0IIGMhzsY+NDdjb0UNYVQlY38lX
-  OgxbX5BM7G8+xyP+gtEkOhVWihnSv1IqhIXWvsRiZ1Uq86szerGdvjKTGHJ5lCCb
-  O6qXA+H9pH2SbG37KhQsPCETDMoAn8VaB8Yzgt11daCNEfGeBFrQD7sF0d9wGhjq
-  1UVjwVbjD9q1T3mgp4SpQZXxZX449phtl0r8ONrdtVIIDIzW0TabLB3vQDoikICO
-  mOQ/2uOU0uuJSPwrYYLTjWWbziovMphTU9VpZbx3AOy2XL+HejxNZQWYZnQF089l
-  6w/lkLugrM5x0h7+6Vj3rOUCAwEAAQ==
-  -----END PUBLIC KEY-----
-  """,
-  # paddle billing
-  webhook_secret_key: "pdl_ntfset_01jczc5vydss955aacd0z4yphp_Qt2m7phZuwzI70qWldEWpfoGb3fzuZG1",
+  description: "Paddle. Secure payment processing.",
   client_key: "test_89a7fedf85d036d2351afdafa35",
-  billing_api_key: "5a8ddb7c702b9ba0608a94b109e37f34c947b97b1d81b7c29f",
+  api_key: "5a8ddb7c702b9ba0608a94b109e37f34c947b97b1d81b7c29f",
+  webhook_secret_key: "pdl_ntfset_01jczc5vydss955aacd0z4yphp_Qt2m7phZuwzI70qWldEWpfoGb3fzuZG1",
   api_endpoint: "https://sandbox-api.paddle.com",
-  portal_endpoint: "https://sandbox-customer-portal.paddle.com"
+  portal_endpoint: "https://sandbox-customer-portal.paddle.com/cpl_01h411b80rvpnhgcb87qktvg1n",
+  vat_included: false,
+  bank_statement: "PADDLE.NET* RINKO"
+
+config :planet, :creem,
+  description: "Creem.io, manages your transaction as Merchant of Record, leveraging Stripe's secure payment infrastructure.",
+  # client_key: nil,
+  api_key: "creem_test_1Q3elUpPD3j2KpatJAWcon",
+  webhook_secret_key: "whsec_7b8GNm0PQSlBfWMRb8Ohpd",
+  api_endpoint: "https://test-api.creem.io/v1",
+  portal_endpoint: "https://www.creem.io/test/my-orders/login",
+  vat_included: false,
+  bank_statement: "CREEM.IO SOCIALREECH"
+
+
+# config :planet, :processor_name,
+#   description: "Processor Name",
+#   client_key: "",
+#   api_key: "",
+#   webhook_secret_key: "",
+#   api_endpoint: "",
+#   portal_endpoint: "",
+#   vat_included: true,
+#   bank_statement: "SOCIAL REECH CRM",
+#   version: "2024-11-20.acacia"
 
 # [Release] Check Production Or Runtime Variables
 # config :wax_,

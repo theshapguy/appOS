@@ -1,5 +1,4 @@
 defmodule PlanetWeb.UserRegistrationControllerTest do
-  alias Planet.Plugs.SubscriptionCheck
   use PlanetWeb.ConnCase, async: true
 
   import Planet.AccountsFixtures
@@ -32,7 +31,8 @@ defmodule PlanetWeb.UserRegistrationControllerTest do
 
       assert get_session(conn, :user_token)
 
-      case SubscriptionCheck.check_allow_unpaid_access() do
+      case Application.fetch_env!(:planet, :payment)
+           |> Keyword.fetch!(:allow_free_plan_access) do
         false ->
           # If Paid Plans Only, Redirect To Billing Page
           assert redirected_to(conn) == ~p"/users/billing/signup"

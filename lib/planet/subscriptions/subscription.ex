@@ -2,6 +2,8 @@ defmodule Planet.Subscriptions.Subscription do
   use Planet.Schema
   import Ecto.Changeset
 
+  # TODO
+  # If payment required to use app - manage subscription status
   @status_values [
     # Paddle
     :active,
@@ -24,10 +26,12 @@ defmodule Planet.Subscriptions.Subscription do
 
   @processor_values [
     # classic paddle
+    :"paddle-classic",
     :paddle,
-    :"paddle-billing",
     :stripe,
     :"lemon-squeezy",
+    :"direct-deposit",
+    :creem,
     # When things get manual
     :manual
   ]
@@ -49,6 +53,10 @@ defmodule Planet.Subscriptions.Subscription do
     field(:price_id, :string)
 
     field(:customer_id, :string)
+    # Save Customer Ids when Plans Are Removed So That If The User
+    # Resubscribers Can Show them Saved Cards
+    field(:previous_customer_ids, :map)
+
     field(:subscription_id, :string)
 
     field(:status, Ecto.Enum, values: @status_values)
@@ -60,22 +68,10 @@ defmodule Planet.Subscriptions.Subscription do
 
     field(:update_url, :string)
     field(:cancel_url, :string)
-
-    field(:paddle_billing_overview_url, :string, virtual: true)
-    field(:paddle_billing_cancel_url, :string, virtual: true)
-    field(:paddle_billing_update_payment_url, :string, virtual: true)
+    # Used for paddle billing
+    field(:transaction_history_url, :string, virtual: true)
 
     field(:processor, Ecto.Enum, values: @processor_values)
-
-    # field(:paddle, {:array, :map}, default: [])
-
-    # Virtual
-    field(:title, :string, virtual: true)
-    field(:subtitle, :string, virtual: true)
-    field(:price, :string, virtual: true)
-
-    field(:level, :integer, virtual: true)
-    field(:period, Ecto.Enum, virtual: true, values: [:month, :year, :lifetime])
 
     timestamps()
   end
@@ -121,7 +117,6 @@ defmodule Planet.Subscriptions.Subscription do
       :update_url,
       :cancel_url,
       :processor
-      # :paddle
     ])
     |> validate_required([
       :product_id,

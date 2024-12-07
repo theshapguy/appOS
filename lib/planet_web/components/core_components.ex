@@ -215,7 +215,7 @@ defmodule PlanetWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-primary hover:bg-primary-600 py-3 px-4",
+        "phx-submit-loading:opacity-75 rounded-lg bg-primary hover:bg-primary-600 py-2 px-4",
         "text-sm font-medium leading-6 text-white active:text-white/80 border border-transparent focus:outline-none",
         @class
       ]}
@@ -372,7 +372,7 @@ defmodule PlanetWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-sm leading-6 text-zinc-800">
+    <label for={@for} class="block text-sm font-medium text-gray-700 mb-2">
       {render_slot(@inner_block)}
     </label>
     """

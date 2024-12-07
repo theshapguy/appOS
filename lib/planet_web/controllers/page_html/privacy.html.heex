@@ -1,0 +1,65 @@
+<%= app_name = Application.get_env(:planet, Planet.Mailer)[:app_name] %>
+<%= company_name = Application.get_env(:planet, Planet.Mailer)[:company_name] %>
+<%= hostname = Application.get_env(:planet, Planet.Mailer)[:hostname] %>
+
+<section class="bg-white border border-gray-100 rounded-sm shadow-sm px-6 py-8 mb-20 mx-auto max-w-5xl mt-28">
+  <div class="text-3xl font-bold text-center">Privacy</div>
+  <div class="mt-8">
+    <p class="text-lg font-bold mt-4">Your privacy is important to us</p>
+    <p class="mt-2">
+      It is the policy of <%= company_name %> doing-busiess-as(dba). <%= app_name %> to respect your privacy regarding any information we may collect while operating our website. This Privacy Policy applies to <%= hostname %> (hereinafter, “us”, “we”, "<%= company_name %>", or <%= hostname %>”). We respect your privacy and are committed to protecting personally identifiable information you may provide us through the Website. We have adopted this privacy policy (“Privacy Policy”) to explain what information may be collected on our Website, how we use this information, and under what circumstances we may disclose this information to third parties. This Privacy Policy applies only to information we collect through the Website and does not apply to our collection of information from other sources.
+    </p>
+
+    <p class="mt-2">
+      This Privacy Policy, together with the Terms of service posted on our Website, set forth the general rules and policies governing your use of our Website. Depending on your activities when visiting our Website, you may be required to agree to additional terms of service.
+    </p>
+    <p class="text-lg font-bold mt-4">Website Visitors</p>
+    <p class="mt-2">
+      Like most website operators, <%= app_name %> collects non-personally-identifying information of the sort that web browsers and servers typically make available, such as the browser type, language preference, referring site, and the date and time of each visitor request. The purpose of <%= app_name %> collecting non-personally identifying information is to better understand how <%= app_name %> visitors use its website. From time to time, <%= app_name %> may release non-personally identifying information in aggregate, e.g., by publishing a report on trends on the usage of its website.
+    </p>
+
+    <p class="mt-2">
+      <%= app_name %> also collects potentially personally-identifying information like Internet Protocol (IP) addresses for logged in users and for users leaving comments on the blog posts found on <%= hostname %>. <%= app_name %> only discloses logged in user and commenter IP addresses under the same circumstances that it uses and discloses personally-identifying information as described below.
+    </p>
+    <p class="text-lg font-bold mt-4">Personally-Identifying Information</p>
+    <p class="mt-2">
+      Certain visitors to <%= app_name %> websites choose to interact with <%= app_name %> in ways that require <%= app_name %> to gather personally-identifying information. The amount and type of information that <%= app_name %> gathers depends on the nature of the interaction. For example, we ask visitors who leave a comment at https://<%= hostname %>/ to provide a username and email address.
+    </p>
+    <p class="text-lg font-bold mt-4">Security</p>
+    <p class="mt-2">
+      The security of your Personal Information is important to us, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your Personal Information, we cannot guarantee its absolute security.
+    </p>
+    <p class="text-lg font-bold mt-4">Links To External Sites</p>
+    <p class="mt-2">
+      Our Service may contain links to external sites that are not operated by us. If you click on a third-party link, you will be directed to that third party’s site. We strongly advise you to review the Privacy Policy and terms of service of every site you visit.
+    </p>
+
+    <p class="mt-2">
+      We have no control over, and assume no responsibility for the content, privacy policies or practices of any third-party sites, products or services.
+    </p>
+    <p class="text-lg font-bold mt-4">Aggregated Statistics</p>
+    <p class="mt-2">
+      <%= app_name %> may collect statistics about the behavior of visitors to its website. <%= app_name %> may display this information publicly or provide it to others. However, <%= app_name %> does not disclose your personally-identifying information.
+    </p>
+    <p class="text-lg font-bold mt-4">Cookies</p>
+    <p class="mt-2">
+      To enrich and perfect your online experience, <%= app_name %> uses “Cookies”, similar technologies and services provided by others to display personalized content, appropriate advertising and store your preferences on your computer.
+    </p>
+
+    <p class="mt-2">
+      A cookie is a string of information that a website stores on a visitor’s computer, and that the visitor’s browser provides to the website each time the visitor returns. <%= app_name %> uses cookies to help <%= app_name %> identify and track visitors, their usage of https://<%= hostname %>/, and their website access preferences. <%= app_name %> visitors who do not wish to have cookies placed on their computers should set their browsers to refuse cookies before using <%= app_name %>’s websites, with the drawback that certain features of <%= app_name %> websites may not function properly without the aid of cookies.
+    </p>
+
+    <p class="mt-2">
+      By continuing to navigate our website without changing your cookie settings, you hereby acknowledge and agree to <%= app_name %> use of cookies.
+    </p>
+    <p class="text-lg font-bold mt-4">Privacy Policy Changes</p>
+    <p class="mt-2">
+      Although most changes are likely to be minor, <%= app_name %> may change its Privacy Policy from time to time, and at the sole discretion <%= app_name %>. <%= app_name %> encourages visitors to frequently check this page for any changes to its Privacy Policy. Your continued use of this site after any change to this Privacy Policy will constitute your acceptance of such changes.
+    </p>
+    <p class="text-lg font-bold mt-4">Contact Information</p>
+    <p class="mt-2">
+      If you have any questions about our Privacy Policy or would like to completely remove your account and information, please contact us via email.
+    </p>
+  </div>
+</section>

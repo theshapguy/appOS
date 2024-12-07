@@ -1,4 +1,4 @@
-defmodule Planet.Payments.PaddleSignatureAndPassthrough do
+defmodule Planet.Payments.PaddleClassicSignature do
   @behaviour Plug
 
   import Plug.Conn

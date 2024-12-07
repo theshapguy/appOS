@@ -35,7 +35,8 @@ defmodule Planet.MixProject do
           version: "#{@version_code}-#{branch_version()}" <> "+" <> "#{target_triple()}"
           # version: "123123" <> "+" <> "darwin_x84",
         ]
-      ]
+      ],
+      dialyzer: dialyzer()
     ]
   end
 
@@ -45,7 +46,16 @@ defmodule Planet.MixProject do
   def application do
     [
       mod: {Planet.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [
+        :logger,
+        :runtime_tools
+        # :wx,
+        # :observer,
+        # :mnesia
+      ],
+      included_applications: [
+        :mnesia
+      ]
     ]
   end
 
@@ -81,7 +91,8 @@ defmodule Planet.MixProject do
       # Added phoenix 1.7.17
       {:bandit, "~> 1.5"},
       # Added
-      {:stripy, path: "./modified_deps/stripy"},
+      {:httpoison, "~> 2.2.1"},
+      # {:stripy, path: "./modified_deps/stripy"},
       {:hashids, "~>2.1.0"},
       {:php_serializer, "~> 2.0.0"},
       # https://hexdocs.pm/timex/Timex.Format.DateTime.Formatters.Default.html
@@ -149,5 +160,15 @@ defmodule Planet.MixProject do
     # https://stackoverflow.com/a/52074767
     # https://fiqus.coop/en/2019/07/15/add-git-commit-info-to-your-elixir-phoenix-app/
     # System.cmd("gcc", ["-dumpmachine"]) |> elem(0) |> String.trim()
+  end
+
+  defp dialyzer do
+    [
+      plt_add_apps: [
+        :mnesia,
+        :os_mon,
+        :stdlib
+      ]
+    ]
   end
 end

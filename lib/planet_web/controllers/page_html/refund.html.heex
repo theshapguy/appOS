@@ -1,0 +1,73 @@
+<%= app_name = Application.get_env(:planet, Planet.Mailer)[:app_name] %>
+<%= support_email = Application.get_env(:planet, Planet.Mailer)[:support_email] %>
+
+<section class="bg-white border border-gray-100 rounded-sm shadow-sm px-6 py-8 mb-20 mx-auto max-w-5xl mt-28">
+  <div class="text-3xl font-bold text-center">Refund Policy</div>
+  
+
+  <div class="mt-8">
+    Thank you for subscribing to <%= app_name %>'s services. We hope you are satisfied with our services, but if not, we're here to help.
+    <p class="font-bold text-lg mt-4">Cancellation Policy</p>
+    <p>
+      Subscribers may cancel their recurring subscription at any time. Upon cancellation, your account will remain active until the end of your current billing cycle.
+    </p>
+
+    <p class="font-bold text-lg mt-4">Refund Eligibility</p>
+
+    <p>
+      To be eligible for a refund, you must submit a request within 14 days of your subscription start date. Refunds may be considered on a case-by-case basis and are granted at the sole discretion of <%= app_name %>.
+    </p>
+
+    <p class="mt-2">
+      Refund requests can be made if you encounter technical issues that prevent you from using our service and that cannot be resolved by our support team. Proof of the issue may be required.
+    </p>
+
+    <p class="mt-2">
+      Please note that refunds are not guaranteed and may vary depending on the circumstances. Refund requests due to issues beyond <%= app_name %>'s control (e.g., changes in personal circumstances, third-party hardware or software failures, etc.) will not be honored.
+    </p>
+
+    <p class="font-bold text-lg mt-4">Process for Requesting a Refund</p>
+
+    <p>
+      To request a refund, please contact our customer support team at <a href={"mailto:#{support_email}?subject=[Refund]"}><%= support_email %></a>. Include your account information, subscription details, and a brief explanation of why you are requesting a refund.
+    </p>
+
+    <p class="font-bold text-lg mt-4">Refund Processing</p>
+
+    <p>
+      Once your refund request is received and inspected, we will send you an email to notify you of the approval or rejection of your refund. If approved, your refund will be processed, and a credit will automatically be applied to your original method of payment within a certain number of days. Please note that refunds can only be made back to the original payment method used at the time of purchase.
+    </p>
+
+    <p class="font-bold text-lg mt-4">Changes to Refund Policy</p>
+
+    <p>
+      <%= app_name %> reserves the right to modify this refund policy at any time. Changes will take effect immediately upon their posting on the website. By continuing to use our services after changes are made, you agree to be bound by the revised policy.
+    </p>
+
+    <p class="font-bold text-lg mt-4">Contact Us</p>
+
+    <p>
+      If you have any questions about our refund policy, please contact us at <a href={"mailto:#{support_email}?subject=[Refund]"}><%= support_email %></a>.
+    </p>
+
+    <p class="font-bold text-lg mt-4">Scenarios Where Refunds Would Typically Be Granted</p>
+
+    <p>
+      1. Technical Issues: The customer experiences persistent technical issues that prevent them from using the SaaS product effectively, despite multiple attempts by the support team to resolve the problem. For example, the software fails to load or crashes frequently, impeding the customer's ability to perform necessary tasks.
+    </p>
+
+    <p class="mt-2">
+      2. Billing Error: The customer was incorrectly charged due to a billing error on <%= app_name %>'s part. For example, they were billed twice in one month, or charged after cancelling their subscription in accordance with the cancellation policy.
+    </p>
+
+    <p class="font-bold text-lg mt-4">Scenarios Where Refunds Would Not Typically Be Granted</p>
+
+    <p>
+      1. Change of Mind: The customer decides they no longer want or need the SaaS product after the refund eligibility period has passed. For example, they found a different product they prefer, or they no longer need the service due to changes in their business.
+    </p>
+
+    <p class="mt-2">
+      2. External Factors: The customer is unable to use the SaaS product due to factors outside of <%= app_name %>'s control, such as incompatible hardware, poor internet connection, or issues with third-party software or services.
+    </p>
+  </div>
+</section>

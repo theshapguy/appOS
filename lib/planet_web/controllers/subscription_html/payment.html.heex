@@ -1,86 +1,218 @@
-<.pricing_landing_component />
+<section class="bg-white border border-gray-50 rounded-sm shadow-sm mt-4 p-8">
+  <h2 class="text-2xl text-center tracking-tight font-extrabold text-gray-900 dark:text-white">
+    Simple Pricing. No Complicated Tiers.
+  </h2>
 
-<section class="">
-  <div class="flex justify-center mt-4 w-full" id="subscrible-paddle-button">
-    <div
-      onclick="openCheckout()"
-      class="w-full text-center bg-primary hover:bg-rouge-400 px-8 py-4 rounded-md text-white font-semibold cursor-pointer"
-    >
-      Subscribe
+  <div class="text-center text-md text-gray-600 mt-4 max-w-xl mx-auto">
+     Built by a solo developer who gets it. Just the features you need, zero bloat. Choose the plan that matches your workflow and growth. 
+  </div>
+
+</section>
+
+
+<form class="mt-6" id="plans-form">
+  <%!-- <.form :let={_f} for={%{}}> --%>
+  <%= for {item, _plan_index} <- Enum.with_index(@subscription_plans) do %>
+    <div class="mb-4">
+      <fieldset>
+        <div class="text-lg leading-6 font-semibold">{item.name}</div>
+        <div class="text-sm leading-4 mb-3 text-neutral-600">{item.description}</div>
+
+        <%= for {variation, _variation_index} <- Enum.with_index(item.variations) do %>
+          <div class="rounded-md border mb-1 select-none gradient-hover hover:border-blue-400 transition peer-checked:border-blue-500">
+            <label class="flex items-center space-x-2 relative p-4 cursor-pointer ">
+              <% price_id = get_in(variation, [:processors, @processor, :priceId]) %>
+              <% product_id = get_in(variation, [:processors, @processor, :productId]) %>
+
+              <input
+                type="radio"
+                name="priceId"
+                value={price_id}
+                data-price-id={price_id}
+                data-product-id={product_id}
+              />
+
+              <div class="flex flex-1 justify-between">
+                <div class="capitalize mt-0.5">{variation.billingFrequency}</div>
+                <div class="flex items-center justify-between gap-x-2">
+                  <%= if Map.get(variation, :savings, nil) != nil do %>
+                    <div class="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                      Save ${variation.savings.amount}
+                    </div>
+                  <% end %>
+
+                  <div class="flex items-baseline space-x-2 text-gray-900 font-semibold text-xl">
+                    <span>${variation.price}</span><span class="text-sm font-normal text-gray-500">/ <%= variation.billingFrequency %></span>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+        <% end %>
+      </fieldset>
     </div>
+  <% end %>
+
+  <div :if={@lifetime_plans_only?} class="flex justify-center mt-4 w-full text-sm text-gray-400">
+    When you upgrade to the lifetime plan, I’ll manually cancel your current subscription. If a subscription charge takes places before I can cancel it, I’ll refund the subscription charge.
   </div>
 
-  <div id="inline-checkout-area"></div>
-
-  <div class="text-center mt-4 hidden" id="subscrible-paddle-verify">
-    <p class="blink">Verifying your payment...</p>
-    <p id="paddle-verify-countdown-text" class="opacity-50">Hello World123</p>
+  <div class="flex justify-center mt-4 w-full" id="subscrible-paddle-button">
+    <button
+      type="submit"
+      class="w-full text-center bg-blue-600 hover:bg-rouge-400 px-8 py-4 rounded-md text-white font-semibold cursor-pointer"
+    >
+      Upgrade
+    </button>
   </div>
-</section>
+  <%!-- </form> --%>
+</form>
 
-<section class="w-full mt-4">
-  <div class="checkout-container-paddle"></div>
-</section>
 
-<%!-- <script src="https://cdn.paddle.com/paddle/paddle.js"> --%>
+<div class="mt-6 text-center text-sm text-gray-500">
+  <p>Powered by {@processor_humanized}</p>
+  <p :if={@vat_included? == false}  class="text-xs text-gray-400 mt-2">
+    Prices exclude VAT and local sales tax. 
+    These will be added at checkout depending on your location. 
+    Sorry, blame the taxman! 🤷‍♂️
+  </p>
+</div>
 
-<%!-- </script> --%>
 
-<script src="https://cdn.paddle.com/paddle/v2/paddle.js">
+<script :if={@processor == :creem || @processor == :stripe}>
+  const form = document.getElementById('plans-form');
+
+  // Form submission event listener
+  form.addEventListener('submit', function(event) {
+      // Prevent the default form submission
+      // console.log("Submit Listener");
+      event.preventDefault();
+
+      // Get the selected radio input
+      const selectedRadio = form.querySelector('input[name="priceId"]:checked');
+
+      // Get data values from the selected radio input
+      const productId = selectedRadio.getAttribute('data-product-id');
+      const priceId = selectedRadio.getAttribute('data-price-id');
+
+      var formData = {
+          price_id: priceId,
+          processor: '<%= @processor %>'
+          // other data recieved from session data
+      }
+
+      fetch('<%= ~p"/formdata-api/checkout-session" %>', {
+        method: "POST",
+        credentials: 'include',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        //body: urlEncodedData
+         body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.checkout_url) {
+          window.location.href = data.checkout_url;
+        }else{
+          console.log("Error Then Data", data);
+        }          
+      })
+      .catch(error => {
+        console.error("Error", error);
+      });
+
+      // openCheckout(productId, priceId, [item]);
+
+  });
 </script>
 
-<script>
-    <%= if @paddle_sandbox? do %>
-        Paddle.Environment.set('sandbox');
-    <% end %>
+<script :if={@processor == :paddle} src="https://cdn.paddle.com/paddle/v2/paddle.js">
+</script>
+<script :if={@processor == :paddle}>
+  const urlParams = new URLSearchParams(window.location.search);
+  const isLifetime = urlParams.get('lifetime') === 'yes';
 
-    Paddle.Initialize({ 
-      token: 'test_89a7fedf85d036d2351afdafa35', // replace with a client-side token
+  <%= if @payment_sandbox? do %>
+      Paddle.Environment.set('sandbox'); 
+  <% end %>
+
+  Paddle.Initialize({
+      token: '<%= Application.fetch_env!(:planet, :paddle) |> Keyword.fetch!(:client_key) %>', // replace with a client-side token
       pwCustomer: {
-        email: '<%= @current_user.email %>'
+          email: '<%= @current_user.email %>'
       },
-    eventCallback: function(data) {
-        // console.log(data.name);
-        if (data.name == "checkout.completed") {
-          console.log(data);
+      eventCallback: function(data) {
+          // console.log(data.name);
+          if (data.name == "checkout.completed") {
+              // console.log(data);
 
-          window.location.replace("/users/billing/signup?transaction_id=" + data.data.transaction_id);
-          
-        }
+              let redirectUrl = '<%= raw(@success_redirect_url) %>'
+              let redirectUrlWithTransactionId = redirectUrl.replace("{TRANSACTION_ID}", data.data.transaction_id);
+
+              window.location.replace(redirectUrlWithTransactionId);
+
+          }
       }
-      
-    });
 
-    var itemsList = [
-      {
-        priceId: 'pri_01jczwfy1wwejsm0zw7yzc1qze',
-        quantity: 1
+  });
+
+  const form = document.getElementById('plans-form');
+
+  // Form submission event listener
+  form.addEventListener('submit', function(event) {
+      // Prevent the default form submission
+      // console.log("Submit Listener");
+      event.preventDefault();
+
+      // Get the selected radio input
+      const selectedRadio = form.querySelector('input[name="priceId"]:checked');
+
+      // Get data values from the selected radio input
+      const productId = selectedRadio.getAttribute('data-product-id');
+      const priceId = selectedRadio.getAttribute('data-price-id');
+
+      var item = {
+          priceId: priceId,
+          quantity: 1
       }
-    ];
 
-       function openCheckout() {
+      openCheckout(productId, priceId, [item]);
 
-    Paddle.Checkout.open({
-      customer: {
-          email: "<%= @current_user.email %>",
-      },
-      settings: {
-        allowLogout: false,
-        displayMode: "overlay",
-        variant: "multi-page",
-        frameTarget: "checkout-container-paddle",
-        frameInitialHeight: "800",
-        frameStyle: "width: 100%; min-width: 312px; max-width: 600px; background-color: transparent; border: none;",      
-        //successUrl: "<%= @paddle_success_redirect_url %>"
-      },
-      items: itemsList,
-      customData: {
-        organization_id: '<%= @current_user.organization.id %>',
-        user_id: '<%= @current_user.id %>'
-      }
-    });
+  });
+
+  function openCheckout(product_id, price_id, itemsList) {
+
+      Paddle.Checkout.open({
+          customer: {
+              email: '<%= @current_user.email %>',
+          },
+          settings: {
+              allowLogout: false,
+              displayMode: "overlay",
+              variant: "multi-page",
+              // frameTarget: "checkout-container-paddle",
+              frameInitialHeight: "800",
+              frameStyle: "width: 100%; min-width: 312px; max-width: 600px; background-color: transparent; border: none;",
+              // moved to listeners
+              //successUrl: "paddle_redirect_url"
+          },
+          items: itemsList,
+          customData: {
+              organization_id: '<%= @current_user.organization.id %>',
+              user_id: '<%= @current_user.id %>',
+              // email: '<%= @current_user.email %>',
+              product_id: product_id,
+              price_id: price_id
+          }
+      });
+
+      return false;
 
   }
 
-  openCheckout();
+  if (isLifetime) {
+      // console.log('Lifetime parameter is set to yes');
+      form.requestSubmit();
+  }
 </script>

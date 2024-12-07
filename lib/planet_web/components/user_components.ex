@@ -8,6 +8,8 @@ defmodule PlanetWeb.UserComponents do
   use Phoenix.Component
   use PlanetWeb, :verified_routes
 
+  import Planet.Helpers.ActiveLink, only: [active_path?: 2]
+
   # alias Phoenix.LiveView.JS
   # import PlanetWeb.Gettext
 
@@ -163,182 +165,300 @@ defmodule PlanetWeb.UserComponents do
 
   """
   attr :current_user, :map, required: true
+  attr :conn, :any, required: true
 
   def landing_navigation(assigns) do
     ~H"""
-    <nav class="bg-yellow-400 p-4">
-      <div class="max-w-4xl mx-auto">
-        <div class="flex justify-between items-center">
-          <!-- Logo -->
-          <div class="text-3xl font-bold text-black">tails.</div>
-          <!-- Menu Items -->
-          <div class="hidden md:flex space-x-8 text-black font-medium">
-            <a href="#" class="hover:text-gray-700">HOME</a>
-            <a href="#" class="hover:text-gray-700">FEATURES</a>
-            <a href="#" class="hover:text-gray-700">PRICING</a>
-            <a href="#" class="hover:text-gray-700">BLOG</a>
-          </div>
-          <!-- Login and Signup Button -->
-          <div class="hidden md:flex items-center space-x-4">
-            <a href="#" class="text-black font-medium hover:text-gray-700">LOGIN</a>
-            <a
-              href="#"
-              class="px-4 py-2 rounded-md bg-white text-black font-semibold border-2 border-black hover:bg-gray-200"
+    <nav class="fixed top-0 left-0 right-0 z-50 border-b border-neutral-200 bg-white/80 backdrop-blur-lg ">
+      <div class="container max-w-5xl mx-auto flex items-center justify-between px-4 xl:px-0 py-3">
+        <!-- Logo and App Name Section -->
+        <div class="flex items-center">
+          <.link
+            href={~p"/"}
+            class="text-xl font-bold text-neutral-900 hover:text-neutral-700 transition-colors"
+          >
+            {Application.get_env(:planet, Planet.Mailer)[:app_name]}
+          </.link>
+        </div>
+        
+    <!-- Desktop Navigation Links -->
+        <div class="sm:flex items-center space-x-4 hidden" id="desktopNav">
+          <.link
+            href="/plans"
+            class={[
+              "text-sm font-medium  hover:text-blue-500 transition-colors",
+              if(active_path?(@conn, to: ~p"/plans"), do: "text-blue-500", else: "text-neutral-600")
+            ]}
+          >
+            Plans
+          </.link>
+          
+    <!-- Login/Logout Toggle -->
+
+          <%= if !@current_user do %>
+            <.link
+              href={~p"/users/log_in"}
+              class={[
+                "px-3 py-1.5 text-sm font-medium hover:text-blue-500 transition-colors",
+                if(active_path?(@conn, to: ~p"/users/log_in"),
+                  do: "text-blue-500",
+                  else: "text-neutral-600"
+                )
+              ]}
+            >
+              Log in
+            </.link>
+
+            <.link
+              href={~p"/users/register"}
+              class="px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-md transition-colors"
             >
               Signup
-            </a>
-          </div>
-          <!-- Mobile Menu Button -->
-          <div class="md:hidden flex items-center">
-            <button id="menu-toggle" class="text-black focus:outline-none">
-              <svg
-                class="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16m-7 6h7"
-                >
-                </path>
-              </svg>
-            </button>
-          </div>
+            </.link>
+          <% else %>
+            <.link
+              href={~p"/app"}
+              class="text-sm font-medium text-neutral-600 hover:text-blue-500 transition-colors"
+            >
+              Go To App <.icon name="hero-arrow-long-right" class="h-5 w-5" />
+            </.link>
+          <% end %>
+        </div>
+        
+    <!-- Mobile Menu Toggle -->
+        <div class="sm:hidden flex items-center">
+          <button
+            id="mobileMenuToggle"
+            class="text-neutral-600 hover:text-neutral-900 focus:outline-none"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
         </div>
       </div>
-      <!-- Mobile Menu -->
-      <div id="mobile-menu" class="hidden md:hidden mt-4 space-y-4 text-center">
-        <a href="#" class="block text-black font-medium hover:text-gray-700">HOME</a>
-        <a href="#" class="block text-black font-medium hover:text-gray-700">FEATURES</a>
-        <a href="#" class="block text-black font-medium hover:text-gray-700">PRICING</a>
-        <a href="#" class="block text-black font-medium hover:text-gray-700">BLOG</a>
-        <a href="#" class="block text-black font-medium hover:text-gray-700">LOGIN</a>
-        <a
-          href="#"
-          class="block px-4 py-2 rounded-md bg-white text-black font-semibold border-2 border-black hover:bg-gray-200"
-        >
-          Signup
-        </a>
+      
+    <!-- Mobile Menu Dropdown -->
+      <div
+        id="mobileMenu"
+        class="sm:hidden absolute top-full left-0 right-0 bg-white shadow-lg hidden"
+      >
+        <div class="flex flex-col px-4 py-4 space-y-2">
+          <.link
+            href="/plans"
+            class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors py-2 border-b border-neutral-200"
+          >
+            Plans
+          </.link>
+          
+    <!-- Mobile Login/Logout Toggle -->
+
+          <%= if !@current_user do %>
+            <.link
+              href={~p"/users/log_in"}
+              class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors py-2 border-b border-neutral-200"
+            >
+              Log in
+            </.link>
+
+            <.link
+              href={~p"/users/register"}
+              class="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors py-2 border-b border-neutral-200"
+            >
+              Signup
+            </.link>
+          <% else %>
+            <.link
+              href={~p"/app"}
+              class="text-sm font-medium text-neutral-600 hover:text-blue-600 transition-colors py-2 border-b border-neutral-200"
+            >
+              Go To App <.icon name="hero-arrow-long-right" class="h-5 w-5" />
+            </.link>
+          <% end %>
+        </div>
       </div>
     </nav>
 
-    <div x-data="{ open: false }" class="bg-[#100627]">
-      <div class="max-w-4xl mx-auto px-4">
-        <div class="flex items-center justify-between h-16">
-          <!-- Logo -->
-          <div class="flex-shrink-0 flex items-center">
-            <!-- Replace 'logo.png' with your actual logo path -->
-            <%!-- <img class="hidden h-8 w-auto" src="logo.png" alt="Logo" /> --%>
+    <script>
+      <%!-- TODO Toggle With AlpineJS --%>
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
 
-            <a href="/">
-              <img class="block h-8 w-auto" src={~p"/images/logo.svg"} width="36" />
-            </a>
-          </div>
-          <!-- Menu items -->
-          <div class="sm:flex hidden justify-center flex-grow">
-            <!-- Add your menu items here -->
-        <!-- For example, you can add links to different pages -->
-            <ul class="flex space-x-4">
-              <li>
-                <.link href={~p"/"} class="text-white px-3 py-2 rounded-md text-sm font-medium">
-                  Home
-                </.link>
-              </li>
-              <li>
-                <a href="/plans" class="text-white px-3 py-2 rounded-md text-sm font-medium">
-                  #Pricing - Link Not Working
-                </a>
-              </li>
-            </ul>
-          </div>
-          <!-- Login and Signup buttons -->
-          <%= if !@current_user do %>
-            <div class="flex items-center gap-2">
-              <.link
-                href={~p"/users/log_in"}
-                class="text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Log in
-              </.link>
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
 
-              <.link
-                href={~p"/users/register"}
-                class="text-#[485858] bg-[#B4DCDD] px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Signup
-              </.link>
-            </div>
-          <% else %>
-            <div class="flex items-center gap-2">
-              <.link
-                href={~p"/users/settings"}
-                class="text-white bg-teal-600 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Go To App <.icon name="hero-arrow-long-right" class="h-5 w-5" />
-              </.link>
-            </div>
-          <% end %>
-          <!-- Mobile menu toggle -->
-          <div class="flex items-center sm:hidden">
-            <button @click="open = !open" class="text-white p-2 rounded-md">
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16m-7 6h7"
-                >
-                </path>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-      <!-- Mobile menu -->
-      <div x-show="open" class="sm:hidden">
-        <div class="px-2 pt-2 pb-3 space-y-1">
-          <!-- Add mobile version of menu items here -->
-      <!-- For example, you can add links to different pages -->
-          <.link href={~p"/"} class="text-white block px-3 py-2 rounded-md text-base font-medium">
-            Home
-          </.link>
+      document.addEventListener('click', (event) => {
+                  if (!mobileMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+                      mobileMenu.classList.add('hidden');
+                  }
+              });
+    </script>
+    """
+  end
 
-          <a href="/plans" class="text-white block px-3 py-2 rounded-md text-base font-medium">
-            #Pricing - Link Not Working
-          </a>
-        </div>
-      </div>
+  attr :license, Planet.Subscriptions.Subscription, doc: "subscription object", required: true
+  attr :bank_statement, :string, required: true
+
+  def billing_subtext_stripe(assigns) do
+    ~H"""
+    <% lifetime? =
+      Planet.Payments.Plans.variant_by_price_id(@license.processor, @license.price_id).billingFrequency ==
+        "lifetime" %>
+
+    <div :if={!lifetime?} class="text-zinc-400 text-sm my-5">
+      <b>Your Next Payment</b>
+
+      <p>
+        Your next payment is scheduled for {Timex.format!(@license.valid_until, "{D} {Mfull} {YYYY}")}.
+      </p>
+    </div>
+
+    <div :if={@license.transaction_history_url} class="text-zinc-400 text-sm my-5">
+      <b>Manage Your Subscription</b>
+      <p>
+        To view your transaction history and manage your subscription,
+        <a class="text-blue-500" href={@license.transaction_history_url} target="_blank">
+          click here.
+        </a>
+      </p>
+    </div>
+
+    <div class="text-zinc-400 text-sm my-5">
+      <b>Payment Processing</b>
+      <p>
+        All subscriptions and payments are securely processed by Stripe. Transactions will appear on your
+        <span class="font-semibold">bank statement as {@bank_statement}.</span>
+      </p>
     </div>
     """
   end
 
-  def pricing_landing_component(assigns) do
-    ~H"""
-    <section class="bg-white border border-gray-100 rounded-sm shadow-sm mt-4 p-8">
-      <h2 class="text-2xl text-center tracking-tight font-extrabold text-gray-900 dark:text-white">
-        Clear and Simple Pricing
-      </h2>
+  attr :bank_statement, :string, required: true
+  attr :license, Planet.Subscriptions.Subscription, doc: "subscription object", required: true
 
-      <div class="mt-4 select-none text-center">
-        <p class="">
-          <span id="plan-price" class="text-4xl font-bold leading-8">$14</span>
-          <span>/mo</span>
+  def billing_subtext_paddle(assigns) do
+    ~H"""
+    <%!-- Only Show Subscription Actions When Not Lifetime Plan --%>
+
+    <% lifetime? =
+      Planet.Payments.Plans.variant_by_price_id(@license.processor, @license.price_id).billingFrequency ==
+        "lifetime" %>
+
+    <div :if={!lifetime?} class="text-zinc-400 text-sm my-5">
+      <b>Your Next Payment</b>
+
+      <p>
+        Your next payment is scheduled for {Timex.format!(@license.valid_until, "{D} {Mfull} {YYYY}")}.
+      </p>
+    </div>
+
+    <div
+      :if={@license.cancel_url != nil && @license.update_url != nil}
+      class="text-zinc-400 text-sm my-5"
+    >
+      <b>Manage Your Subscription</b>
+
+      <div :if={!lifetime?}>
+        <p>
+          To cancel your subscription, simply
+          <a class="text-red-500" href={@license.cancel_url} target="_blank">
+            click here.
+          </a>
         </p>
-        <p class="leading-3">
-          <span class="text-sm text-gray-400 leading-3">+ Sales Tax or VAT</span>
+        <p>
+          To update your payment method, simply
+          <a class="text-blue-500" href={@license.update_url} target="_blank">
+            click here.
+          </a>
         </p>
-        <div class="text-sm text-gray-400 mt-4">
-          <p>
-            We use Paddle as our primary payment processor and Merchant of Record.
-          </p>
-          <p>Want to use Stripe? Contact me for payment link.</p>
-        </div>
+
+        <p>To upgrade or downgrade your plan, please contact us.</p>
       </div>
-    </section>
+
+      <p>
+        To view your entire transaction history here,
+        <a class="text-blue-500" href={@license.transaction_history_url} target="_blank">
+          click here.
+        </a>
+      </p>
+    </div>
+
+    <div class="text-zinc-400 text-sm my-5">
+      <b>Payment Processing</b>
+      <p>
+        All subscriptions and payments are securely processed by our online reseller and Merchant of Record, Paddle.com. Transactions will appear on your
+        <span class="font-semibold">bank statement as {@bank_statement}.</span>
+      </p>
+    </div>
+    """
+  end
+
+  attr :bank_statement, :string, required: true
+  attr :license, Planet.Subscriptions.Subscription, doc: "subscription object", required: true
+
+  def billing_subtext_creem(assigns) do
+    ~H"""
+    <%!-- Only Show Subscription Actions When Not Lifetime Plan --%>
+    <% lifetime? =
+      Planet.Payments.Plans.variant_by_price_id(@license.processor, @license.price_id).billingFrequency ==
+        "lifetime" %>
+
+    <div :if={!lifetime?} class="text-zinc-400 text-sm my-5">
+      <b>Your Next Payment</b>
+
+      <p>
+        Your next payment is scheduled for {Timex.format!(@license.valid_until, "{D} {Mfull} {YYYY}")}.
+      </p>
+    </div>
+
+    <div class="text-zinc-400 text-sm my-5">
+      <b>Manage Your Subscription</b>
+
+      <div :if={!lifetime? && @license.cancel_url != nil && @license.update_url != nil}>
+        <p>
+          To cancel your subscription, simply
+          <a class="text-red-500" href={@license.cancel_url} target="_blank">
+            click here.
+          </a>
+        </p>
+        <p>
+          To update your payment method, simply
+          <a class="text-blue-500" href={@license.update_url} target="_blank">
+            click here.
+          </a>
+        </p>
+
+        <p>To upgrade or downgrade your plan, please contact us.</p>
+      </div>
+
+      <p>
+        To view your entire transaction history here,
+        <a class="text-blue-500" href={@license.transaction_history_url} target="_blank">
+          click here.
+        </a>
+      </p>
+    </div>
+
+    <div class="text-zinc-400 text-sm my-5">
+      <b>Payment Processing</b>
+      <p>
+        All subscriptions and payments are securely processed by our online reseller and Merchant of Record, Paddle.com. Transactions will appear on your
+        <span class="font-semibold">bank statement as {@bank_statement}.</span>
+      </p>
+    </div>
     """
   end
 end

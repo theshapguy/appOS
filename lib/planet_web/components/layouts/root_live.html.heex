@@ -6,11 +6,11 @@
     <meta name="csrf-token" content={get_csrf_token()} />
 
     <%!-- TODO Make Page Titles --%>
-    <.live_title suffix=" · Planet">
+    <.live_title suffix={ " · #{Application.get_env(:planet, Planet.Mailer)[:app_name]}"}>
       {assigns[:page_title] || "Page"}
     </.live_title>
     <%!-- <.live_title>
-      Planet
+      App Name
     </.live_title> --%>
 
     <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />

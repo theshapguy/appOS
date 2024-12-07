@@ -134,7 +134,9 @@ defmodule Planet.PaddleWebhookFixtures do
       "business_id": null,
       "canceled_at": null,
       "custom_data": {
-        "organization_id": "#{organization_id}"
+        "organization_id": "#{organization_id}",
+        "price_id": "pri_01h1vjfevh5etwq3rb416a23h2",
+        "product_id": "pro_01gsz4t5hdjse780zja8vvr7jg"
       },
       "customer_id": "ctm_01hv6y1jedq4p1n0yqn5ba3ky4",
       "import_meta": null,
@@ -294,7 +296,9 @@ defmodule Planet.PaddleWebhookFixtures do
         "business_id": null,
         "canceled_at": null,
         "custom_data": {
-          "organization_id": "#{organization_id}"
+          "organization_id": "#{organization_id}",
+          "price_id": "pri_01gsz8x8sawmvhz1pv30nge1ke",
+          "product_id": "pro_01gsz4t5hdjse780zja8vvr7jg"
         },
         "customer_id": "ctm_01hv6y1jedq4p1n0yqn5ba3ky4",
         "import_meta": null,
@@ -503,7 +507,9 @@ defmodule Planet.PaddleWebhookFixtures do
         "business_id": null,
         "canceled_at": "2024-04-12T11:24:54.868Z",
         "custom_data": {
-          "organization_id": "#{organization_id}"
+          "organization_id": "#{organization_id}",
+          "price_id": "pri_01gsz8x8sawmvhz1pv30nge1ke",
+          "product_id": "pro_01h1vjes1y163xfj1rh1tkfb65"
         },
         "customer_id": "ctm_01hv6y1jedq4p1n0yqn5ba3ky4",
         "import_meta": null,
@@ -709,7 +715,9 @@ defmodule Planet.PaddleWebhookFixtures do
         "business_id": null,
         "canceled_at": null,
         "custom_data": {
-          "organization_id": "#{organization_id}"
+          "organization_id": "#{organization_id}",
+          "price_id": "pri_01gsz8x8sawmvhz1pv30nge1ke",
+          "product_id": "pro_01gsz4t5hdjse780zja8vvr7jg"
         },
         "customer_id": "ctm_01hv6y1jedq4p1n0yqn5ba3ky4",
         "import_meta": null,
@@ -918,7 +926,9 @@ defmodule Planet.PaddleWebhookFixtures do
         "business_id": null,
         "canceled_at": null,
         "custom_data": {
-          "organization_id": "#{organization_id}"
+          "organization_id": "#{organization_id}",
+          "price_id": "pri_01gsz8x8sawmvhz1pv30nge1ke",
+          "product_id": "pro_01gsz4t5hdjse780zja8vvr7jg"
         },
         "customer_id": "ctm_01hv6y1jedq4p1n0yqn5ba3ky4",
         "import_meta": null,
@@ -1131,7 +1141,9 @@ defmodule Planet.PaddleWebhookFixtures do
         "business_id": null,
         "canceled_at": null,
         "custom_data": {
-          "organization_id": "#{organization_id}"
+          "organization_id": "#{organization_id}",
+          "price_id": "pri_01h1vjfevh5etwq3rb416a23h2",
+          "product_id": "pro_01gsz4t5hdjse780zja8vvr7jg"
         },
         "customer_id": "ctm_01hv6y1jedq4p1n0yqn5ba3ky4",
         "import_meta": null,
@@ -1294,7 +1306,9 @@ defmodule Planet.PaddleWebhookFixtures do
         "business_id": null,
         "canceled_at": null,
         "custom_data": {
-          "organization_id": "#{organization_id}"
+          "organization_id": "#{organization_id}",
+          "price_id": "pri_01gsz8x8sawmvhz1pv30nge1ke",
+          "product_id": "pro_01gsz4t5hdjse780zja8vvr7jg"
         },
         "customer_id": "ctm_01hv6y1jedq4p1n0yqn5ba3ky4",
         "import_meta": null,
