@@ -59,6 +59,9 @@ defmodule PlanetWeb.Router do
 
     get("/", PageController, :home)
 
+    get("/plans", PageController, :plans)
+    get("/transaction/pay", SubscriptionController, :transaction)
+
     get("/privacy", PageController, :privacy)
     get("/terms", PageController, :terms)
     get("/refund", PageController, :refund)
@@ -183,14 +186,6 @@ defmodule PlanetWeb.Router do
     get("/users/billing/signup", SubscriptionController, :payment)
     get("/users/billing/verify", SubscriptionController, :verify)
     get("/users/billing", SubscriptionController, :edit)
-  end
-
-  scope "/", PlanetWeb do
-    # :put_user_token
-    pipe_through([:browser, :landing_layout])
-
-    get("/plans", SubscriptionController, :plans)
-    get("/transaction/pay", SubscriptionController, :transaction)
   end
 
   scope "/webhook", PlanetWeb do

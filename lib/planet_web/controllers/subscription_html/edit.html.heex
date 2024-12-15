@@ -6,7 +6,7 @@
 <div class="space-y-12 divide-y">
   <div :if={@current_plan}>
     <% plan_description =
-      "#{@current_plan.name} - $#{@current_plan.price} #{if @current_plan.billingFrequency != "lifetime", do: "every #{@current_plan.billingFrequency}", else: ""}" %>
+      "#{@current_plan.name} - $#{@current_plan.price} #{if @current_plan.billing_frequency != "once", do: "every #{@current_plan.billing_frequency}", else: ""}" %>
     <.form :let={f} for={%{}}>
       <.input
         field={f[:plan_description]}
@@ -31,7 +31,7 @@
       &nbsp;
   <% end %>
 
-  <%= if @current_plan.billingFrequency != "lifetime"  do %>
+  <%= if @current_plan && @current_plan.billing_frequency != "once"  do %>
     <%!-- If not lfetime plan show upgrade to lifetime plan --%>
     <div class="flex justify-center mt-12 w-full" id="subscrible-paddle-button">
       <.link

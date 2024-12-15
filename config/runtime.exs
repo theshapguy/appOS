@@ -64,7 +64,7 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
-  # TODO Change In Production
+  # PROD-TODO Change In Production
   # config :wax_,
   #   origin: host,
   #   rp_id: :auto,

@@ -17,6 +17,13 @@ defmodule PlanetWeb.PageController do
     render(conn, :app_home, put_layout: :app_dashboard)
   end
 
+  # Payment On Signup
+  def plans(conn, _) do
+    conn
+    |> render(:plans,
+      subscription_plans: Planet.Payments.Plans.list()
+    )
+  end
 
   def privacy(conn, _params) do
     conn
@@ -42,5 +49,4 @@ defmodule PlanetWeb.PageController do
     conn
     |> text("ok: i am alive")
   end
-
 end

@@ -1,196 +1,242 @@
-defmodule Planet.Payments.PaddleWebhookHandler do
-  require Logger
+defmodule Planet.Payments.PaddleHandler do
+  alias Planet.Payments.Plans
   alias Planet.Subscriptions
   alias Planet.Organizations
 
-  # """
-  # Once Payment Confirmed Allow Access And Update Product ID
-  # Almost same as `subscription_created`
-  # """
-  def handler(
-        %{assigns: %{paddle_passthrough: %{"organization_id" => organization_id}}},
-        %{
-          "alert_name" => "subscription_payment_succeeded",
-          "event_time" => event_time,
-          "next_bill_date" => next_bill_date,
-          "user_id" => user_id,
-          "subscription_id" => subscription_id
-        } = params
-      ) do
+  require Logger
+
+  # - subscription_payment_succeeded
+  # - subscription_created
+  # - subscription_cancelled
+  # subscription_payment_failed
+  # subscription_payment_refunded
+  # - subscription_updated
+
+  # subscription.activated
+  # subscription.created
+  # subscription.canceled
+  # subscription.updated
+  # subscription.paused
+
+  def handler(_conn, %{
+        "data" =>
+          %{
+            # "occured_at" => occured_at,
+            "next_billed_at" => _next_billed_at,
+            "customer_id" => customer_id,
+            "current_billing_period" => %{
+              "ends_at" => ends_at,
+              "starts_at" => starts_at
+            },
+            "id" => subscription_id,
+            "custom_data" => %{
+              "organization_id" => organization_id
+              # "product_id" => product_id,
+              # "price_id" => price_id
+            }
+          } = data_params,
+        "event_type" => "subscription.activated"
+      }) do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
     subscription_attrs =
-      webhook_params_to_subscription_attrs(params)
-      |> Map.put("issued_at", convert_paddle_webhook_datetime(event_time))
-      |> Map.put("valid_until", convert_paddle_webhook_date(next_bill_date))
-      |> Map.put("customer_id", user_id)
-      |> Map.put("subscription_id", subscription_id)
-      |> Map.put("payment_attempt", nil)
-
-    # IO.inspect(subscription_attrs)
-
-    Subscriptions.update_subscription(subscription, subscription_attrs)
-  end
-
-  # """
-  # Sent as First Hook, Saving so that Update URL of Paddle Can Be Used
-
-  # Almost same as `subscription_payment_succeeded`
-  # """
-  def handler(
-        %{assigns: %{paddle_passthrough: %{"organization_id" => organization_id}}},
-        %{
-          "alert_name" => "subscription_created",
-          "event_time" => event_time,
-          "next_bill_date" => next_bill_date,
-          "user_id" => user_id,
-          "subscription_id" => subscription_id,
-          "update_url" => update_url,
-          "cancel_url" => cancel_url
-        } = params
-      ) do
-    organization = Organizations.get_organization!(organization_id)
-    subscription = organization.subscription
-
-    subscription_attrs =
-      webhook_params_to_subscription_attrs(params)
-      |> Map.put("issued_at", convert_paddle_webhook_datetime(event_time))
-      |> Map.put("valid_until", convert_paddle_webhook_date(next_bill_date))
-      |> Map.put("customer_id", user_id)
-      |> Map.put("subscription_id", subscription_id)
-      |> Map.put("payment_attempt", nil)
-      |> Map.put("update_url", update_url)
-      |> Map.put("cancel_url", cancel_url)
-
-    Subscriptions.update_subscription(subscription, subscription_attrs)
-  end
-
-  # """
-  # Subscription Cancelled; Return to Default Plan
-  # """
-  def handler(
-        %{assigns: %{paddle_passthrough: %{"organization_id" => organization_id}}},
-        %{
-          "alert_name" => "subscription_cancelled",
-          "cancellation_effective_date" => cancelled_date,
-          "event_time" => event_time,
-          "user_id" => customer_id
-        } = params
-      ) do
-    organization = Organizations.get_organization!(organization_id)
-    subscription = organization.subscription
-
-    subscription_attrs =
-      webhook_params_to_subscription_attrs(params)
-      # Clear It When Subscription Deleted
-      # |> Map.put("paddle", [])
-      # |> Map.put("cancelled_at", nil)
-      |> Map.put("issued_at", convert_paddle_webhook_datetime(event_time))
-      |> Map.put("valid_until", convert_paddle_webhook_date(cancelled_date))
+      webhook_params_to_subscription_attrs(data_params)
+      |> Map.put("issued_at", convert_paddle_webhook_datetime(starts_at))
+      |> Map.put("valid_until", convert_paddle_webhook_datetime(ends_at))
       |> Map.put("customer_id", customer_id)
-      |> Map.put("subscription_id", nil)
-      # Converting to Free Plan
-      |> Map.put("product_id", "default")
-      |> Map.put("payment_attempt", nil)
-      # Active Because Changed Product ID to Default
-      |> Map.put("status", "unpaid")
-      # Reupdate processor when subscription deleted, not longer paddle processor
-      |> Map.put("processor", "manual")
-      |> Map.put("update_url", nil)
-      |> Map.put("cancel_url", nil)
+      |> Map.put("subscription_id", subscription_id)
+
+    # |> Map.put("payment_attempt", nil)
 
     Subscriptions.update_subscription(subscription, subscription_attrs)
   end
 
-  # """
-  # Update Payment Attempt Count; if Not Nil Should Show Error On UI
-  # """
-  def handler(
-        %{assigns: %{paddle_passthrough: %{"organization_id" => organization_id}}},
-        %{
-          "alert_name" => "subscription_payment_failed",
-          "attempt_number" => attempt_number
-        } = params
-      ) do
+  # def handler(_conn, %{
+  #       "data" =>
+  #         %{
+  #           # "occured_at" => occured_at,
+  #           "next_billed_at" => _next_billed_at,
+  #           "customer_id" => customer_id,
+  #           "id" => subscription_id,
+  #           "custom_data" => %{
+  #             "organization_id" => organization_id
+  #           },
+  #           "current_billing_period" => %{
+  #             "ends_at" => ends_at,
+  #             "starts_at" => starts_at
+  #           }
+  #         } = data_params,
+  #       "event_type" => "subscription.created",
+  #       "occurred_at" => _occured_at
+  #     }) do
+  #   organization = Organizations.get_organization!(organization_id)
+  #   subscription = organization.subscription
+
+  #   subscription_attrs =
+  #     webhook_params_to_subscription_attrs(data_params)
+  #     |> Map.put("issued_at", convert_paddle_webhook_datetime(starts_at))
+  #     |> Map.put("valid_until", convert_paddle_webhook_datetime(ends_at))
+  #     |> Map.put("customer_id", customer_id)
+  #     |> Map.put("subscription_id", subscription_id)
+  #     |> Map.put("payment_attempt", nil)
+
+  #   Subscriptions.update_subscription(subscription, subscription_attrs)
+  # end
+
+  def handler(_conn, %{
+        "data" =>
+          %{
+            "customer_id" => _customer_id,
+            "id" => _subscription_id,
+            "custom_data" => %{
+              "organization_id" => organization_id
+            }
+          } = _data_params,
+        "event_type" => "subscription.paused"
+      }) do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    subscription_attrs =
-      webhook_params_to_subscription_attrs(params)
-      |> Map.put("payment_attempt", attempt_number)
-
-    Subscriptions.update_subscription(subscription, subscription_attrs)
+    Subscriptions.update_subscription(
+      subscription,
+      Plans.free_default_plan_as_subscription_attrs()
+    )
   end
 
-  # """
-  # When payment is refunded; return to free default plan
-  # """
-  def handler(
-        %{assigns: %{paddle_passthrough: %{"organization_id" => organization_id}}},
-        %{
-          "alert_name" => "subscription_payment_refunded",
-          "event_time" => event_time
-        } = params
-      ) do
+  def handler(_conn, %{
+        "data" =>
+          %{
+            # "occured_at" => occured_at,
+
+            "customer_id" => _customer_id,
+            "id" => _subscription_id,
+            "canceled_at" => _canceled_at,
+            "custom_data" => %{
+              "organization_id" => organization_id
+            }
+          } = _data_params,
+        "event_type" => "subscription.canceled"
+      }) do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    subscription_attrs =
-      webhook_params_to_subscription_attrs(params)
-      # Clear It When Subscription Deleted
-      # |> Map.put("paddle", [params])
-      # |> Map.put("cancelled_at", nil)
-      |> Map.put("issued_at", convert_paddle_webhook_datetime(event_time))
-      |> Map.put("valid_until", convert_paddle_webhook_datetime(event_time))
-      # |> Map.put("customer_id", nil)
-      |> Map.put("subscription_id", nil)
-      # Converting to Free Plan
-      |> Map.put("product_id", "default")
-      |> Map.put("payment_attempt", nil)
-      |> Map.put("status", "unpaid")
-      |> Map.put("update_url", nil)
-      |> Map.put("cancel_url", nil)
-
-    Subscriptions.update_subscription(subscription, subscription_attrs)
+    Subscriptions.update_subscription(
+      subscription,
+      Plans.free_default_plan_as_subscription_attrs()
+    )
   end
 
-  # """
-  # When plan has been upgraded or downgraded
-  # User cannot do this from UI, has to request me to change plan and link is
-  # sent to them
-  # """
-  def handler(
-        %{assigns: %{paddle_passthrough: %{"organization_id" => organization_id}}},
-        %{
-          "alert_name" => "subscription_updated",
-          "event_time" => event_time,
-          "next_bill_date" => next_bill_date,
-          "user_id" => user_id,
-          "subscription_id" => subscription_id,
-          "update_url" => update_url,
-          "cancel_url" => cancel_url
-        } = params
-      ) do
+  # def handler(_conn, %{
+  #       "data" =>
+  #         %{
+  #           # "occured_at" => occured_at,
+  #           "next_billed_at" => _next_billed_at,
+  #           "customer_id" => customer_id,
+  #           "id" => subscription_id,
+  #           "custom_data" => %{
+  #             "organization_id" => organization_id
+  #           },
+  #           "current_billing_period" => %{
+  #             "ends_at" => _ends_at,
+  #             "starts_at" => starts_at
+  #           },
+  #           # If Scheduled Change Is Not Nil
+  #           "scheduled_change" => %{
+  #             "effective_at" => effective_at
+  #           }
+  #         } = data_params,
+  #       "event_type" => "subscription.updated",
+  #       "occurred_at" => _occured_at
+  #     }) do
+  #   # Status Cancelled Hence no Valid Until Date, Dont update the database value
+
+  #   organization = Organizations.get_organization!(organization_id)
+  #   subscription = organization.subscription
+
+  #   subscription_attrs =
+  #     webhook_params_to_subscription_attrs(data_params)
+  #     |> Map.put("issued_at", convert_paddle_webhook_datetime(starts_at))
+  #     |> Map.put("valid_until", convert_paddle_webhook_datetime(effective_at))
+  #     |> Map.put("customer_id", customer_id)
+  #     |> Map.put("subscription_id", subscription_id)
+  #     |> Map.put("payment_attempt", nil)
+
+  #   # |> Map.put("update_url", "https://sandbox-api.paddle.com/subscriptions/#{subscription_id}")
+  #   # |> Map.put("cancel_url", "https://sandbox-api.paddle.com/subscriptions/#{subscription_id}")
+
+  #   Subscriptions.update_subscription(subscription, subscription_attrs)
+  # end
+
+  def handler(_conn, %{
+        "data" =>
+          %{
+            # "occured_at" => occured_at,
+            "next_billed_at" => _next_billed_at,
+            "customer_id" => customer_id,
+            "id" => subscription_id,
+            "custom_data" => %{
+              "organization_id" => organization_id
+            },
+            "current_billing_period" => %{
+              "ends_at" => ends_at,
+              "starts_at" => starts_at
+            }
+          } = data_params,
+        "event_type" => "subscription.updated"
+      }) do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
     subscription_attrs =
-      webhook_params_to_subscription_attrs(params)
-      |> Map.put("issued_at", convert_paddle_webhook_datetime(event_time))
-      |> Map.put("valid_until", convert_paddle_webhook_date(next_bill_date))
-      |> Map.put("customer_id", user_id)
+      webhook_params_to_subscription_attrs(data_params)
+      |> Map.put("issued_at", convert_paddle_webhook_datetime(starts_at))
+      |> Map.put("valid_until", convert_paddle_webhook_datetime(ends_at))
+      |> Map.put("customer_id", customer_id)
       |> Map.put("subscription_id", subscription_id)
       |> Map.put("payment_attempt", nil)
-      |> Map.put("update_url", update_url)
-      |> Map.put("cancel_url", cancel_url)
+
+    # |> Map.put("update_url", "https://sandbox-api.paddle.com/subscriptions/#{subscription_id}")
+    # |> Map.put("cancel_url", "https://sandbox-api.paddle.com/subscriptions/#{subscription_id}")
+
+    Subscriptions.update_subscription(subscription, subscription_attrs)
+  end
+
+  # For Lifetime Plans Hence, Subsription_Id Nil
+  def handler(_conn, %{
+        "data" =>
+          %{
+            # "occured_at" => occured_at,
+            "billed_at" => billed_at,
+            "customer_id" => customer_id,
+            "id" => transaction_id,
+            "custom_data" => %{
+              "organization_id" => organization_id
+            },
+            "billing_period" => nil,
+            "subscription_id" => nil
+          } = data_params,
+        "event_type" => "transaction.completed"
+      }) do
+    organization = Organizations.get_organization!(organization_id)
+    subscription = organization.subscription
+
+    subscription_attrs =
+      webhook_params_to_subscription_attrs(data_params)
+      |> Map.put("issued_at", convert_paddle_webhook_datetime(billed_at))
+      # Giving lifetime validity
+      |> Map.put("valid_until", DateTime.utc_now() |> DateTime.add(3_153_600_000, :second))
+      |> Map.put("customer_id", customer_id)
+      |> Map.put("subscription_id", transaction_id)
+      |> Map.put("payment_attempt", nil)
+      |> Map.put("status", "active")
 
     Subscriptions.update_subscription(subscription, subscription_attrs)
   end
 
   def handler(
         _conn,
-        %{"alert_name" => _} = params
+        %{"event_type" => _event_type} = params
       ) do
     Logger.info(params)
     :unhandled
@@ -198,33 +244,40 @@ defmodule Planet.Payments.PaddleWebhookHandler do
 
   defp webhook_params_to_subscription_attrs(params) do
     %{
+      "custom_data" => %{
+        "product_id" => product_id,
+        "price_id" => price_id
+      }
+    } = params
+
+    # items =
+    #   Map.get(params, "items")
+    #   |> List.first()
+
+    # product_id =
+    #   items
+    #   |> Map.get("product", %{})
+    #   |> Map.get("id", "default")
+
+    # price_id =
+    #   items
+    #   |> Map.get("price", %{})
+    #   |> Map.get("id", "default")
+
+    %{
       # Required
       "status" => Map.get(params, "status", "past_due"),
-      "product_id" => Map.get(params, "subscription_plan_id", nil),
-      "processor" => "paddle-classic",
-      "price_id" => "default"
+      "product_id" => product_id,
+      "price_id" => price_id,
+      "processor" => "paddle"
     }
   end
 
-  defp convert_paddle_webhook_datetime(datetime_str) do
-    # IO.inspect(datetime_str)
-
-    # Calendar.strftime(
-    # datetime_str,
-    # "%Y-%m-%d %X"
-    # )
-
-    Timex.parse!(datetime_str, "{YYYY}-{0M}-{0D} {h24}:{m}:{s}")
+  def convert_paddle_webhook_datetime(nil) do
+    Timex.now()
   end
 
-  defp convert_paddle_webhook_date(date) do
-    # IO.inspect(date)
-
-    # Calendar.strftime(
-    #   date,
-    #   "%Y-%m-%d %X"
-    # )
-
-    Timex.parse!(date, "{YYYY}-{0M}-{0D}")
+  def convert_paddle_webhook_datetime(datetime_str) do
+    Timex.parse!(datetime_str, "{RFC3339}")
   end
 end

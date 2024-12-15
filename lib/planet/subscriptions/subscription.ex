@@ -2,8 +2,6 @@ defmodule Planet.Subscriptions.Subscription do
   use Planet.Schema
   import Ecto.Changeset
 
-  # TODO
-  # If payment required to use app - manage subscription status
   @status_values [
     # Paddle
     :active,
@@ -13,15 +11,10 @@ defmodule Planet.Subscriptions.Subscription do
     :paused,
     :deleted,
     :canceled,
-
-    # Custom
-    # used when paddle webhook does not verify within 20 seconds
-    # or some other error, we can bypass it with forced_active and know which once are manually
-    # activated accounts
-    # Removed, use processor to detect which webhook handler has affected this
-    # :forced_active,
     # Initial Condition
     :unpaid
+    # Custom
+    # :forced_active,
   ]
 
   @processor_values [

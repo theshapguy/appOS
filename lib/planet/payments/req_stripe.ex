@@ -103,6 +103,21 @@ defmodule Planet.Payments.Stripe do
     params
   end
 
+  defp maybe_add_subscription_metadata(params, "subscription") do
+    %{
+      "subscription_data[metadata][price_id]" => Map.get(params, "metadata[price_id]"),
+      "subscription_data[metadata][product_id]" => Map.get(params, "metadata[product_id]"),
+      "subscription_data[metadata][organization_id]" =>
+        Map.get(params, "metadata[organization_id]"),
+      "subscription_data[metadata][user_id]" => Map.get(params, "metadata[user_id]")
+    }
+    |> Map.merge(params)
+  end
+
+  defp maybe_add_subscription_metadata(params, "payment") do
+    params
+  end
+
   # POST Calls
   def checkout_session_url(
         %User{
@@ -119,12 +134,12 @@ defmodule Planet.Payments.Stripe do
     # def checkout_session_url(organization_id, price_id, email) do
     url = "#{@api_endpoint}/checkout/sessions"
 
-    %{billingFrequency: frequency} = Plans.variant_by_price_id(:stripe, price_id)
+    %{billing_frequency: frequency} = Plans.variant_by_price_id(:stripe, price_id)
 
-    %{priceId: ^price_id, productId: product_id} =
+    %{price_id: ^price_id, product_id: product_id} =
       Plans.variant_by_price_id(:stripe, price_id).processors.stripe
 
-    mode = if(frequency == "lifetime", do: "payment", else: "subscription")
+    mode = if(frequency == "once", do: "payment", else: "subscription")
 
     body =
       %{
@@ -143,6 +158,8 @@ defmodule Planet.Payments.Stripe do
         # "payment_intent_data[statement_descriptor_suffix]" => "",
       }
       |> maybe_add_customer_details(user, mode)
+      |> maybe_add_subscription_metadata(mode)
+      |> IO.inspect()
       |> URI.encode_query()
 
     headers = [
@@ -150,7 +167,9 @@ defmodule Planet.Payments.Stripe do
       {"Content-Type", "application/x-www-form-urlencoded"}
     ]
 
-    case HTTPoison.post(url, body, headers) do
+    req = HTTPoison.post(url, body, headers)
+
+    case req do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         {:ok, Jason.decode!(response_body)}
 

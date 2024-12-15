@@ -10,123 +10,103 @@
           {
             "id": "free",
             "name": "Free Plan",
-            "billingFrequency": "lifetime_free",
+            "billing_frequency": "lifetime_free",
             "price": 0.00,
             "processors": {
               "manual": {
-                "priceId": "default",
-                "productId": "default"
+                "price_id": "default",
+                "product_id": "default"
               }
             }
           }
         ]
-      },
-      {
-        "productFamily": "lifetime",
-        "name": "Lifetime Plan",
-        "description": "Lifetime access, flexible payments: Monthly installments with Klarna and Affirm",
-        "variations": [
-          {
-            "id": "lifetime",
-            "name": "Lifetime Plan",
-            "billingFrequency": "lifetime",
-            "price": 499.99,
-            "processors": {
-              "stripe": {
-                "priceId": "price_1QTQEyEYGCo6GFJN35wrzrIL",
-                "productId": "prod_RM4OZ8tLCS8K6l"
-              },
-              "paddle": {
-                "priceId": "pri_01je046z9z9cz6sqt73ggrwyde",
-                "productId": "pro_01jczp7xcy9wsszr9r5nx26qzh"
-              },
-              "creem": {
-                "priceId": "prod_6MKduampABm8Xf0lqRhzD6",
-                "productId": "prod_6MKduampABm8Xf0lqRhzD6"
-              }
-            }       
-          }
-        ],
-        "features": [
-          "Pro access",
-          "Priority support",
-          "Advanced features"
-        ],
-        "metadata": {
-          "tier": "lifetime",
-          "recommendedFor": "all users"
-        }
-      },    
+      },  
       {
         "productFamily": "basic",
         "name": "Basic Plan",
         "description": "Get started with the free plan",
+        "features": [
+          { "feature": "Basic features", "available": true },
+          { "feature": "Users", "value": "10" },
+          { "feature": "Individual data", "value": "20GB" },
+          { "feature": "Support", "available": true },
+          { "feature": "Automated workflows", "available": false },
+          { "feature": "200+ integrations", "available": false },
+          { "feature": "Plan", "value": "basic" }
+        ],
         "variations": [
           {
             "id": "basic_monthly",
             "name": "Basic Plan",
-            "billingFrequency": "month",
-            "price": 9.99,          
+            "billing_frequency": "monthly",
+            "price": 9.99,   
+            "savings": {
+              "amount": 2.00,
+              "percentage": 6.67,
+              "monthly_equivalent": 9.33
+            },                   
             "processors": {
               "stripe": {
-                "priceId": "price_1QTMFLEYGCo6GFJNkPKmi96l",
-                "productId": "prod_RM4OZ8tLCS8K6l"
+                "price_id": "price_1QTMFLEYGCo6GFJNkPKmi96l",
+                "product_id": "prod_RM4OZ8tLCS8K6l"
               },
               "paddle": {
-                "priceId": "pri_01jed2mk6kn76v4m86rf3e7m2t",
-                "productId": "pro_01jczp7xcy9wsszr9r5nx26qzh"
+                "price_id": "pri_01jed2mk6kn76v4m86rf3e7m2t",
+                "product_id": "pro_01jczp7xcy9wsszr9r5nx26qzh"
               },
               "creem": {
-                "priceId": "prod_42rGwW8OMgICVtuO9uVuN0",
-                "productId": "prod_42rGwW8OMgICVtuO9uVuN0"
+                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0",
+                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0"
               }
             }
           },
           {
             "id": "basic_quarterly",
-            "billingFrequency": "quarterly",
+            "billing_frequency": "quarterly",
             "name": "Basic Plan",
             "price": 27.99,
             "savings": {
               "amount": 2.00,
-              "percentage": 6.67
+              "percentage": 6.67,
+              "monthly_equivalent": 9.33
             },
             "processors": {
               "stripe": {
-                "priceId": "free_lifetime",
-                "productId": "free_lifetime"
+                "price_id": "free_lifetime",
+                "product_id": "free_lifetime"
               },
               "paddle": {
-                "priceId": "free_lifetime",
-                "productId": "free_lifetime"
+                "price_id": "free_lifetime",
+                "product_id": "free_lifetime"
               },
               "creem": {
-                "priceId": "prod_42rGwW8OMgICVtuO9uVuN0",
-                "productId": "prod_42rGwW8OMgICVtuO9uVuN0"
+                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0",
+                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0"
               }            
             }      
           },
           {
             "id": "basic_annually",
-            "billingFrequency": "annually",
+            "billing_frequency": "annually",
             "name": "Basic",
             "price": 99.99,
             "savings": {
               "amount": 19.89,
-              "percentage": 16.67
+              "percentage": 16.67,
+              "monthly_equivalent": 9.33
             },
             "processors": {
               "stripe": {
-                "priceId": "free_lifetime",
-                "productId": "free_lifetime"
+                "price_id": "free_lifetime",
+                "product_id": "free_lifetime"
               },
               "paddle": {
-                "priceId": "free_lifetime",
-                "productId": "free_lifetime"
+                "price_id": "free_lifetime",
+                "product_id": "free_lifetime"
               },
               "creem": {
-                "priceId": "prod_42rGwW8OMgICVtuO9uVuN0",
-                "productId": "prod_42rGwW8OMgICVtuO9uVuN0"
+                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0",
+                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0"
               }                  
             }
           }
@@ -136,85 +116,133 @@
         "productFamily": "pro",
         "name": "Pro Plan",
         "description": "Get started with the pro plan",
+        "features": [
+          { "feature": "Basic features", "available": true },
+          { "feature": "Users", "value": "50" },
+          { "feature": "Individual data", "value": "50GB" },
+          { "feature": "Support", "available": true },
+          { "feature": "Automated workflows", "available": true },
+          { "feature": "200+ integrations", "available": true },
+          { "feature": "Plan", "value": "pro" }
+        ],    
         "variations": [
           {
             "id": "pro_monthly",
-            "billingFrequency": "monthly",
+            "billing_frequency": "monthly",
             "name": "Pro Plan",
             "price": 19.99,
+            "savings": {
+              "amount": 2.00,
+              "percentage": 6.67,
+              "monthly_equivalent": 9.33
+            },
             "processors": {
               "stripe": {
-                "priceId": "free_lifetime",
-                "productId": "free_lifetime"
+                "price_id": "free_lifetime",
+                "product_id": "free_lifetime"
               },
               "paddle": {
-                "priceId": "pri_01jed2mk6kn76v4m86rf3e",
-                "productId": "pro_01jczp7xcy9wsszr9r5nx26qzh"
+                "price_id": "pri_01jed2mk6kn76v4m86rf3e",
+                "product_id": "pro_01jczp7xcy9wsszr9r5nx26qzh"
               },
               "creem": {
-                "priceId": "prod_42rGwW8OMgICVtuO9uVuN0",
-                "productId": "prod_42rGwW8OMgICVtuO9uVuN0"
+                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0",
+                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0"
               }       
             }
           },
           {
             "id": "pro_quarterly",
-            "billingFrequency": "quarterly",
+            "billing_frequency": "quarterly",
             "name": "Pro Plan",
             "price": 54.99,
             "savings": {
               "amount": 5.00,
-              "percentage": 8.33
+              "percentage": 8.33,
+              "monthly_equivalent": 9.33
             },
             "processors": {
               "stripe": {
-                "priceId": "free_lifetime",
-                "productId": "free_lifetime"
+                "price_id": "free_lifetime",
+                "product_id": "free_lifetime"
               },
               "paddle": {
-                "priceId": "free_lifetime",
-                "productId": "free_lifetime"
+                "price_id": "free_lifetime",
+                "product_id": "free_lifetime"
               },
               "creem": {
-                "priceId": "prod_42rGwW8OMgICVtuO9uVuN0",
-                "productId": "prod_42rGwW8OMgICVtuO9uVuN0"
+                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0",
+                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0"
               }                  
             }         
           },
           {
             "id": "pro_annually",
-            "billingFrequency": "annually",
+            "billing_frequency": "annually",
             "name": "Pro Plan",
             "price": 199.99,
             "savings": {
               "amount": 39.89,
-              "percentage": 16.67
+              "percentage": 16.67,
+              "monthly_equivalent": 9.33
             },
             "processors": {
               "stripe": {
-                "priceId": "free_lifetime",
-                "productId": "free_lifetime"
+                "price_id": "free_lifetime",
+                "product_id": "free_lifetime"
               },
               "paddle": {
-                "priceId": "free_lifetime",
-                "productId": "free_lifetime"
+                "price_id": "free_lifetime",
+                "product_id": "free_lifetime"
               },
               "creem": {
-                "priceId": "prod_42rGwW8OMgICVtuO9uVuN0",
-                "productId": "prod_42rGwW8OMgICVtuO9uVuN0"
+                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0",
+                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0"
               }                  
             }        
           }
-        ],
+        ]
+      },
+      {
+        "productFamily": "lifetime",
+        "name": "Lifetime Plan",
+        "description": "Lifetime access, flexible payments: Monthly installments with Klarna and Affirm",
         "features": [
-          "Pro access",
-          "Priority support",
-          "Advanced features"
-        ],
-        "metadata": {
-          "tier": "pro",
-          "recommendedFor": "power users"
-        }
-      }
+          { "feature": "Basic features", "available": true },
+          { "feature": "Users", "value": "100" },
+          { "feature": "Individual data", "value": "100GB" },
+          { "feature": "Support", "available": true },
+          { "feature": "Automated workflows", "available": true },
+          { "feature": "200+ integrations", "available": true },
+          { "feature": "Plan", "value": "lifetime" }          
+        ],    
+        "variations": [
+          {
+            "id": "lifetime",
+            "name": "Lifetime Plan",
+            "billing_frequency": "once",
+            "price": 499.99,
+            "savings": {
+              "amount": 2.00,
+              "percentage": 6.67,
+              "monthly_equivalent": 9.33
+            },            
+            "processors": {
+              "stripe": {
+                "price_id": "price_1QTQEyEYGCo6GFJN35wrzrIL",
+                "product_id": "prod_RM4OZ8tLCS8K6l"
+              },
+              "paddle": {
+                "price_id": "pri_01je046z9z9cz6sqt73ggrwyde",
+                "product_id": "pro_01jczp7xcy9wsszr9r5nx26qzh"
+              },
+              "creem": {
+                "price_id": "prod_6MKduampABm8Xf0lqRhzD6",
+                "product_id": "prod_6MKduampABm8Xf0lqRhzD6"
+              }
+            }       
+          }
+        ]
+      }      
     ]
   }

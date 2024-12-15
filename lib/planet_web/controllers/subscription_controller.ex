@@ -49,7 +49,7 @@ defmodule PlanetWeb.SubscriptionController do
 
   # Payment On Signup
   def payment(conn, params) do
-    filter_lifetime_querystring = if Map.get(params, "lifetime") == "yes", do: "lifetime"
+    filter_lifetime_querystring = if Map.get(params, "lifetime") == "yes", do: "once"
     subscription = conn.assigns.current_user.organization.subscription
 
     payment_sandbox? =
@@ -62,8 +62,8 @@ defmodule PlanetWeb.SubscriptionController do
     |> maybe_add_payment_failed_flash(params)
     |> render(:payment,
       payment_sandbox?: payment_sandbox?,
-      subscription_plans: Planet.Payments.Plans.list(filter_lifetime_querystring, true),
-      lifetime_plans_only?: filter_lifetime_querystring == "lifetime",
+      subscription_plans: Plans.list(filter_lifetime_querystring, true) |> Plans.roll(),
+      lifetime_plans_only?: filter_lifetime_querystring == "once",
       processor: selected_processor,
       processor_humanized: Plans.processor_humanized(selected_processor),
       vat_included?: Plans.vat_included?(subscription),
@@ -116,10 +116,10 @@ defmodule PlanetWeb.SubscriptionController do
             conn |> failed_to_activate(failed_redirect_url)
         end
 
-      {:ok, _} ->
+      {:ok, _error} ->
         conn |> failed_to_activate(failed_redirect_url)
 
-      {:error, _} ->
+      {:error, _error} ->
         conn |> failed_to_activate(failed_redirect_url)
     end
   end
@@ -237,12 +237,6 @@ defmodule PlanetWeb.SubscriptionController do
       "organization_id" => org_id,
       "timestamp" => timestamp
     })
-  end
-
-  # Payment On Signup
-  def plans(conn, _) do
-    conn
-    |> render(:plans)
   end
 
   # Payment On Signup #For Paddle

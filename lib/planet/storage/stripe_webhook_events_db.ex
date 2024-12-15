@@ -184,13 +184,33 @@ defmodule Planet.Storage.StripeWebhookEventsDB do
   end
 
   @impl true
-  def handle_info(:cleanup, state) do
-    cleanup_old_events()
+  def handle_info(:cleanup_events, state) do
+    # Remove events older than 5 days
+    cutoff = System.system_time(:second) - 5 * 24 * 60 * 60
+    # cutoff = System.system_time(:second) - 10
+
+    _result =
+      :mnesia.transaction(fn ->
+        :mnesia.select(StripeWebhookEvent, [
+          {
+            {StripeWebhookEvent, :"$1", :"$2", :"$3", :"$4"},
+            [{:<, :"$4", {:const, cutoff}}],
+            [:"$$"]
+          }
+        ])
+        |> Enum.each(fn [event_id | _] ->
+          :mnesia.delete({StripeWebhookEvent, event_id})
+        end)
+      end)
+
+    # Reschedule the next cleanup
+    schedule_cleanup()
+
     {:noreply, state}
   end
 
   # Schedule the cleanup to run every hour to remove older events
   defp schedule_cleanup do
-    Process.send_after(self(), :cleanup, 60 * 60 * 1000)
+    Process.send_after(self(), :cleanup_events, 60 * 60 * 1000)
   end
 end

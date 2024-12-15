@@ -1,0 +1,257 @@
+<header class="px-4 xl:px-0">
+  <div class="max-w-5xl mx-auto border-b border-dashed border-gray200 py-10">
+    <h1 class="text-3xl font-bold tracking-tight text-gray-900">Pricing Plans</h1>
+    <p class="mt-2 text-gray-600">
+      No BS plan. Adjust or bail whenever you want. <span class="text-lg">✌️</span>
+    </p>
+  </div>
+</header>
+
+<section class="py-12 px-4 xl:px-0">
+  <div class="max-w-5xl mx-auto">
+    <!-- Three-way Toggle -->
+    <!-- Pricing Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+      <!-- Basic Plan -->
+
+      <%= for plan <- @subscription_plans do %>
+        <div class={[
+          "flex flex-col border border-gray-200 rounded-lg p-6 bg-gray-100",
+          plan.productFamily == "lifetime" && "gradient-bg"
+        ]}>
+          <h2 class="text-lg font-semibold text-gray-900">{plan.name}</h2>
+          <p class={[
+            "mt-1 text-sm text-gray-600",
+            plan.productFamily == "lifetime" && "capitalize"
+          ]}>
+            {plan.description}
+          </p>
+
+          <div class="mt-6 space-y-4 flex-1">
+            <!-- Monthly Pricing -->
+
+            <%= for {variant, index} <- Enum.with_index(plan.variations) do %>
+              <div>
+                <span class="text-2xl font-bold">${variant.price}</span><span class="text-gray-600">/{variant.billing_frequency}</span>
+                <p :if={index == 0} class="text-sm text-gray-600">
+                  Billed {variant.billing_frequency}
+                </p>
+                <p :if={index != 0} class="text-sm text-gray-600">
+                  Equivalent to ${variant.savings.monthly_equivalent}/month
+                </p>
+              </div>
+            <% end %>
+          </div>
+
+          <.link class="w-full" href={~s"/users/billing"}>
+            <button class="w-full mt-6 bg-black text-white rounded-md px-4 py-2 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+              Get Started
+            </button>
+          </.link>
+        </div>
+      <% end %>
+    </div>
+
+    <div
+      id="plan-feature-table"
+      class="overflow-x-auto border-t border-dashed border-gray-200 pt-8 scroll-m-12"
+    >
+      <!-- Features Table -->
+      <table class="w-full text-left text-sm">
+        <thead class="text-gray-600">
+          <tr>
+            <th class="py-3 font-semibold">Features</th>
+            <%= for plan <- @subscription_plans do %>
+              <th class="py-3 font-semibold w-1/4">{plan.name}</th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 text-sm text-gray-800">
+          <% feature_names =
+            @subscription_plans |> hd() |> Map.get(:features) |> Enum.map(& &1[:feature]) %>
+
+          <%= for feature_name <- feature_names do %>
+            <tr>
+              <td class="py-4 font-medium">{feature_name}</td>
+              <%= for plan <- @subscription_plans do %>
+                <td class="py-4">
+                  <%= case Enum.find(plan.features, fn f -> f.feature == feature_name end) do %>
+                    <% %{available: true} -> %>
+                      <span class="text-lg">✅</span>
+                    <% %{available: false} -> %>
+                      —
+                    <% %{value: value} -> %>
+                      {value}
+                    <% _ -> %>
+                      —
+                  <% end %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="py-12 px-4 xl:px-0">
+  <div class="max-w-5xl mx-auto px-6 py-12">
+    <!-- FAQ Header -->
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Frequently Asked Questions</h1>
+    
+<!-- FAQ Container -->
+    <div class="space-y-4">
+      <!-- Question 1 -->
+      <details class="group border border-gray-200 rounded-lg p-4 bg-white">
+        <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
+          <span>What do I actually get with each plan?</span>
+          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
+            ⌄
+          </span>
+        </summary>
+        <p class="text-gray-600 mt-3">
+          All plans give you access to our core toolkit—everything you need to get started. As you move up, you unlock extra perks: more integrations, bigger data limits, advanced features—basically, all the goodies to help you level up as your business grows.
+        </p>
+      </details>
+      
+<!-- Question 2 -->
+      <details class="group border border-gray-200 rounded-lg p-4 bg-white">
+        <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
+          <span>Can I switch plans whenever I want?</span>
+          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
+            ⌄
+          </span>
+        </summary>
+        <p class="text-gray-600 mt-3">
+          Yup. No red tape, no begging. Just head into your account settings and hit “upgrade” or “downgrade.” It’s all self-serve and changes kick in right away. You’re always in control.
+        </p>
+      </details>
+
+      <%!-- <!-- Question 3 -->
+      <details class="group border border-gray-200 rounded-lg p-4 bg-white">
+        <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
+          <span>Do you have a free trial?</span>
+          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
+            ⌄
+          </span>
+        </summary>
+        <p class="text-gray-600 mt-3">
+          Absolutely. We get that you want to test the waters. Sign up for our free trial and try everything out. No credit card required—if you’re not feeling it, just walk away, no hard feelings.
+        </p>
+      </details> --%>
+      
+<!-- Question 4 -->
+      <details class="group border border-gray-200 rounded-lg p-4 bg-white">
+        <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
+          <span>How’s your billing work?</span>
+          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
+            ⌄
+          </span>
+        </summary>
+        <p class="text-gray-600 mt-3">
+          We keep it simple. Pay monthly, every 3 months, or yearly—whichever works for you. The longer your billing cycle, the more you save. It’s that easy.
+        </p>
+      </details>
+      
+<!-- Question 5 -->
+      <details class="group border border-gray-200 rounded-lg p-4 bg-white">
+        <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
+          <span>What payment methods do you take?</span>
+          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
+            ⌄
+          </span>
+        </summary>
+        <p class="text-gray-600 mt-3">
+          We accept all major cards. Want to talk bank transfers or something else for a larger deal? Shoot us a note. We’re pretty flexible.
+        </p>
+      </details>
+      
+<!-- Question 6 -->
+      <details class="group border border-gray-200 rounded-lg p-4 bg-white">
+        <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
+          <span>Is my data safe with you?</span>
+          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
+            ⌄
+          </span>
+        </summary>
+        <p class="text-gray-600 mt-3">
+          Heck yeah. We take security super seriously. Your data is encrypted and guarded with all the best practices. We’d never mess around with your privacy—our reputation’s on the line.
+        </p>
+      </details>
+      
+<!-- Question 7 -->
+      <details class="group border border-gray-200 rounded-lg p-4 bg-white">
+        <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
+          <span>What if I need more features as I grow?</span>
+          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
+            ⌄
+          </span>
+        </summary>
+        <p class="text-gray-600 mt-3">
+          That’s the dream, right? Just jump to a bigger plan if you need more firepower. Or ping us if you have something special in mind. We’re all about helping you scale.
+        </p>
+      </details>
+      
+<!-- Question 8 -->
+      <details class="group border border-gray-200 rounded-lg p-4 bg-white">
+        <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
+          <span>Any discounts for startups, nonprofits, or schools?</span>
+          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
+            ⌄
+          </span>
+        </summary>
+        <p class="text-gray-600 mt-3">
+          We’ve been there. If you’re doing good work or just starting out, let us know. We might hook you up with a special deal. We love supporting fellow underdogs.
+        </p>
+      </details>
+      
+<!-- Question 9 -->
+      <details class="group border border-gray-200 rounded-lg p-4 bg-white">
+        <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
+          <span>What’s your refund policy?</span>
+          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
+            ⌄
+          </span>
+        </summary>
+        <p class="text-gray-600 mt-3">
+          We hate buyer’s remorse as much as you do. If you’re on a longer-term plan and need out, we’ll work with you on a fair, prorated refund. No shady fine print.
+        </p>
+      </details>
+      
+<!-- New: Cancellation -->
+      <details class="group border border-gray-200 rounded-lg p-4 bg-white">
+        <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
+          <span>How do I cancel my subscription?</span>
+          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
+            ⌄
+          </span>
+        </summary>
+        <p class="text-gray-600 mt-3">
+          No need to contact support or jump through hoops. You can cancel directly from within the app—just head to your account billing settings, and it’s done. You’re in control, always.
+        </p>
+      </details>
+      
+<!-- Question 10 -->
+      <details class="group border border-gray-200 rounded-lg p-4 bg-white">
+        <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
+          <span>I’ve got a billing problem—how do I get help?</span>
+          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
+            ⌄
+          </span>
+        </summary>
+        <p class="text-gray-600 mt-3">
+          Hit us up via email, chat, or the support form in your dashboard. We’re a small team, but we hustle to solve issues fast. Your success is our success, after all.
+        </p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer class="px-4 xl:px-0">
+  <div class="max-w-5xl mx-auto border-t border-gray-200 py-10">
+    <p class="text-sm text-gray-600">
+      &copy; {Date.utc_today().year} {Application.get_env(:planet, Planet.Mailer)[:app_name]}. All rights reserved. {}
+    </p>
+  </div>
+</footer>

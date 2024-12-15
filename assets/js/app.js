@@ -25,7 +25,6 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import Alpine from 'alpinejs'
-import phxFeedbackDom from "./phx_feedback_dom"
 window.Alpine = Alpine
 Alpine.start()
 // https://alpinejs.dev/globals/alpine-data
@@ -56,7 +55,6 @@ let liveSocket = new LiveSocket("/live", Socket, {
         _csrf_token: csrfToken
     },
     dom: {
-        
         // make LiveView work nicely with AlpineJS
         onBeforeElUpdated(from, to) {
             if (from._x_dataStack) {

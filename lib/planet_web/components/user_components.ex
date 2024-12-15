@@ -226,9 +226,11 @@ defmodule PlanetWeb.UserComponents do
         </div>
         
     <!-- Mobile Menu Toggle -->
-        <div class="sm:hidden flex items-center">
+        <div x-data="mobileMenu" @click.away="close($event)" class="sm:hidden flex items-center">
           <button
             id="mobileMenuToggle"
+            @click="toggle"
+            x-ref="toggle"
             class="text-neutral-600 hover:text-neutral-900 focus:outline-none"
           >
             <svg
@@ -252,6 +254,8 @@ defmodule PlanetWeb.UserComponents do
     <!-- Mobile Menu Dropdown -->
       <div
         id="mobileMenu"
+        x-show="open"
+        x-ref="menu"
         class="sm:hidden absolute top-full left-0 right-0 bg-white shadow-lg hidden"
       >
         <div class="flex flex-col px-4 py-4 space-y-2">
@@ -290,21 +294,31 @@ defmodule PlanetWeb.UserComponents do
       </div>
     </nav>
 
-    <script>
-      <%!-- TODO Toggle With AlpineJS --%>
-        // Mobile Menu Toggle
-        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-        const mobileMenu = document.getElementById('mobileMenu');
+    <.mobile_menu_toggle_script toggle_id="mobileMenuToggle" menu_div_id="mobileMenu" />
+    """
+  end
 
-        mobileMenuToggle.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+  @doc """
+  Renders navigation for landing pages
+
+  """
+  attr :toggle_id, :any, required: true
+  attr :menu_div_id, :any, required: true
+
+  def mobile_menu_toggle_script(assigns) do
+    ~H"""
+    <script>
+      // Mobile Menu Toggle
+      const toggle = document.getElementById('<%= @toggle_id %>');
+      const menu = document.getElementById('<%= @menu_div_id %>');
+
+      toggle.addEventListener('click', () => menu.classList.toggle('hidden'));
 
       document.addEventListener('click', (event) => {
-                  if (!mobileMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
-                      mobileMenu.classList.add('hidden');
-                  }
-              });
+        if (!menu.contains(event.target) && !toggle.contains(event.target)) {
+          menu.classList.add('hidden');
+        }
+      });
     </script>
     """
   end
@@ -315,8 +329,8 @@ defmodule PlanetWeb.UserComponents do
   def billing_subtext_stripe(assigns) do
     ~H"""
     <% lifetime? =
-      Planet.Payments.Plans.variant_by_price_id(@license.processor, @license.price_id).billingFrequency ==
-        "lifetime" %>
+      Planet.Payments.Plans.variant_by_price_id(@license.processor, @license.price_id).billing_frequency ==
+        "once" %>
 
     <div :if={!lifetime?} class="text-zinc-400 text-sm my-5">
       <b>Your Next Payment</b>
@@ -354,8 +368,8 @@ defmodule PlanetWeb.UserComponents do
     <%!-- Only Show Subscription Actions When Not Lifetime Plan --%>
 
     <% lifetime? =
-      Planet.Payments.Plans.variant_by_price_id(@license.processor, @license.price_id).billingFrequency ==
-        "lifetime" %>
+      Planet.Payments.Plans.variant_by_price_id(@license.processor, @license.price_id).billing_frequency ==
+        "once" %>
 
     <div :if={!lifetime?} class="text-zinc-400 text-sm my-5">
       <b>Your Next Payment</b>
@@ -413,8 +427,8 @@ defmodule PlanetWeb.UserComponents do
     ~H"""
     <%!-- Only Show Subscription Actions When Not Lifetime Plan --%>
     <% lifetime? =
-      Planet.Payments.Plans.variant_by_price_id(@license.processor, @license.price_id).billingFrequency ==
-        "lifetime" %>
+      Planet.Payments.Plans.variant_by_price_id(@license.processor, @license.price_id).billing_frequency ==
+        "once" %>
 
     <div :if={!lifetime?} class="text-zinc-400 text-sm my-5">
       <b>Your Next Payment</b>

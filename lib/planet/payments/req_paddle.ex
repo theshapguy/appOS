@@ -77,7 +77,6 @@ defmodule Planet.Payments.Paddle do
         {:ok, update_subscription_with_response(subscription, decoded_body)}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: _body}} ->
-        # IO.inspect(body)
         {:error, "Request failed with status code #{status_code}"}
 
       {:error, %HTTPoison.Error{reason: reason}} ->

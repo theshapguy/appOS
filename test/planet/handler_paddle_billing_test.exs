@@ -110,7 +110,7 @@ defmodule Planet.PaddleHandlerTest do
           webhook_subscription_canceled(s.organization_id)
         )
 
-      %{priceId: price_id, productId: product_id} = Plans.free_default_plan_ids()
+      %{price_id: price_id, product_id: product_id} = Plans.free_default_plan_ids()
 
       assert subscription.status == Plans.default_plan_subscription_status()
       assert subscription.customer_id == nil
@@ -133,7 +133,7 @@ defmodule Planet.PaddleHandlerTest do
           webhook_subscription_paused(s.organization_id)
         )
 
-      %{priceId: price_id, productId: product_id} = Plans.free_default_plan_ids()
+      %{price_id: price_id, product_id: product_id} = Plans.free_default_plan_ids()
 
       assert subscription.status == Plans.default_plan_subscription_status()
       assert subscription.customer_id == nil

@@ -40,7 +40,6 @@ config :planet, Planet.Mailer,
   company_name: "Planet Inc.",
   support_email: "help@planet.inc"
 
-
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",
@@ -90,11 +89,12 @@ config :mnesia, dir: ~c"mnesia/#{Mix.env()}/#{node()}"
 
 # [Release] Check Production Or Runtime Variables
 config :planet, :payment,
-  sandbox?: false,
+  sandbox?: true,
   processor: :stripe,
   # If Free Plan Allows Access, Don't Redirect to Billing Page On Free Plan
-  allow_free_plan_access: true
-
+  allow_free_plan_access: true,
+  # Make sure show_billing_page is set to false only when allow_free_plan_access is true
+  show_billing_page: false
 
 config :planet, :stripe,
   description: "Stripe. Secure payment processing.",
@@ -118,7 +118,8 @@ config :planet, :paddle,
   bank_statement: "PADDLE.NET* RINKO"
 
 config :planet, :creem,
-  description: "Creem.io, manages your transaction as Merchant of Record, leveraging Stripe's secure payment infrastructure.",
+  description:
+    "Creem.io, manages your transaction as Merchant of Record, leveraging Stripe's secure payment infrastructure.",
   # client_key: nil,
   api_key: "creem_test_1Q3elUpPD3j2KpatJAWcon",
   webhook_secret_key: "whsec_7b8GNm0PQSlBfWMRb8Ohpd",
@@ -126,7 +127,6 @@ config :planet, :creem,
   portal_endpoint: "https://www.creem.io/test/my-orders/login",
   vat_included: false,
   bank_statement: "CREEM.IO SOCIALREECH"
-
 
 # config :planet, :processor_name,
 #   description: "Processor Name",

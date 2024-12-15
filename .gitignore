@@ -1,3 +1,5 @@
+secrets/secrets.env
+
 mnesia/
 
 # The directory Mix will write compiled artifacts to.

@@ -56,14 +56,13 @@ defmodule PlanetWeb.ConnCase do
     user = Planet.AccountsFixtures.user_fixture()
 
     Planet.Subscriptions.update_subscription(user.organization.subscription, %{
-      product_id: "pro_01jczp7xcy9wsszr9r5nx26qzh",
-      price_id: "pri_01jed2mk6kn76v4m86rf3e7m2t",
+      product_id: "default",
+      price_id: "default",
       subscription_id: "sub_123123123123",
       cancel_url: "http://cancel_url",
       update_url: "http://update_url",
       status: :active,
-      # TODO Change to Manual So that Does not Have to Enrich
-      processor: :paddle
+      processor: :manual
     })
 
     %{conn: log_in_user(conn, user), user: user}

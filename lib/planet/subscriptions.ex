@@ -83,16 +83,13 @@ defmodule Planet.Subscriptions do
       iex> update_subscription(subscription, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
+      If Subscription Is not Found Return {:ok, :not_found}
+      So the The API Response Can return 200
+
+      iex> update_subscription(nil, %{})
+      {:error, :not_found}
+
   """
-
-  # def update_subscription(%Subscription{} = subscription, attrs) do
-  #   # subscription = reload!(subscription)
-
-  #   subscription
-  #   |> Subscription.changeset(attrs)
-  #   |> Repo.update()
-  # end
-
   def update_subscription(%Subscription{} = subscription, attrs) do
     Ecto.Multi.new()
     |> Ecto.Multi.run(:subscription, fn repo, _changes ->
@@ -124,6 +121,10 @@ defmodule Planet.Subscriptions do
       {:ok, %{update_subscription: subscription}} -> {:ok, subscription}
       {:error, :update_subscription, changeset, _changes} -> {:error, changeset}
     end
+  end
+
+  def update_subscription(nil, attrs) when is_map(attrs) do
+    {:ok, :not_found}
   end
 
   def maybe_force_active(%{"timestamp" => timestamp, "organization_id" => id}) do

@@ -19,7 +19,7 @@ defmodule Planet.Plugs.SubscriptionManagementRedirect do
     # IO.inspect(subscription)
     # IO.inspect(subscription)
 
-    # %{billingFrequency: frequency} =
+    # %{billing_frequency: frequency} =
     plan = Plans.variant_by_price_id(subscription.processor, subscription.price_id)
 
     case subscription.subscription_id do
@@ -30,7 +30,7 @@ defmodule Planet.Plugs.SubscriptionManagementRedirect do
         |> halt()
 
       _ ->
-        if Map.get(plan, :billingFrequency) != "lifetime" do
+        if Map.get(plan, :billing_frequency) != "once" do
           conn
         else
           conn

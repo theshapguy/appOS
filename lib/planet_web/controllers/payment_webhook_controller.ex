@@ -4,7 +4,7 @@ defmodule PlanetWeb.PaymentWebhookController do
 
   alias Planet.Storage.StripeWebhookEventsDB
 
-  alias Planet.Payments.StripeWebhookHandler
+  alias Planet.Payments.StripeHandler
   alias Planet.Payments.PaddleHandler
   alias Planet.Payments.CreemHandler
 
@@ -51,7 +51,7 @@ defmodule PlanetWeb.PaymentWebhookController do
           }
         } = params
       ) do
-    case StripeWebhookHandler.handler(params) do
+    case StripeHandler.handler(params) do
       {:ok, _} ->
         StripeWebhookEventsDB.store_webhook_event(event_id, event_type, object_id, created)
 

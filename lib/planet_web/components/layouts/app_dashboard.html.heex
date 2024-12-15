@@ -15,6 +15,7 @@
       <.link
         href={~p"/app"}
         class="text-sm font-medium text-neutral-600 hover:text-blue-500 transition-colors"
+        title={@current_user.email}
       >
         Home
       </.link>
@@ -100,19 +101,4 @@
   </div>
 </main>
 
-<script>
-  <%!-- TODO Toggle With AlpineJS --%>
-      // Mobile Menu Toggle
-      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-      const mobileMenu = document.getElementById('mobileMenu');
-
-      mobileMenuToggle.addEventListener('click', () => {
-          mobileMenu.classList.toggle('hidden');
-      });
-
-    document.addEventListener('click', (event) => {
-                if (!mobileMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
-                    mobileMenu.classList.add('hidden');
-                }
-            });
-</script>
+<.mobile_menu_toggle_script toggle_id="mobileMenuToggle" menu_div_id="mobileMenu" />

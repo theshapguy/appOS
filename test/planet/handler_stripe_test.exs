@@ -3,7 +3,7 @@ defmodule Planet.StripeHandlerTest do
   use Planet.DataCase
 
   alias Planet.Subscriptions.Subscription
-  alias Planet.Payments.StripeWebhookHandler
+  alias Planet.Payments.StripeHandler
 
   import Planet.AccountsFixtures
   import Planet.StripeWebhookFixtures
@@ -15,7 +15,7 @@ defmodule Planet.StripeHandlerTest do
 
     test "stripe event: invoice.paid", %{user: u} do
       {:ok, %Subscription{} = subscription} =
-        StripeWebhookHandler.handler(webhook_invoice_paid(u.email))
+        StripeHandler.handler(webhook_invoice_paid(u.email))
 
       assert subscription.status == :active
 
@@ -38,7 +38,7 @@ defmodule Planet.StripeHandlerTest do
         })
 
       {:ok, %Subscription{} = subscription} =
-        StripeWebhookHandler.handler(webhook_subscription_deleted(customer_id))
+        StripeHandler.handler(webhook_subscription_deleted(customer_id))
 
       assert subscription.status == :active
 
@@ -57,7 +57,7 @@ defmodule Planet.StripeHandlerTest do
         )
 
       {:ok, %Subscription{} = subscription} =
-        StripeWebhookHandler.handler(webhook_data)
+        StripeHandler.handler(webhook_data)
 
       assert subscription.status == :active
 
@@ -72,7 +72,7 @@ defmodule Planet.StripeHandlerTest do
 
     test "stripe event: unhandled" do
       assert :unhandled ==
-               StripeWebhookHandler.handler(%{"type" => "payment_method.attached"})
+               StripeHandler.handler(%{"type" => "payment_method.attached"})
     end
   end
 end

@@ -1,4 +1,4 @@
-defmodule Planet.Payments.StripeWebhookHandler do
+defmodule Planet.Payments.StripeHandler do
   require Logger
 
   alias Planet.Payments.Plans

@@ -27,16 +27,7 @@ defmodule PlanetWeb.SubscriptionControllerTest do
       response = html_response(conn, 200)
       assert response =~ "Billing & Subscription Settings"
 
-      assert response =~ "Current Plan"
-      # assert response =~ "Test Plan $$"
-
-      assert response =~ "http://cancel_url"
-      assert response =~ "http://update_url"
-
-      assert response =~ "Your next payment"
-      assert response =~ "cancel your subscription"
-
-      assert response != "Subscribe"
+      assert response =~ "Manage your card, subscription, and billing details"
     end
 
     test "redirects if user is not logged in" do

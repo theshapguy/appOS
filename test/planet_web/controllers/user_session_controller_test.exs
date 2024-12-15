@@ -100,7 +100,6 @@ defmodule PlanetWeb.UserSessionControllerTest do
 
   # describe "POST /users/log_in WebAuthn (Passkeys)" do
   #   setup do
-  #     # TODO
   #     webauthn_user = user_fixture()
   #     credential = user_credential_fixture(webauthn_user)
   #     %{user: webauthn_user, credential: credential}

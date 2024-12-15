@@ -25,7 +25,6 @@ defmodule Planet.Accounts.User do
     # So that Data can be extracted
     field(:refer_code, :string, virtual: true)
 
-    # TODO Make Sure Role Is Attached To User
     many_to_many :roles, Planet.Roles.Role,
       join_through: Planet.Accounts.UserRole,
       on_replace: :delete

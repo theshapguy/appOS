@@ -20,7 +20,7 @@ defmodule Planet.Payments.Creem do
   defp build_url("ch_" <> _id = checkout_id, opts),
     do: "#{@api_endpoint}/checkout#{build_query_params(opts ++ [checkout_id: checkout_id])}"
 
-  defp build_query_params([]), do: ""
+  # defp build_query_params([]), do: ""
   defp build_query_params(opts), do: "?" <> URI.encode_query(opts)
 
   defp headers() do

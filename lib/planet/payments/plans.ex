@@ -10,7 +10,6 @@ defmodule Planet.Payments.Plans do
     with {:ok, plans_file_path} <- choose_plans_file_path(),
          {:ok, content} <- File.read(plans_file_path),
          {:ok, decoded} <- Jason.decode(content, keys: :atoms) do
-      # Remove Free Plan
       decoded.plans
       |> filter_out_free_plans(exclude_free)
       |> filter_by_billing_frequency(billing_frequency)
@@ -19,6 +18,7 @@ defmodule Planet.Payments.Plans do
     end
   end
 
+  @dialyzer {:nowarn_function, choose_plans_file_path: 0}
   defp choose_plans_file_path() do
     {:ok,
      if @payment_sandbox? do
@@ -28,24 +28,24 @@ defmodule Planet.Payments.Plans do
      end}
   end
 
-  def filter_out_free_plans(plans, true) do
+  defp filter_out_free_plans(plans, true) do
     plans |> Enum.filter(&(&1.productFamily != "free_plan"))
   end
 
-  def filter_out_free_plans(plans, false) do
+  defp filter_out_free_plans(plans, false) do
     plans
   end
 
-  def filter_by_billing_frequency(plans, nil) do
+  defp filter_by_billing_frequency(plans, nil) do
     plans
   end
 
-  def filter_by_billing_frequency(plans, billing_frequency) do
+  defp filter_by_billing_frequency(plans, billing_frequency) do
     plans
     |> Enum.reduce([], fn plan, acc ->
       lifetime_variations =
         Enum.filter(plan.variations, fn variation ->
-          variation.billingFrequency == billing_frequency
+          variation.billing_frequency == billing_frequency
         end)
 
       case lifetime_variations do
@@ -53,7 +53,15 @@ defmodule Planet.Payments.Plans do
         _variations -> [%{plan | variations: lifetime_variations} | acc]
       end
     end)
-    |> Enum.reverse()
+  end
+
+  # This is used so that the lifetime plan can be displayed first
+  # Moving from last of the list to the first
+  def roll(array, positions \\ 1) do
+    len = length(array)
+    shift = rem(positions, len)
+    {left, right} = Enum.split(array, len - shift)
+    right ++ left
   end
 
   def default_plan_subscription_status() do
@@ -78,8 +86,8 @@ defmodule Planet.Payments.Plans do
           processors: %{
             manual:
               %{
-                priceId: _price_id,
-                productId: _product_id
+                price_id: _price_id,
+                product_id: _product_id
               } = manual_plan
           }
         }
@@ -97,8 +105,8 @@ defmodule Planet.Payments.Plans do
           processors: %{
             manual:
               %{
-                priceId: price_id,
-                productId: product_id
+                price_id: price_id,
+                product_id: product_id
               } = _manual_plan
           }
         }
@@ -119,19 +127,19 @@ defmodule Planet.Payments.Plans do
     }
   end
 
-  def variant_by_price_id(processor, price_id) do
-    list()
+  def variant_by_price_id(processor, price_id, exclude_free \\ true) do
+    list(nil, exclude_free)
     |> Enum.find_value(fn plan ->
       plan.variations
       |> Enum.find(fn variation ->
-        match = get_in(variation.processors, [processor, :priceId]) == price_id
+        match = get_in(variation.processors, [processor, :price_id]) == price_id
         match
       end)
     end)
   end
 
   def billing_frequency_of_price_id(processor, price_id) do
-    Map.get(variant_by_price_id(processor, price_id), :billingFrequency)
+    Map.get(variant_by_price_id(processor, price_id), :billing_frequency)
   end
 
   def enrich_subscription(%Subscription{processor: :paddle} = s) do

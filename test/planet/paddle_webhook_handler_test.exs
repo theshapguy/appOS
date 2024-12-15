@@ -1,9 +1,9 @@
-defmodule Planet.PaddleWebhookHandlerTest do
+defmodule Planet.PaddleClassicHandlerTest do
   use Planet.DataCase
 
   import Planet.AccountsFixtures
 
-  alias Planet.Payments.PaddleWebhookHandler
+  alias Planet.Payments.PaddleClassicHandler
   alias Planet.Subscriptions.Subscription
 
   describe "paddle webhook handler" do
@@ -13,7 +13,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
 
     test "subscription_payment_succeeded", %{subscription: s} do
       {:ok, %Subscription{} = subscription} =
-        PaddleWebhookHandler.handler(
+        PaddleClassicHandler.handler(
           %{
             assigns: %{paddle_passthrough: %{"organization_id" => s.organization_id}}
           },
@@ -70,7 +70,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
 
     test "subscription_created", %{subscription: s} do
       {:ok, %Subscription{} = subscription} =
-        PaddleWebhookHandler.handler(
+        PaddleClassicHandler.handler(
           %{
             assigns: %{paddle_passthrough: %{"organization_id" => s.organization_id}}
           },
@@ -120,7 +120,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
 
     test "subscription_cancelled", %{subscription: s} do
       {:ok, %Subscription{} = subscription} =
-        PaddleWebhookHandler.handler(
+        PaddleClassicHandler.handler(
           %{
             assigns: %{paddle_passthrough: %{"organization_id" => s.organization_id}}
           },
@@ -163,7 +163,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
 
     test "subscription_payment_failed", %{subscription: s} do
       {:ok, %Subscription{} = subscription} =
-        PaddleWebhookHandler.handler(
+        PaddleClassicHandler.handler(
           %{
             assigns: %{paddle_passthrough: %{"organization_id" => s.organization_id}}
           },
@@ -209,7 +209,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
 
     test "subscription_payment_refunded", %{subscription: s} do
       {:ok, %Subscription{} = subscription} =
-        PaddleWebhookHandler.handler(
+        PaddleClassicHandler.handler(
           %{
             assigns: %{paddle_passthrough: %{"organization_id" => s.organization_id}}
           },
@@ -257,7 +257,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
 
     test "subscription_updated", %{subscription: s} do
       {:ok, %Subscription{} = subscription} =
-        PaddleWebhookHandler.handler(
+        PaddleClassicHandler.handler(
           %{
             assigns: %{paddle_passthrough: %{"organization_id" => s.organization_id}}
           },
@@ -314,7 +314,7 @@ defmodule Planet.PaddleWebhookHandlerTest do
 
     test "other events", %{subscription: s} do
       assert :unhandled ==
-               PaddleWebhookHandler.handler(
+               PaddleClassicHandler.handler(
                  %{
                    assigns: %{paddle_passthrough: %{"organization_id" => s.organization_id}}
                  },

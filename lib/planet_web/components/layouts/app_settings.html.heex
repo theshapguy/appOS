@@ -47,18 +47,20 @@
         Team
       </.link>
 
-      <.link
-        href={~p"/users/billing"}
-        class={[
-          "text-sm font-medium hover:text-blue-500 transition-colors",
-          if(active_path?(@conn, to: ~p"/users/billing"),
-            do: "text-blue-500",
-            else: "text-neutral-600"
-          )
-        ]}
-      >
-        Billing
-      </.link>
+      <%= if Application.get_env(:planet, :payment) |> Keyword.fetch!(:show_billing_page) == true do %>
+        <.link
+          href={~p"/users/billing"}
+          class={[
+            "text-sm font-medium hover:text-blue-500 transition-colors",
+            if(active_path?(@conn, to: ~p"/users/billing"),
+              do: "text-blue-500",
+              else: "text-neutral-600"
+            )
+          ]}
+        >
+          Billing
+        </.link>
+      <% end %>
 
       <.link
         href={~p"/users/log_out"}
@@ -120,12 +122,14 @@
         Team
       </.link>
 
-      <.link
-        href={~p"/users/billing"}
-        class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors py-2 border-b border-neutral-200"
-      >
-        Billing
-      </.link>
+      <%= if Application.get_env(:planet, :payment) |> Keyword.fetch!(:show_billing_page) == true do %>
+        <.link
+          href={~p"/users/billing"}
+          class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors py-2 border-b border-neutral-200"
+        >
+          Billing
+        </.link>
+      <% end %>
       
 <!-- Mobile Login/Logout Toggle -->
 
@@ -147,19 +151,4 @@
   </div>
 </main>
 
-<script>
-  <%!-- TODO Toggle With AlpineJS --%>
-      // Mobile Menu Toggle
-      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-      const mobileMenu = document.getElementById('mobileMenu');
-
-      mobileMenuToggle.addEventListener('click', () => {
-          mobileMenu.classList.toggle('hidden');
-      });
-
-    document.addEventListener('click', (event) => {
-                if (!mobileMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
-                    mobileMenu.classList.add('hidden');
-                }
-            });
-</script>
+<.mobile_menu_toggle_script toggle_id="mobileMenuToggle" menu_div_id="mobileMenu" />

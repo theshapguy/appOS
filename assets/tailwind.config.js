@@ -48,8 +48,8 @@ module.exports = {
         '900': '#10446a',
         '950': '#0b2b46',
       }, 
-      }
-    },
+      },
+    }
   },
   plugins: [
     require("@tailwindcss/forms"),

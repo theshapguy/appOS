@@ -18,6 +18,31 @@
     }
   }
   
+  .gradient-bg {
+    background: linear-gradient(-45deg, 
+      rgba(255, 241, 235, 0.8), /* Light peach */
+      rgba(255, 235, 245, 0.8), /* Light pink */
+      rgba(230, 245, 255, 0.8), /* Light blue */
+      rgba(235, 255, 250, 0.8)  /* Light teal */
+    );
+    background-size: 400% 400%;
+    animation: gradientBG 3s ease infinite;
+    transition: all 0.3s ease;
+  }
+
+  .gradient-hover:hover {
+    background: linear-gradient(-45deg, 
+      rgba(255, 241, 235, 0.8), /* Light peach */
+      rgba(255, 235, 245, 0.8), /* Light pink */
+      rgba(230, 245, 255, 0.8), /* Light blue */
+      rgba(235, 255, 250, 0.8)  /* Light teal */
+    );
+    background-size: 400% 400%;
+    animation: gradientBG 3s ease infinite;
+    transition: all 0.3s ease;
+  }
+  
+
   .gradient-hover:hover {
     background: linear-gradient(-45deg, 
       rgba(255, 241, 235, 0.8), /* Light peach */
@@ -34,3 +59,4 @@
   .gradient-hover:hover * {
     text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
   }
+
