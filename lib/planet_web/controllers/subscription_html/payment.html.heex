@@ -13,29 +13,29 @@
       target="_blank"
       class="inline-flex justify-center items-center mt-4 gap-2 text-sm text-neutral-500 hover:text-blue-500 select-none"
     >
-      <div>Show full comparision</div>
+      <div>View full comparision</div>
       <.icon name="hero-scale" class="h-5 w-5" />
     </.link>
   </div>
 </section>
 
-<form class="mt-6" id="plans-form">
+<form class="mt-12" id="plans-form">
   <%!-- <.form :let={_f} for={%{}}> --%>
   <%= for {item, _plan_index} <- Enum.with_index(@subscription_plans) do %>
-    <div class="mb-4">
+    <div class="mb-8">
       <fieldset>
         <div class="text-lg leading-6 font-semibold">{item.name}</div>
         <div class="text-sm leading-4 mb-3 text-neutral-600">{item.description}</div>
 
         <%= for {variation, _variation_index} <- Enum.with_index(item.variations) do %>
           <div class={[
-            "rounded-md border mb-1 select-none hover:border-blue-400 transition peer-checked:border-blue-500",
+            "px-2 py-1 rounded-md border mb-2 select-none hover:border-blue-400 transition",
             if(variation.id == "lifetime",
               do: "gradient-bg",
               else: "gradient-hover"
             )
           ]}>
-            <label class="flex items-center space-x-2 relative p-4 cursor-pointer ">
+            <label class="flex items-center space-x-2 relative p-4 cursor-pointer">
               <% price_id = get_in(variation, [:processors, @processor, :price_id]) %>
               <% product_id = get_in(variation, [:processors, @processor, :product_id]) %>
 
@@ -47,17 +47,40 @@
                 data-product-id={product_id}
               />
 
-              <div class="flex flex-1 justify-between">
-                <div :if={variation.id != "lifetime"} class="capitalize mt-0.5">
-                  {variation.billing_frequency}
+              <div class="pl-2 flex flex-1 justify-between">
+                <div class="flex flex-col justify-center">
+                  <h3 class="font-semibold text-gray-900 text-[1.1rem]">
+                    <span :if={variation.id != "lifetime"} class="capitalize mt-0.5">
+                      {variation.billing_frequency}
+                    </span>
+                    <span :if={variation.id == "lifetime"} class="capitalize mt-0.5">
+                      One Time Payment
+                    </span>
+                  </h3>
+                  <p class="text-sm text-gray-500">
+                    {humanize_payment_term(variation.billing_frequency)}
+                  </p>
                 </div>
-                <div :if={variation.id == "lifetime"} class="capitalize mt-0.5">
-                  One Time Payment
+
+                <div class="text-right flex flex-col justify-center">
+                  <div class="flex items-center gap-2 justify-end">
+                    <span
+                      :if={variation.savings}
+                      class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded"
+                    >
+                      Save {variation.savings.percentage}%
+                    </span>
+                    <div class="text-2xl font-bold text-gray-900">${variation.price}</div>
+                  </div>
+                  <p :if={variation.savings} class="text-sm text-gray-500">
+                    ${variation.savings.monthly_equivalent} per month
+                  </p>
                 </div>
-                <div class="flex items-center justify-between gap-x-2">
+
+                <div class="hidden items-center justify-between gap-x-2">
                   <%= if Map.get(variation, :savings, nil) != nil do %>
-                    <div class="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                      Save ${variation.savings.amount}
+                    <div class="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-md">
+                      Save {variation.savings.percentage}%
                     </div>
                   <% end %>
 

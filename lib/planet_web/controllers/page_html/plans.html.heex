@@ -14,7 +14,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
       <!-- Basic Plan -->
 
-      <%= for plan <- @subscription_plans do %>
+      <%= for plan <- @subscription_plans_without_free do %>
         <div class={[
           "flex flex-col border border-gray-200 rounded-lg p-6 bg-gray-100",
           plan.productFamily == "lifetime" && "gradient-bg"
@@ -29,7 +29,6 @@
 
           <div class="mt-6 space-y-4 flex-1">
             <!-- Monthly Pricing -->
-
             <%= for {variant, index} <- Enum.with_index(plan.variations) do %>
               <div>
                 <span class="text-2xl font-bold">${variant.price}</span><span class="text-gray-600">/{variant.billing_frequency}</span>
@@ -43,7 +42,7 @@
             <% end %>
           </div>
 
-          <.link class="w-full" href={~s"/users/billing"}>
+          <.link class="w-full" href={~p"/users/billing"}>
             <button class="w-full mt-6 bg-black text-white rounded-md px-4 py-2 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
               Get Started
             </button>
@@ -57,12 +56,14 @@
       class="overflow-x-auto border-t border-dashed border-gray-200 pt-8 scroll-m-12"
     >
       <!-- Features Table -->
-      <table class="w-full text-left text-sm">
+      <table class="w-full table-fixed border-collapse text-left text-sm">
         <thead class="text-gray-600">
           <tr>
-            <th class="py-3 font-semibold">Features</th>
+            <th class={"py-3 font-semibold w-1/#{length(@subscription_plans) + 1}"}>Features</th>
             <%= for plan <- @subscription_plans do %>
-              <th class="py-3 font-semibold w-1/4">{plan.name}</th>
+              <th class={"py-3 font-semibold w-1/#{length(@subscription_plans) + 1}"}>
+                {plan.name}
+              </th>
             <% end %>
           </tr>
         </thead>

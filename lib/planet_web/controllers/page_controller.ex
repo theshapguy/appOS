@@ -21,7 +21,12 @@ defmodule PlanetWeb.PageController do
   def plans(conn, _) do
     conn
     |> render(:plans,
-      subscription_plans: Planet.Payments.Plans.list()
+      subscription_plans:
+        Planet.Payments.Plans.list(
+          nil,
+          !Application.get_env(:planet, :payment)[:allow_free_plan_access]
+        ),
+      subscription_plans_without_free: Planet.Payments.Plans.list()
     )
   end
 

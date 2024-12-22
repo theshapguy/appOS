@@ -1,4 +1,5 @@
 defmodule Planet.Payments.Stripe do
+  alias Planet.HTTPRequest
   alias Planet.Organizations.Organization
   alias Planet.Subscriptions.Subscription
   alias Planet.Accounts.User
@@ -51,7 +52,7 @@ defmodule Planet.Payments.Stripe do
     url = @webhook_ips_url
     Logger.info("Requesting #{url}")
 
-    HTTPoison.get(url)
+    HTTPRequest.get(url)
     |> handle_response()
   end
 
@@ -59,7 +60,7 @@ defmodule Planet.Payments.Stripe do
     url = build_url(id, opts)
     Logger.info("Requesting #{url}")
 
-    HTTPoison.get(url, headers())
+    HTTPRequest.get(url, headers())
     |> handle_response()
   end
 
@@ -67,7 +68,7 @@ defmodule Planet.Payments.Stripe do
     url = build_url(id, opts)
     Logger.info("Requesting DELETE: #{url}")
 
-    HTTPoison.delete(url, headers())
+    HTTPRequest.delete(url, headers())
     |> handle_response()
   end
 
@@ -191,9 +192,7 @@ defmodule Planet.Payments.Stripe do
       {"Content-Type", "application/x-www-form-urlencoded"}
     ]
 
-    req = HTTPoison.post(url, body, headers)
-
-    case req do
+    case HTTPRequest.post(url, body, headers) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         {:ok, Jason.decode!(response_body)}
 
@@ -223,7 +222,7 @@ defmodule Planet.Payments.Stripe do
       }
       |> URI.encode_query()
 
-    case HTTPoison.post(url, body, headers) do
+    case HTTPRequest.post(url, body, headers) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         decoded_body = Jason.decode!(response_body)
 

@@ -1,4 +1,5 @@
 defmodule Planet.Payments.Paddle do
+  alias Planet.HTTPRequest
   require Logger
 
   @api_key Application.compile_env!(:planet, :paddle) |> Keyword.fetch!(:api_key)
@@ -53,7 +54,7 @@ defmodule Planet.Payments.Paddle do
 
     Logger.info("Requesting #{url}")
 
-    HTTPoison.get(url, headers())
+    HTTPRequest.get(url, headers())
     |> handle_response()
   end
 
@@ -63,7 +64,7 @@ defmodule Planet.Payments.Paddle do
 
     Logger.info("Requesting #{url}")
 
-    HTTPoison.post(url, body, headers())
+    HTTPRequest.post(url, body, headers())
     |> handle_response()
   end
 
@@ -87,7 +88,7 @@ defmodule Planet.Payments.Paddle do
       end
       |> Jason.encode!()
 
-    case HTTPoison.post(url, body, headers()) do
+    case HTTPRequest.post(url, body, headers()) do
       {:ok, %HTTPoison.Response{status_code: 201, body: response_body}} ->
         decoded_body = Jason.decode!(response_body)
 

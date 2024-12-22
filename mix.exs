@@ -32,7 +32,7 @@ defmodule Planet.MixProject do
           # version: {:from_app, :app}
           # https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-requirements
           # version: @version,
-          version: "#{@version_code}-#{branch_version()}" <> "+" <> "#{target_triple()}"
+          version: "#{@version_code}-#{build_version()}"
           # version: "123123" <> "+" <> "darwin_x84",
         ]
       ],
@@ -133,33 +133,43 @@ defmodule Planet.MixProject do
     ]
   end
 
-  defp target_triple do
+  defp target_triple() do
     # https://fiqus.coop/en/2019/07/15/add-git-commit-info-to-your-elixir-phoenix-app/
-    System.cmd("gcc", ["-dumpmachine"]) |> elem(0) |> String.trim()
+    case System.cmd("gcc", ["-dumpmachine"]) do
+      {commit_sha, 0} -> String.trim(commit_sha) <> "+"
+      _ -> "unknown+"
+    end
   end
 
   defp get_commit_sha() do
-    System.cmd("git", ["rev-parse", "--short", "HEAD"])
-    |> elem(0)
-    |> String.trim()
+    case System.cmd("git", ["rev-parse", "--short", "HEAD"]) do
+      {commit_sha, 0} -> String.trim(commit_sha)
+      _ -> System.system_time(:second)
+    end
   end
 
   defp get_commit_branch() do
-    System.cmd("git", ["rev-parse", "--abbrev-ref", "HEAD"])
-    |> elem(0)
-    |> String.trim()
+    case System.cmd("git", ["rev-parse", "--abbrev-ref", "HEAD"]) do
+      {commit_sha, 0} ->
+        case String.trim(commit_sha) do
+          "main" -> ""
+          branch -> "-#{branch}"
+        end
+
+      _ ->
+        "-not-git"
+    end
   end
 
-  defp branch_version() do
-    # If git repo generate from git repo
-    case File.exists?(".git") do
-      true -> get_commit_branch() <> "-" <> get_commit_sha()
-      false -> "#{DateTime.to_unix(DateTime.utc_now())}"
-    end
+  defp build_version() do
+    target_triple() <> get_commit_branch() <> get_commit_sha()
 
     # https://stackoverflow.com/a/52074767
     # https://fiqus.coop/en/2019/07/15/add-git-commit-info-to-your-elixir-phoenix-app/
-    # System.cmd("gcc", ["-dumpmachine"]) |> elem(0) |> String.trim()
+  end
+
+  def user_agent_version() do
+    @version_code
   end
 
   defp dialyzer do

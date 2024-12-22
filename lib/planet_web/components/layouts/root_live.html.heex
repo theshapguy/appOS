@@ -22,144 +22,135 @@
     </script>
   </head>
   <body class="antialiased">
-    <%!-- Old Nav --%>
-    <div x-data="{ open: false }" class="bg-green-100 border-b border-b-green-200">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <!-- Logo -->
-          <div class="flex-shrink-0 flex items-center">
-            <!-- Replace 'logo.png' with your actual logo path -->
-            <%!-- <img class="hidden h-8 w-auto" src="logo.png" alt="Logo" /> --%>
-
-            <a href="/">
-              <img class="block h-8 w-auto" src={~p"/images/logo.svg"} width="36" />
-            </a>
-          </div>
-          <!-- Menu items -->
-          <div class="flex justify-center flex-grow">
-            <!-- Add your menu items here -->
-        <!-- For example, you can add links to different pages -->
-            <ul class="flex space-x-4">
-              <li>
-                <a href="#" class="text-black px-3 py-2 rounded-md text-sm font-medium">
-                  Home
-                </a>
-              </li>
-              <li>
-                <a href="#" class="text-black px-3 py-2 rounded-md text-sm font-medium">
-                  About
-                </a>
-              </li>
-              <li>
-                <a href="#" class="text-black px-3 py-2 rounded-md text-sm font-medium">
-                  Contact
-                </a>
-              </li>
-            </ul>
-          </div>
-          <!-- Login and Signup buttons -->
-          <div class="flex items-center gap-2">
-            <a href="#" class="text-black px-3 py-2 rounded-md text-sm font-medium">
-              Login
-            </a>
-            <a
-              href="#"
-              class="text-#[485858] bg-[#B4DCDD] px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Signup
-            </a>
-          </div>
-          <!-- Mobile menu toggle -->
-          <div class="flex items-center sm:hidden">
-            <button @click="open = !open" class="text-black p-2 rounded-md">
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16m-7 6h7"
-                >
-                </path>
-              </svg>
-            </button>
-          </div>
+    <nav class="fixed top-0 left-0 right-0 z-50 border-b border-neutral-200 bg-white/80 backdrop-blur-lg ">
+      <div class="container max-w-5xl mx-auto flex items-center justify-between px-4 xl:px-0 py-3">
+        <!-- Logo and App Name Section -->
+        <div class="flex items-center">
+          <.link
+            href={~p"/"}
+            class="text-xl font-bold text-neutral-900 hover:text-neutral-700 transition-colors"
+          >
+            {Application.get_env(:planet, Planet.Mailer)[:app_name]}
+          </.link>
         </div>
-      </div>
-      <!-- Mobile menu -->
-      <div x-show="open" class="sm:hidden">
-        <div class="px-2 pt-2 pb-3 space-y-1">
-          <!-- Add mobile version of menu items here -->
-      <!-- For example, you can add links to different pages -->
-          <a href="#" class="text-black block px-3 py-2 rounded-md text-base font-medium">
+        
+<!-- Desktop Navigation Links -->
+        <div class="sm:flex items-center space-x-4 hidden" id="desktopNav">
+          <.link
+            href={~p"/app"}
+            class="text-sm font-medium text-neutral-600 hover:text-blue-500 transition-colors"
+            title={if @current_user, do: @current_user.email, else: ""}
+          >
             Home
-          </a>
-          <a href="#" class="text-black block px-3 py-2 rounded-md text-base font-medium">
-            About
-          </a>
-          <a href="#" class="text-black block px-3 py-2 rounded-md text-base font-medium">
-            Contact
-          </a>
-        </div>
-      </div>
-    </div>
+          </.link>
 
-    <ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
-      <%= if @current_user do %>
-        <li class="text-[0.8125rem] leading-6 text-zinc-900">
-          {@current_user.email}
-        </li>
-        <li>
           <.link
             href={~p"/users/settings"}
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+            class="text-sm font-medium text-neutral-600 hover:text-blue-500 transition-colors"
           >
             Settings
           </.link>
-        </li>
-        <li>
-          <.link
-            href={~p"/users/settings/team"}
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+
+          <%= if !@current_user do %>
+            <.link
+              href={~p"/users/log_in"}
+              class="py-1.5 text-sm font-medium hover:text-blue-500 transition-colors text-neutral-600"
+            >
+              Log in
+            </.link>
+
+            <.link
+              href={~p"/users/register"}
+              class="px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-md transition-colors"
+            >
+              Signup
+            </.link>
+          <% else %>
+            <.link
+              href={~p"/users/log_out"}
+              method="delete"
+              class="text-sm font-medium text-neutral-600 hover:text-red-500 transition-colors"
+            >
+              Logout
+            </.link>
+          <% end %>
+          
+<!-- Login/Logout Toggle -->
+
+        </div>
+        
+<!-- Mobile Menu Toggle -->
+        <div class="sm:hidden flex items-center">
+          <button
+            id="mobileMenuToggle"
+            class="text-neutral-600 hover:text-neutral-900 focus:outline-none"
           >
-            Team
-          </.link>
-        </li>
-        <li>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+<!-- Mobile Menu Dropdown -->
+      <div
+        id="mobileMenu"
+        class="sm:hidden absolute top-full left-0 right-0 bg-white shadow-lg hidden"
+      >
+        <div class="flex flex-col px-4 py-4 space-y-2">
           <.link
-            href={~p"/users/billing"}
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+            href={~p"/app"}
+            class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors py-2 border-b border-neutral-200"
           >
-            Billing
+            Home
           </.link>
-        </li>
-        <li>
+
           <.link
-            href={~p"/users/log_out"}
-            method="delete"
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+            href={~p"/users/settings"}
+            class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors py-2 border-b border-neutral-200"
           >
-            Log out
+            Settings
           </.link>
-        </li>
-      <% else %>
-        <li>
-          <.link
-            href={~p"/users/register"}
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
-          >
-            Register
-          </.link>
-        </li>
-        <li>
-          <.link
-            href={~p"/users/log_in"}
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
-          >
-            Log in
-          </.link>
-        </li>
-      <% end %>
-    </ul>
+          
+<!-- Mobile Login/Logout Toggle -->
+
+          <%= if !@current_user do %>
+            <.link
+              href={~p"/users/log_in"}
+              class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors py-2 border-b border-neutral-200"
+            >
+              Log in
+            </.link>
+
+            <.link
+              href={~p"/users/register"}
+              class="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors py-2 border-b border-neutral-200"
+            >
+              Signup
+            </.link>
+          <% else %>
+            <.link
+              href={~p"/users/log_out"}
+              method="delete"
+              class="text-sm font-medium text-neutral-600 hover:text-red-500 transition-colors py-2 border-b border-neutral-200"
+            >
+              Logout
+            </.link>
+          <% end %>
+        </div>
+      </div>
+    </nav>
 
     {@inner_content}
 
@@ -180,5 +171,7 @@
       referrerpolicy="no-referrer"
     >
     </script>
+
+    <.mobile_menu_toggle_script toggle_id="mobileMenuToggle" menu_div_id="mobileMenu" />
   </body>
 </html>

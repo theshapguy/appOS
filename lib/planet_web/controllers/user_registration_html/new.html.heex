@@ -1,19 +1,43 @@
-<div class="mx-auto max-w-md bg-white p-10 border border-zinc-200 rounded-lg">
+<div class="mt-12 mx-auto max-w-md bg-white p-10 border border-zinc-200 rounded-lg">
   <.header class="text-center">
     <h2 class="text-2xl font-bold text-gray-800">Sign Up</h2>
 
     <p class="mt-2 text-sm text-gray-600">
       Already have an account?
-      <a href="/users/log_in" class="font-semibold text-blue-600 hover:underline">
+      <a href={~p"/users/log_in"} class="font-semibold text-blue-600 hover:underline">
         Login here
       </a>
     </p>
+  </.header>
 
-    <div class="flex justify-center space-x-2 mt-4">
-      <a
-        href="/auth/google"
-        class="text-gray-600 hover:bg-gray-100 p-2 rounded-full border border-gray-200"
-      >
+  <.simple_form :let={f} class="!space-y-4" for={@changeset} action={~p"/users/register"}>
+    <.error :if={@changeset.action == :insert}>
+      Oops, something went wrong! Please check the errors below.
+    </.error>
+
+    <.input field={f[:email]} type="email" label="Email" required />
+    <.input field={f[:password]} type="password" label="Password" required />
+
+    <.input :if={false} field={f[:refer_code]} type="hidden" />
+
+    <:actions>
+      <.button phx-disable-with="Creating account..." class="w-full mt-4">
+        Create an account <span aria-hidden="true">→</span>
+      </.button>
+    </:actions>
+  </.simple_form>
+</div>
+
+<div class="mt-6 mx-auto max-w-md border-zinc-200 rounded-lg shadow-sm">
+  <div class="flex items-center mt-4 mb-5">
+    <div class="flex-grow border-t border-gray-300"></div>
+    <span class="mx-4 text-xs text-gray-400 uppercase">Or</span>
+    <div class="flex-grow border-t border-gray-300"></div>
+  </div>
+
+  <div class="flex flex-col justify-center space-y-2 mt-4">
+    <.link navigate={~p"/auth/google"}>
+      <button class="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
         <svg class="w-5 h-5" viewBox="0 0 46 47" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M46 24.0287C46 22.09 45.8533 20.68 45.5013 19.2112H23.4694V27.9356H36.4069C36.1429 30.1094 34.7347 33.37 31.5957 35.5731L31.5663 35.8669L38.5191 41.2719L38.9885 41.3306C43.4477 37.2181 46 31.1669 46 24.0287Z"
@@ -32,11 +56,12 @@
             fill="#EB4335"
           />
         </svg>
-      </a>
-      <a
-        href="/auth/github"
-        class="text-gray-600 hover:bg-gray-100 p-2 rounded-full border border-gray-200"
-      >
+        <span>Continue with Google</span>
+      </button>
+    </.link>
+
+    <.link navigate={~p"/auth/github"}>
+      <button class="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
         <svg class="w-5 h-5" viewBox="0 0 98 96" xmlns="http://www.w3.org/2000/svg">
           <path
             fill-rule="evenodd"
@@ -45,30 +70,8 @@
             fill="currentColor"
           />
         </svg>
-      </a>
-    </div>
-
-    <div class="flex items-center my-4">
-      <div class="flex-grow border-t border-gray-300"></div>
-      <span class="mx-4 text-xs text-gray-400 uppercase">Or</span>
-      <div class="flex-grow border-t border-gray-300"></div>
-    </div>
-  </.header>
-
-  <.simple_form :let={f} class="!mt-0 !space-y-4" for={@changeset} action={~p"/users/register"}>
-    <.error :if={@changeset.action == :insert}>
-      Oops, something went wrong! Please check the errors below.
-    </.error>
-
-    <.input field={f[:email]} type="email" label="Email" required />
-    <.input field={f[:password]} type="password" label="Password" required />
-
-    <.input :if={false} field={f[:refer_code]} type="hidden" />
-
-    <:actions>
-      <.button phx-disable-with="Creating account..." class="w-full mt-4">
-        Create an account <span aria-hidden="true">→</span>
-      </.button>
-    </:actions>
-  </.simple_form>
+        <span>Continue with GitHub</span>
+      </button>
+    </.link>
+  </div>
 </div>

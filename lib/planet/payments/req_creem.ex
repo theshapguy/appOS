@@ -1,4 +1,5 @@
 defmodule Planet.Payments.Creem do
+  alias Planet.HTTPRequest
   alias Planet.Organizations.Organization
   alias Planet.Accounts.User
   alias Planet.Payments.Plans
@@ -31,7 +32,8 @@ defmodule Planet.Payments.Creem do
   defp headers() do
     [
       {"x-api-key", "#{@api_key}"},
-      {"Content-Type", "application/json"}
+      {"Content-Type", "application/json"},
+      {"User-Agent", "Planet/1.0"}
     ]
   end
 
@@ -54,7 +56,7 @@ defmodule Planet.Payments.Creem do
 
     Logger.info("Requesting #{url}")
 
-    HTTPoison.get(url, headers())
+    HTTPRequest.get(url, headers())
     |> handle_response()
   end
 
@@ -64,7 +66,7 @@ defmodule Planet.Payments.Creem do
 
     Logger.info("Requesting #{url}")
 
-    HTTPoison.post(url, body, headers())
+    HTTPRequest.post(url, body, headers())
     |> handle_response()
   end
 
@@ -85,7 +87,8 @@ defmodule Planet.Payments.Creem do
     headers = [
       {"accept", "application/json"},
       {"x-api-key", @api_key},
-      {"Content-Type", "application/json"}
+      {"Content-Type", "application/json"},
+      {"User-Agent", "Planet/1.0"}
     ]
 
     # Manage the URL according to subscription, if lifetime plan ignore body
@@ -105,7 +108,7 @@ defmodule Planet.Payments.Creem do
       }
       |> Jason.encode!()
 
-    case HTTPoison.post(url, body, headers) do
+    case HTTPRequest.post(url, body, headers) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         decoded_body = Jason.decode!(response_body)
 
@@ -135,7 +138,7 @@ defmodule Planet.Payments.Creem do
       }
       |> Jason.encode!()
 
-    case HTTPoison.post(url, body, headers) do
+    case HTTPRequest.post(url, body, headers) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         decoded_body = Jason.decode!(response_body)
 

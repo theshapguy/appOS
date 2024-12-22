@@ -184,7 +184,7 @@ defmodule PlanetWeb.UserComponents do
     <!-- Desktop Navigation Links -->
         <div class="sm:flex items-center space-x-4 hidden" id="desktopNav">
           <.link
-            href="/plans"
+            href={~p"/plans"}
             class={[
               "text-sm font-medium  hover:text-blue-500 transition-colors",
               if(active_path?(@conn, to: ~p"/plans"), do: "text-blue-500", else: "text-neutral-600")
@@ -260,7 +260,7 @@ defmodule PlanetWeb.UserComponents do
       >
         <div class="flex flex-col px-4 py-4 space-y-2">
           <.link
-            href="/plans"
+            href={~p"/plans"}
             class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors py-2 border-b border-neutral-200"
           >
             Plans

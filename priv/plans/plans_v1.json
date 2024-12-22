@@ -30,7 +30,7 @@
           "id": "lifetime",
           "name": "Lifetime Plan",
           "billing_frequency": "lifetime",
-          "price": 499.99,
+          "price": 479.99,
           "processors": {
             "stripe": {
               "price_id": "price_1QTQEyEYGCo6GFJN35wrzrIL",
@@ -46,16 +46,7 @@
             }
           }       
         }
-      ],
-      "features": [
-        "Pro access",
-        "Priority support",
-        "Advanced features"
-      ],
-      "metadata": {
-        "tier": "lifetime",
-        "recommendedFor": "all users"
-      }
+      ]
     },    
     {
       "productFamily": "basic",
@@ -205,16 +196,7 @@
             }                  
           }        
         }
-      ],
-      "features": [
-        "Pro access",
-        "Priority support",
-        "Advanced features"
-      ],
-      "metadata": {
-        "tier": "pro",
-        "recommendedFor": "power users"
-      }
+      ]
     }
   ]
 }

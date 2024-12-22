@@ -93,7 +93,7 @@ defmodule Planet.Payments.CreemHandler do
         %{
           "customer_id" => customer_id,
           "subscription_id" => subscription.subscription_id,
-          "processor" => "paddle"
+          "processor" => "creem"
         }
         |> CancelSubscription.new()
         |> Oban.insert()

@@ -3,19 +3,26 @@
   <:subtitle>Manage your card, subscription, and billing details.</:subtitle>
 </.header>
 
-<div class="space-y-12 divide-y">
+<div class="space-y-12 divide-y mt-10">
   <div :if={@current_plan}>
     <% plan_description =
-      "#{@current_plan.name} - $#{@current_plan.price} #{if @current_plan.billing_frequency != "once", do: "every #{@current_plan.billing_frequency}", else: ""}" %>
+      "#{@current_plan.name} - $#{@current_plan.price} #{if @current_plan.billing_frequency != "once", do: "every #{@current_plan.billing_frequency}", else: "once"}" %>
     <.form :let={f} for={%{}}>
-      <.input
-        field={f[:plan_description]}
-        data-current-price-id={@license.price_id}
-        value={plan_description}
-        type="text"
-        label="Current Plan"
-        disabled
-      />
+      <div class="relative">
+        <.input
+          field={f[:plan_description]}
+          data-current-price-id={@license.price_id}
+          value={plan_description}
+          type="text"
+          label="Current Plan"
+          disabled
+          readonly
+        />
+
+        <div class="absolute inset-y-0 right-0 flex items-center pt-7 pr-3 pointer-events-none">
+          <.icon name="hero-credit-card-solid" class="h-5 w-5 text-gray-400" />
+        </div>
+      </div>
     </.form>
   </div>
 </div>

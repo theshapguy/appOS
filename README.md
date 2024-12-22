@@ -40,5 +40,3 @@ rm -r _build/
 
 # TODO
 
-# If Lifetime Plan Is being Subscribed, Remove All Subscriptions From Stripe Paddle
-# Ignore All Webhook Events After That So That If Webhook Events Cannot Update The Subscription Item

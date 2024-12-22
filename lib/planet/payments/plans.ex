@@ -20,12 +20,13 @@ defmodule Planet.Payments.Plans do
 
   @dialyzer {:nowarn_function, choose_plans_file_path: 0}
   defp choose_plans_file_path() do
-    {:ok,
-     if @payment_sandbox? do
-       "priv/plans/plans_v1_debug.json"
-     else
-       "priv/plans/plans_v1.json"
-     end}
+    {
+      :ok,
+      if(@payment_sandbox?,
+        do: "priv/plans/plans_v1_debug.json",
+        else: "priv/plans/plans_v1.json"
+      )
+    }
   end
 
   defp filter_out_free_plans(plans, true) do
@@ -187,7 +188,6 @@ defmodule Planet.Payments.Plans do
   end
 
   def checkout_success_redirect_url(processor) do
-    # IO.inspect(processor)
     Logger.error("⚠️ Unknown Redirect URL: checkout_success_redirect_url: Processor #{processor}")
     "/"
   end
@@ -227,10 +227,6 @@ defmodule Planet.Payments.Plans do
     Application.fetch_env!(:planet, subscription |> processor())
     |> Keyword.fetch!(:vat_included)
   end
-
-  # def is_lifetime_plan?(nil) do
-  #   false
-  # end
 
   def is_lifetime_plan?(%Subscription{price_id: price_id}) do
     # Function to extract all price_ids from variations and processors

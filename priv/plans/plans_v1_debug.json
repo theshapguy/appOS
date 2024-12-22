@@ -2,9 +2,17 @@
     "plans": [
       {
         "productFamily": "free_plan",
-        "name": "Hello",
+        "name": "Free",
         "description": "Get started with the free plan",
-        "level": 0,
+        "features": [
+          { "feature": "Basic features", "available": true },
+          { "feature": "Users", "value": "100" },
+          { "feature": "Individual data", "value": "100GB" },
+          { "feature": "Support", "available": true },
+          { "feature": "Automated workflows", "available": true },
+          { "feature": "200+ integrations", "available": true },
+          { "feature": "Plan", "value": "free" }
+        ],
         "limits": {},
         "variations": [
           {
@@ -24,7 +32,7 @@
       {
         "productFamily": "basic",
         "name": "Basic Plan",
-        "description": "Get started with the free plan",
+        "description": "Get started with the basic plan",
         "features": [
           { "feature": "Basic features", "available": true },
           { "feature": "Users", "value": "10" },
@@ -39,12 +47,9 @@
             "id": "basic_monthly",
             "name": "Basic Plan",
             "billing_frequency": "monthly",
-            "price": 9.99,   
-            "savings": {
-              "amount": 2.00,
-              "percentage": 6.67,
-              "monthly_equivalent": 9.33
-            },                   
+            "price": 9.99, 
+            "__saving_null_for_monthly_plan": true,
+            "savings": null,                   
             "processors": {
               "stripe": {
                 "price_id": "price_1QTMFLEYGCo6GFJNkPKmi96l",
@@ -80,8 +85,8 @@
                 "product_id": "free_lifetime"
               },
               "creem": {
-                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0",
-                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0"
+                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0_1",
+                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0_1"
               }            
             }      
           },
@@ -105,8 +110,8 @@
                 "product_id": "free_lifetime"
               },
               "creem": {
-                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0",
-                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0"
+                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0_2",
+                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0_2"
               }                  
             }
           }
@@ -131,11 +136,8 @@
             "billing_frequency": "monthly",
             "name": "Pro Plan",
             "price": 19.99,
-            "savings": {
-              "amount": 2.00,
-              "percentage": 6.67,
-              "monthly_equivalent": 9.33
-            },
+            "__saving_null_for_monthly_plan": true,
+            "savings": null,  
             "processors": {
               "stripe": {
                 "price_id": "free_lifetime",
@@ -146,8 +148,8 @@
                 "product_id": "pro_01jczp7xcy9wsszr9r5nx26qzh"
               },
               "creem": {
-                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0",
-                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0"
+                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0_5",
+                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0_5"
               }       
             }
           },
@@ -171,8 +173,8 @@
                 "product_id": "free_lifetime"
               },
               "creem": {
-                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0",
-                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0"
+                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0_6",
+                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0_6"
               }                  
             }         
           },
@@ -196,8 +198,8 @@
                 "product_id": "free_lifetime"
               },
               "creem": {
-                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0",
-                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0"
+                "price_id": "prod_42rGwW8OMgICVtuO9uVuN0_7",
+                "product_id": "prod_42rGwW8OMgICVtuO9uVuN0_7"
               }                  
             }        
           }
@@ -222,11 +224,8 @@
             "name": "Lifetime Plan",
             "billing_frequency": "once",
             "price": 499.99,
-            "savings": {
-              "amount": 2.00,
-              "percentage": 6.67,
-              "monthly_equivalent": 9.33
-            },            
+            "__savings_key_set_to_null__not_required_to_show_in_ui": true,
+            "savings": null,            
             "processors": {
               "stripe": {
                 "price_id": "price_1QTQEyEYGCo6GFJN35wrzrIL",
