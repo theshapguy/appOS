@@ -20,7 +20,12 @@ defmodule Planet.Payments.Creem do
   defp build_url("ch_" <> _id = checkout_id, opts),
     do: "#{@api_endpoint}/checkout#{build_query_params(opts ++ [checkout_id: checkout_id])}"
 
-  # defp build_query_params([]), do: ""
+  defp build_post_url("sub_" <> _id = subscription_id, body, opts) do
+    url = "#{@api_endpoint}/subscriptions/#{subscription_id}/cancel#{build_query_params(opts)}"
+    {url, body}
+  end
+
+  defp build_query_params([]), do: ""
   defp build_query_params(opts), do: "?" <> URI.encode_query(opts)
 
   defp headers() do
@@ -44,23 +49,22 @@ defmodule Planet.Payments.Creem do
     {:error, "Request failed with reason #{reason}"}
   end
 
-  # def request(nil) do
-  #   %{
-  #     "status" => "active",
-  #     "current_period_start_date" => Timex.now(),
-  #     "metadata" => %{
-  #       "organization_id" => _organization_id,
-  #       "product_id" => _product_id
-  #     }
-  #   }
-  # end
-
   def request(id, opts \\ []) do
     url = build_url(id, opts)
 
     Logger.info("Requesting #{url}")
 
     HTTPoison.get(url, headers())
+    |> handle_response()
+  end
+
+  def request_post(id, body \\ %{}, opts \\ []) do
+    {url, body} = build_post_url(id, body, opts)
+    body = Jason.encode!(body)
+
+    Logger.info("Requesting #{url}")
+
+    HTTPoison.post(url, body, headers())
     |> handle_response()
   end
 

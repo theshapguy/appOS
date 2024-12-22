@@ -1,4 +1,4 @@
-defmodule Planet.Payments.PaddleClassicSignature do
+defmodule Planet.Plug.PaddleClassicSignature do
   @behaviour Plug
 
   import Plug.Conn

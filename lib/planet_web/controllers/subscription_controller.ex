@@ -11,8 +11,8 @@ defmodule PlanetWeb.SubscriptionController do
   import Planet.Payments.PaddleHandler, only: [convert_paddle_webhook_datetime: 1]
   import Planet.Payments.CreemHandler, only: [convert_creem_webhook_datetime: 1]
 
-  plug(Planet.Plugs.SubscriptionManagementRedirect when action in [:edit, :payment])
-  plug PlanetWeb.Plugs.PageTitle, title: "Billing"
+  plug(Planet.Plug.SubscriptionManagementRedirect when action in [:edit, :payment])
+  plug Planet.Plug.PageTitle, title: "Billing"
 
   plug Bodyguard.Plug.Authorize,
        [

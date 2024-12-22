@@ -49,5 +49,6 @@ defmodule Planet.Plug.StripeUniqueWebhookEvents do
     conn
     |> put_status(:bad_request)
     |> json(%{message: message})
+    |> halt()
   end
 end

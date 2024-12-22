@@ -5,7 +5,6 @@ defmodule Planet.Payments.Paddle do
   @api_endpoint Application.compile_env!(:planet, :paddle) |> Keyword.fetch!(:api_endpoint)
 
   # API Calls
-
   # defp build_url(id, opts \\ [])
 
   defp build_url("txn_" <> _id = transaction_id, opts),
@@ -16,6 +15,14 @@ defmodule Planet.Payments.Paddle do
 
   defp build_url("sub_" <> _id = subscription_id, opts),
     do: "#{@api_endpoint}/subscriptions/#{subscription_id}#{build_query_params(opts)}"
+
+  defp build_url("webhook_ips", _opts),
+    do: "#{@api_endpoint}/ips"
+
+  defp build_post_url("sub_" <> _id = subscription_id, body, opts) do
+    url = "#{@api_endpoint}/subscriptions/#{subscription_id}/cancel#{build_query_params(opts)}"
+    {url, body}
+  end
 
   defp build_query_params([]), do: ""
   defp build_query_params(opts), do: "?" <> URI.encode_query(opts)
@@ -50,14 +57,24 @@ defmodule Planet.Payments.Paddle do
     |> handle_response()
   end
 
+  def request_post(id, body \\ %{}, opts \\ []) do
+    {url, body} = build_post_url(id, body, opts)
+    body = Jason.encode!(body)
+
+    Logger.info("Requesting #{url}")
+
+    HTTPoison.post(url, body, headers())
+    |> handle_response()
+  end
+
   ### POST Requests
   def create_portal_session(%Planet.Subscriptions.Subscription{} = subscription) do
     url = "#{@api_endpoint}/customers/#{subscription.customer_id}/portal-sessions"
 
-    headers = [
-      {"Authorization", "Bearer #{@api_key}"},
-      {"Content-Type", "application/json"}
-    ]
+    # headers = [
+    #   {"Authorization", "Bearer #{@api_key}"},
+    #   {"Content-Type", "application/json"}
+    # ]
 
     # Manage the URL according to subscription, if lifetime plan ignore body
     body =
@@ -70,7 +87,7 @@ defmodule Planet.Payments.Paddle do
       end
       |> Jason.encode!()
 
-    case HTTPoison.post(url, body, headers) do
+    case HTTPoison.post(url, body, headers()) do
       {:ok, %HTTPoison.Response{status_code: 201, body: response_body}} ->
         decoded_body = Jason.decode!(response_body)
 

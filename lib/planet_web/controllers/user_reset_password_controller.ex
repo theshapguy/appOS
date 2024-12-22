@@ -1,7 +1,7 @@
 defmodule PlanetWeb.UserResetPasswordController do
   use PlanetWeb, :controller
 
-  plug PlanetWeb.Plugs.PageTitle, title: "Reset"
+  plug Planet.Plug.PageTitle, title: "Reset"
 
   alias Planet.Accounts
 

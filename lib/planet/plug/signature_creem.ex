@@ -1,4 +1,4 @@
-defmodule Planet.Payments.CreemSignature do
+defmodule Planet.Plug.CreemSignature do
   @behaviour Plug
 
   require Logger

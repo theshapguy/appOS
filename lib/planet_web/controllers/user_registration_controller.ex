@@ -1,7 +1,7 @@
 defmodule PlanetWeb.UserRegistrationController do
   use PlanetWeb, :controller
 
-  plug PlanetWeb.Plugs.PageTitle, title: "Register"
+  plug Planet.Plug.PageTitle, title: "Register"
 
   alias Planet.Accounts
   alias Planet.Accounts.User
@@ -15,7 +15,7 @@ defmodule PlanetWeb.UserRegistrationController do
 
   def create(conn, %{"user" => user_params}) do
     # redirect_url =
-    #   case Planet.Plugs.SubscriptionCheck.check_allow_unpaid_access() do
+    #   case Planet.Plug.SubscriptionCheck.check_allow_unpaid_access() do
     #     false -> %{"redirect_url" => ~p"/users/billing/signup"}
     #     true -> %{}
     #   end

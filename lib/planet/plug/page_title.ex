@@ -1,4 +1,4 @@
-defmodule PlanetWeb.Plugs.PageTitle do
+defmodule Planet.Plug.PageTitle do
   import Plug.Conn
 
   def init(title: title) do

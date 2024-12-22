@@ -50,7 +50,7 @@ defmodule PlanetWeb.Router do
 
   pipeline :enforce_user_authentication do
     plug :require_authenticated_user
-    plug Planet.Plugs.SubscriptionCheck
+    plug Planet.Plug.SubscriptionCheck
   end
 
   # Landing Pages

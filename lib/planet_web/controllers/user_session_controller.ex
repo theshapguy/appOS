@@ -1,7 +1,7 @@
 defmodule PlanetWeb.UserSessionController do
   use PlanetWeb, :controller
 
-  plug PlanetWeb.Plugs.PageTitle, title: "Login"
+  plug Planet.Plug.PageTitle, title: "Login"
 
   require Logger
 

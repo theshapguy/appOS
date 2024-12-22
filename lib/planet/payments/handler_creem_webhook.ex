@@ -2,6 +2,7 @@ defmodule Planet.Payments.CreemHandler do
   alias Planet.Payments.Plans
   alias Planet.Subscriptions
   alias Planet.Organizations
+  alias Planet.Workers.CancelSubscription
 
   require Logger
 
@@ -24,19 +25,25 @@ defmodule Planet.Payments.CreemHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    subscription_attrs =
-      %{}
-      |> Map.put("issued_at", convert_creem_webhook_datetime(period_start))
-      |> Map.put("valid_until", convert_creem_webhook_datetime(period_end))
-      |> Map.put("customer_id", customer_id)
-      |> Map.put("subscription_id", subscription_id)
-      |> Map.put("product_id", product_id)
-      |> Map.put("price_id", product_id)
-      |> Map.put("payment_attempt", nil)
-      |> Map.put("status", "active")
-      |> Map.put("processor", "creem")
+    case Plans.is_lifetime_plan?(subscription) do
+      true ->
+        {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
-    Subscriptions.update_subscription(subscription, subscription_attrs)
+      false ->
+        subscription_attrs =
+          %{}
+          |> Map.put("issued_at", convert_creem_webhook_datetime(period_start))
+          |> Map.put("valid_until", convert_creem_webhook_datetime(period_end))
+          |> Map.put("customer_id", customer_id)
+          |> Map.put("subscription_id", subscription_id)
+          |> Map.put("product_id", product_id)
+          |> Map.put("price_id", product_id)
+          |> Map.put("payment_attempt", nil)
+          |> Map.put("status", "active")
+          |> Map.put("processor", "creem")
+
+        Subscriptions.update_subscription(subscription, subscription_attrs)
+    end
   end
 
   def handler(%{
@@ -54,32 +61,45 @@ defmodule Planet.Payments.CreemHandler do
             "product_id" => product_id,
             "organization_id" => organization_id
           }
-          # "status" => "canceled"
         }
       }) do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    subscription_attrs =
-      %{}
-      |> Map.put(
-        "issued_at",
-        convert_creem_webhook_datetime(created_at)
-      )
-      # Make lifetime subscription active till NOW + 100 years
-      |> Map.put(
-        "valid_until",
-        convert_creem_webhook_datetime(created_at) |> DateTime.add(3_153_600_000, :second)
-      )
-      |> Map.put("customer_id", customer_id)
-      |> Map.put("subscription_id", checkout_id)
-      |> Map.put("product_id", product_id)
-      |> Map.put("price_id", product_id)
-      |> Map.put("payment_attempt", nil)
-      |> Map.put("status", "active")
-      |> Map.put("processor", "creem")
+    case Plans.is_lifetime_plan?(subscription) do
+      true ->
+        {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
-    Subscriptions.update_subscription(subscription, subscription_attrs)
+      false ->
+        subscription_attrs =
+          %{}
+          |> Map.put(
+            "issued_at",
+            convert_creem_webhook_datetime(created_at)
+          )
+          # Make lifetime subscription active till NOW + 100 years
+          |> Map.put(
+            "valid_until",
+            convert_creem_webhook_datetime(created_at) |> DateTime.add(3_153_600_000, :second)
+          )
+          |> Map.put("customer_id", customer_id)
+          |> Map.put("subscription_id", checkout_id)
+          |> Map.put("product_id", product_id)
+          |> Map.put("price_id", product_id)
+          |> Map.put("payment_attempt", nil)
+          |> Map.put("status", "active")
+          |> Map.put("processor", "creem")
+
+        %{
+          "customer_id" => customer_id,
+          "subscription_id" => subscription.subscription_id,
+          "processor" => "paddle"
+        }
+        |> CancelSubscription.new()
+        |> Oban.insert()
+
+        Subscriptions.update_subscription(subscription, subscription_attrs)
+    end
   end
 
   def handler(%{
@@ -99,10 +119,16 @@ defmodule Planet.Payments.CreemHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    Subscriptions.update_subscription(
-      subscription,
-      Plans.free_default_plan_as_subscription_attrs()
-    )
+    case Plans.is_lifetime_plan?(subscription) do
+      true ->
+        {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
+
+      false ->
+        Subscriptions.update_subscription(
+          subscription,
+          Plans.free_default_plan_as_subscription_attrs()
+        )
+    end
   end
 
   def handler(%{"eventType" => _} = params) do

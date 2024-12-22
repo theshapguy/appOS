@@ -11,12 +11,15 @@ defmodule PlanetWeb.PaymentWebhookController do
   alias Planet.Payments.Creem
   alias Planet.Payments.Stripe
 
-  plug(Planet.Payments.PaddleSignature when action in [:paddle_webhook])
-  plug(Planet.Payments.StripeSignature when action in [:stripe_webhook])
-  plug(Planet.Payments.CreemSignature when action in [:creem_webhook])
-
   # Only Checking for Stripe Webhook Events After Signature Verification
-  plug(Planet.Plug.StripeUniqueWebhookEvents when action in [:stripe_webhook])
+  plug(Planet.Plug.StripeWhitelist when action in [:stripe_webhook])
+  plug(Planet.Plug.StripeSignature when action in [:stripe_webhook])
+  # plug(Planet.Plug.StripeUniqueWebhookEvents when action in [:stripe_webhook])
+
+  plug(Planet.Plug.PaddleSignature when action in [:paddle_webhook])
+  plug(Planet.Plug.PaddleWhitelist when action in [:paddle_webhook])
+
+  plug(Planet.Plug.CreemSignature when action in [:creem_webhook])
 
   # Webhooks
   def paddle_webhook(conn, params) do
@@ -52,12 +55,12 @@ defmodule PlanetWeb.PaymentWebhookController do
         } = params
       ) do
     case StripeHandler.handler(params) do
-      {:ok, _} ->
+      {:ok, sub} ->
         StripeWebhookEventsDB.store_webhook_event(event_id, event_type, object_id, created)
 
         conn
         |> put_status(:ok)
-        |> json(%{message: "success"})
+        |> json(%{message: "success", subscription: %{data: sub}})
 
       {:error, changeset} ->
         Logger.error(changeset.errors)

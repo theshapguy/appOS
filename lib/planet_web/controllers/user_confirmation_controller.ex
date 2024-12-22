@@ -3,7 +3,7 @@ defmodule PlanetWeb.UserConfirmationController do
 
   alias Planet.Accounts
 
-  plug PlanetWeb.Plugs.PageTitle, title: "Confirmation"
+  plug Planet.Plug.PageTitle, title: "Confirmation"
 
   plug(:get_user_by_invite_token when action in [:confirm_invite_edit, :confirm_invite_update])
 

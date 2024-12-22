@@ -1,7 +1,7 @@
 defmodule PlanetWeb.PageController do
   use PlanetWeb, :controller
 
-  plug PlanetWeb.Plugs.PageTitle, title: "Home"
+  plug Planet.Plug.PageTitle, title: "Home"
 
   @hash System.cmd("git", ["rev-parse", "HEAD"]) |> elem(0) |> String.trim()
 

@@ -1,7 +1,7 @@
 defmodule PlanetWeb.UserSettingsOrganizationController do
   use PlanetWeb, :controller
 
-  plug PlanetWeb.Plugs.PageTitle, title: "Team"
+  plug Planet.Plug.PageTitle, title: "Team"
 
   alias Planet.Organizations
   alias Planet.Accounts

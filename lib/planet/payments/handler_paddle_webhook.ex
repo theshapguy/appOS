@@ -2,6 +2,7 @@ defmodule Planet.Payments.PaddleHandler do
   alias Planet.Payments.Plans
   alias Planet.Subscriptions
   alias Planet.Organizations
+  alias Planet.Workers.CancelSubscription
 
   require Logger
 
@@ -40,49 +41,23 @@ defmodule Planet.Payments.PaddleHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    subscription_attrs =
-      webhook_params_to_subscription_attrs(data_params)
-      |> Map.put("issued_at", convert_paddle_webhook_datetime(starts_at))
-      |> Map.put("valid_until", convert_paddle_webhook_datetime(ends_at))
-      |> Map.put("customer_id", customer_id)
-      |> Map.put("subscription_id", subscription_id)
+    case Plans.is_lifetime_plan?(subscription) do
+      true ->
+        {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
-    # |> Map.put("payment_attempt", nil)
+      false ->
+        subscription_attrs =
+          webhook_params_to_subscription_attrs(data_params)
+          |> Map.put("issued_at", convert_paddle_webhook_datetime(starts_at))
+          |> Map.put("valid_until", convert_paddle_webhook_datetime(ends_at))
+          |> Map.put("customer_id", customer_id)
+          |> Map.put("subscription_id", subscription_id)
 
-    Subscriptions.update_subscription(subscription, subscription_attrs)
+        # |> Map.put("payment_attempt", nil)
+
+        Subscriptions.update_subscription(subscription, subscription_attrs)
+    end
   end
-
-  # def handler(_conn, %{
-  #       "data" =>
-  #         %{
-  #           # "occured_at" => occured_at,
-  #           "next_billed_at" => _next_billed_at,
-  #           "customer_id" => customer_id,
-  #           "id" => subscription_id,
-  #           "custom_data" => %{
-  #             "organization_id" => organization_id
-  #           },
-  #           "current_billing_period" => %{
-  #             "ends_at" => ends_at,
-  #             "starts_at" => starts_at
-  #           }
-  #         } = data_params,
-  #       "event_type" => "subscription.created",
-  #       "occurred_at" => _occured_at
-  #     }) do
-  #   organization = Organizations.get_organization!(organization_id)
-  #   subscription = organization.subscription
-
-  #   subscription_attrs =
-  #     webhook_params_to_subscription_attrs(data_params)
-  #     |> Map.put("issued_at", convert_paddle_webhook_datetime(starts_at))
-  #     |> Map.put("valid_until", convert_paddle_webhook_datetime(ends_at))
-  #     |> Map.put("customer_id", customer_id)
-  #     |> Map.put("subscription_id", subscription_id)
-  #     |> Map.put("payment_attempt", nil)
-
-  #   Subscriptions.update_subscription(subscription, subscription_attrs)
-  # end
 
   def handler(_conn, %{
         "data" =>
@@ -98,10 +73,16 @@ defmodule Planet.Payments.PaddleHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    Subscriptions.update_subscription(
-      subscription,
-      Plans.free_default_plan_as_subscription_attrs()
-    )
+    case Plans.is_lifetime_plan?(subscription) do
+      true ->
+        {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
+
+      false ->
+        Subscriptions.update_subscription(
+          subscription,
+          Plans.free_default_plan_as_subscription_attrs()
+        )
+    end
   end
 
   def handler(_conn, %{
@@ -121,52 +102,17 @@ defmodule Planet.Payments.PaddleHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    Subscriptions.update_subscription(
-      subscription,
-      Plans.free_default_plan_as_subscription_attrs()
-    )
+    case Plans.is_lifetime_plan?(subscription) do
+      true ->
+        {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
+
+      false ->
+        Subscriptions.update_subscription(
+          subscription,
+          Plans.free_default_plan_as_subscription_attrs()
+        )
+    end
   end
-
-  # def handler(_conn, %{
-  #       "data" =>
-  #         %{
-  #           # "occured_at" => occured_at,
-  #           "next_billed_at" => _next_billed_at,
-  #           "customer_id" => customer_id,
-  #           "id" => subscription_id,
-  #           "custom_data" => %{
-  #             "organization_id" => organization_id
-  #           },
-  #           "current_billing_period" => %{
-  #             "ends_at" => _ends_at,
-  #             "starts_at" => starts_at
-  #           },
-  #           # If Scheduled Change Is Not Nil
-  #           "scheduled_change" => %{
-  #             "effective_at" => effective_at
-  #           }
-  #         } = data_params,
-  #       "event_type" => "subscription.updated",
-  #       "occurred_at" => _occured_at
-  #     }) do
-  #   # Status Cancelled Hence no Valid Until Date, Dont update the database value
-
-  #   organization = Organizations.get_organization!(organization_id)
-  #   subscription = organization.subscription
-
-  #   subscription_attrs =
-  #     webhook_params_to_subscription_attrs(data_params)
-  #     |> Map.put("issued_at", convert_paddle_webhook_datetime(starts_at))
-  #     |> Map.put("valid_until", convert_paddle_webhook_datetime(effective_at))
-  #     |> Map.put("customer_id", customer_id)
-  #     |> Map.put("subscription_id", subscription_id)
-  #     |> Map.put("payment_attempt", nil)
-
-  #   # |> Map.put("update_url", "https://sandbox-api.paddle.com/subscriptions/#{subscription_id}")
-  #   # |> Map.put("cancel_url", "https://sandbox-api.paddle.com/subscriptions/#{subscription_id}")
-
-  #   Subscriptions.update_subscription(subscription, subscription_attrs)
-  # end
 
   def handler(_conn, %{
         "data" =>
@@ -188,18 +134,24 @@ defmodule Planet.Payments.PaddleHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    subscription_attrs =
-      webhook_params_to_subscription_attrs(data_params)
-      |> Map.put("issued_at", convert_paddle_webhook_datetime(starts_at))
-      |> Map.put("valid_until", convert_paddle_webhook_datetime(ends_at))
-      |> Map.put("customer_id", customer_id)
-      |> Map.put("subscription_id", subscription_id)
-      |> Map.put("payment_attempt", nil)
+    case Plans.is_lifetime_plan?(subscription) do
+      true ->
+        {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
-    # |> Map.put("update_url", "https://sandbox-api.paddle.com/subscriptions/#{subscription_id}")
-    # |> Map.put("cancel_url", "https://sandbox-api.paddle.com/subscriptions/#{subscription_id}")
+      false ->
+        subscription_attrs =
+          webhook_params_to_subscription_attrs(data_params)
+          |> Map.put("issued_at", convert_paddle_webhook_datetime(starts_at))
+          |> Map.put("valid_until", convert_paddle_webhook_datetime(ends_at))
+          |> Map.put("customer_id", customer_id)
+          |> Map.put("subscription_id", subscription_id)
+          |> Map.put("payment_attempt", nil)
 
-    Subscriptions.update_subscription(subscription, subscription_attrs)
+        # |> Map.put("update_url", "https://sandbox-api.paddle.com/subscriptions/#{subscription_id}")
+        # |> Map.put("cancel_url", "https://sandbox-api.paddle.com/subscriptions/#{subscription_id}")
+
+        Subscriptions.update_subscription(subscription, subscription_attrs)
+    end
   end
 
   # For Lifetime Plans Hence, Subsription_Id Nil
@@ -221,17 +173,31 @@ defmodule Planet.Payments.PaddleHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    subscription_attrs =
-      webhook_params_to_subscription_attrs(data_params)
-      |> Map.put("issued_at", convert_paddle_webhook_datetime(billed_at))
-      # Giving lifetime validity
-      |> Map.put("valid_until", DateTime.utc_now() |> DateTime.add(3_153_600_000, :second))
-      |> Map.put("customer_id", customer_id)
-      |> Map.put("subscription_id", transaction_id)
-      |> Map.put("payment_attempt", nil)
-      |> Map.put("status", "active")
+    case Plans.is_lifetime_plan?(subscription) do
+      true ->
+        {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
-    Subscriptions.update_subscription(subscription, subscription_attrs)
+      false ->
+        subscription_attrs =
+          webhook_params_to_subscription_attrs(data_params)
+          |> Map.put("issued_at", convert_paddle_webhook_datetime(billed_at))
+          # Giving lifetime validity
+          |> Map.put("valid_until", DateTime.utc_now() |> DateTime.add(3_153_600_000, :second))
+          |> Map.put("customer_id", customer_id)
+          |> Map.put("subscription_id", transaction_id)
+          |> Map.put("payment_attempt", nil)
+          |> Map.put("status", "active")
+
+        %{
+          "customer_id" => customer_id,
+          "subscription_id" => subscription.subscription_id,
+          "processor" => "paddle"
+        }
+        |> CancelSubscription.new()
+        |> Oban.insert()
+
+        Subscriptions.update_subscription(subscription, subscription_attrs)
+    end
   end
 
   def handler(

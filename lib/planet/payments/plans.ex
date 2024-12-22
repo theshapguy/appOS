@@ -227,4 +227,24 @@ defmodule Planet.Payments.Plans do
     Application.fetch_env!(:planet, subscription |> processor())
     |> Keyword.fetch!(:vat_included)
   end
+
+  # def is_lifetime_plan?(nil) do
+  #   false
+  # end
+
+  def is_lifetime_plan?(%Subscription{price_id: price_id}) do
+    # Function to extract all price_ids from variations and processors
+    price_ids_lifetime_plan_for_all_processors =
+      list("once", true)
+      |> Enum.flat_map(fn item ->
+        item.variations
+        |> Enum.flat_map(fn variation ->
+          variation.processors
+          |> Map.values()
+          |> Enum.map(& &1.price_id)
+        end)
+      end)
+
+    price_id in price_ids_lifetime_plan_for_all_processors
+  end
 end

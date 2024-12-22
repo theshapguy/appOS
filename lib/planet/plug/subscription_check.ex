@@ -1,4 +1,4 @@
-defmodule Planet.Plugs.SubscriptionCheck do
+defmodule Planet.Plug.SubscriptionCheck do
   @behaviour Plug
 
   import Plug.Conn

@@ -1,4 +1,4 @@
-defmodule Planet.Plugs.SubscriptionManagementRedirect do
+defmodule Planet.Plug.SubscriptionManagementRedirect do
   import Plug.Conn
   import Phoenix.Controller
   alias Planet.Payments.Plans

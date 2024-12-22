@@ -1,5 +1,9 @@
-defmodule Planet.Payments.PaddleWhitelist do
+defmodule Planet.Plug.PaddleWhitelist do
   @behaviour Plug
+
+  require Logger
+  alias Planet.Periodic.PaddleAllowlistIP
+  alias Planet.Utils.RemoteIP
 
   import Plug.Conn
   import Phoenix.Controller, only: [json: 2]
@@ -9,9 +13,11 @@ defmodule Planet.Payments.PaddleWhitelist do
 
   @impl true
   def call(conn, _) do
-    if is_whitelisted?(conn) do
+    if RemoteIP.get(conn) |> is_whitelisted?() do
       conn
     else
+      Logger.error("Host not allowed: #{__MODULE__}")
+
       conn
       |> put_status(403)
       |> json(%{
@@ -24,12 +30,16 @@ defmodule Planet.Payments.PaddleWhitelist do
     end
   end
 
-  def is_whitelisted?(%{remote_ip: remote_ip} = _conn) do
+  defp is_whitelisted?(remote_ip) do
     remote_ip in ip_whitelist()
   end
 
   def ip_whitelist do
-    []
+    PaddleAllowlistIP.get_ips()
+
+    # |> Enum.map(fn ip -> :inet.parse_address(Kernel.to_charlist(ip)) end)
+    # |> Enum.map(fn {:ok, ip} -> ip end)
+
     # Application.fetch_env!(:planet, :paddle)
     # |> Keyword.fetch!(:ip_whitelist)
     # |> Enum.map(fn ip -> :inet.parse_address(Kernel.to_charlist(ip)) end)

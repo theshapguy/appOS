@@ -7,12 +7,19 @@ defmodule Planet.Payments.Stripe do
 
   @api_key Application.compile_env!(:planet, :stripe) |> Keyword.fetch!(:api_key)
   @api_endpoint Application.compile_env!(:planet, :stripe) |> Keyword.fetch!(:api_endpoint)
+  @webhook_ips_url "https://stripe.com/files/ips/ips_webhooks.json"
 
   defp build_url("cs_" <> _id = checkout_session_id, opts),
     do: "#{@api_endpoint}/checkout/sessions/#{checkout_session_id}#{build_query_params(opts)}"
 
   defp build_url("in_" <> _id = invoice_id, opts),
     do: "#{@api_endpoint}/invoices/#{invoice_id}#{build_query_params(opts)}"
+
+  defp build_url("sub_" <> _id = subscription_id, opts),
+    do: "#{@api_endpoint}/subscriptions/#{subscription_id}#{build_query_params(opts)}"
+
+  defp build_url("webhook_ips", _opts),
+    do: "https://stripe.com/files/ips/ips_webhooks.txt"
 
   defp build_query_params([]), do: ""
   defp build_query_params(opts), do: "?" <> URI.encode_query(opts)
@@ -38,11 +45,29 @@ defmodule Planet.Payments.Stripe do
     {:error, "Request failed with reason #{reason}"}
   end
 
+  # Doing it this way because the webhook_ips_url is not a part of the API
+  # But trying to match the same pattern as the other payment requests
+  def request("webhook_ips") do
+    url = @webhook_ips_url
+    Logger.info("Requesting #{url}")
+
+    HTTPoison.get(url)
+    |> handle_response()
+  end
+
   def request(id, opts \\ []) do
     url = build_url(id, opts)
     Logger.info("Requesting #{url}")
 
     HTTPoison.get(url, headers())
+    |> handle_response()
+  end
+
+  def request_delete(id, opts \\ []) do
+    url = build_url(id, opts)
+    Logger.info("Requesting DELETE: #{url}")
+
+    HTTPoison.delete(url, headers())
     |> handle_response()
   end
 
@@ -159,7 +184,6 @@ defmodule Planet.Payments.Stripe do
       }
       |> maybe_add_customer_details(user, mode)
       |> maybe_add_subscription_metadata(mode)
-      |> IO.inspect()
       |> URI.encode_query()
 
     headers = [

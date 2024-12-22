@@ -1,4 +1,4 @@
-defmodule Planet.Payments.StripeSignature do
+defmodule Planet.Plug.StripeSignature do
   @behaviour Plug
 
   require Logger

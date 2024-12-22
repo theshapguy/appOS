@@ -1,7 +1,7 @@
 defmodule PlanetWeb.UserSettingsController do
   use PlanetWeb, :controller
 
-  plug PlanetWeb.Plugs.PageTitle, title: "Settings"
+  plug Planet.Plug.PageTitle, title: "Settings"
 
   require Logger
 

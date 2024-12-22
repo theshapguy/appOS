@@ -20,6 +20,8 @@ defmodule Planet.Application do
       # Start the Endpoint (http/https)
       PlanetWeb.Endpoint,
       {Oban, oban_opts()},
+      Planet.Periodic.StripeAllowlistIP,
+      Planet.Periodic.PaddleAllowlistIP,
       Planet.Storage.StripeWebhookEventsDB
       # {Planet.Periodic.NewRunner, %{}},
       # Start a worker by calling: PlanetWorker.start_link(arg)

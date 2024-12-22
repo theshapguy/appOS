@@ -1,4 +1,4 @@
-defmodule Planet.Payments.PaddleSignature do
+defmodule Planet.Plug.PaddleSignature do
   @behaviour Plug
 
   require Logger

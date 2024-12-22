@@ -61,7 +61,8 @@ config :planet, Oban,
     {Oban.Plugins.Pruner, max_age: 86_400 * 40}
   ],
   queues: [
-    default: 10
+    default: 10,
+    cancel_subscription: 1
   ]
 
 # Configure tailwind (the version is required)
@@ -85,16 +86,16 @@ config :logger, :console,
 config :phoenix, :json_library, Jason
 
 # Added
-config :mnesia, dir: ~c"mnesia/#{Mix.env()}/#{node()}"
+config :mnesia, dir: ~c"mnesia/#{Mix.env()}/1"
 
 # [Release] Check Production Or Runtime Variables
 config :planet, :payment,
   sandbox?: true,
-  processor: :stripe,
+  processor: :paddle,
   # If Free Plan Allows Access, Don't Redirect to Billing Page On Free Plan
   allow_free_plan_access: true,
   # Make sure show_billing_page is set to false only when allow_free_plan_access is true
-  show_billing_page: false
+  show_billing_page: true
 
 config :planet, :stripe,
   description: "Stripe. Secure payment processing.",
@@ -107,6 +108,8 @@ config :planet, :stripe,
   bank_statement: "SOCIAL REECH CRM",
   version: "2024-11-20.acacia"
 
+# For AllowList IPs, Check lib/planet/periodic/stripe_allowlist_ip.ex
+
 config :planet, :paddle,
   description: "Paddle. Secure payment processing.",
   client_key: "test_89a7fedf85d036d2351afdafa35",
@@ -116,6 +119,8 @@ config :planet, :paddle,
   portal_endpoint: "https://sandbox-customer-portal.paddle.com/cpl_01h411b80rvpnhgcb87qktvg1n",
   vat_included: false,
   bank_statement: "PADDLE.NET* RINKO"
+
+# For AllowList IPs, Check lib/planet/periodic/paddle_allowlist_ip.ex
 
 config :planet, :creem,
   description:
