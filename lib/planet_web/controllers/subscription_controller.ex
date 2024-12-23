@@ -14,14 +14,14 @@ defmodule PlanetWeb.SubscriptionController do
   plug(Planet.Plug.SubscriptionManagementRedirect when action in [:edit, :payment])
   plug Planet.Plug.PageTitle, title: "Billing"
 
-  plug Bodyguard.Plug.Authorize,
-       [
-         policy: Planet.Policies.Organization,
-         action: {Phoenix.Controller, :action_name},
-         user: {PlanetWeb.UserAuthorize, :current_user},
-         fallback: PlanetWeb.BodyguardFallbackController
-       ]
-       when action in [:edit]
+  # plug Bodyguard.Plug.Authorize,
+  #      [
+  #        policy: Planet.Policies.Organization,
+  #        action: {Phoenix.Controller, :action_name},
+  #        user: {PlanetWeb.UserAuthorize, :current_user},
+  #        fallback: PlanetWeb.BodyguardFallbackController
+  #      ]
+  #      when action in [:edit, :payment]
 
   def edit(conn, _params) do
     current_user = conn.assigns.current_user
@@ -200,6 +200,7 @@ defmodule PlanetWeb.SubscriptionController do
 
   defp maybe_verify_creem_order_id(params, nil) do
     # Mock since one time payment is not verifiable yet
+    # Assuming it is verified when redirect is made
     {:ok,
      %{
        "status" => "active",

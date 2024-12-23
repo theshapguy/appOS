@@ -1,6 +1,7 @@
-secrets/secrets.env
+/priv/mnesia_data/*
+!/priv/mnesia_data/.gitkeep
 
-mnesia/
+/secrets/secrets.env
 
 # The directory Mix will write compiled artifacts to.
 /_build/

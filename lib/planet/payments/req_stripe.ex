@@ -197,7 +197,6 @@ defmodule Planet.Payments.Stripe do
         {:ok, Jason.decode!(response_body)}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: _body}} ->
-        # IO.inspect(body)
         {:error, "Request failed with status code #{status_code}"}
 
       {:error, %HTTPoison.Error{reason: reason}} ->
@@ -233,7 +232,6 @@ defmodule Planet.Payments.Stripe do
          }}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: _body}} ->
-        # IO.inspect(body)
         {:error, "Request failed with status code #{status_code}"}
 
       {:error, %HTTPoison.Error{reason: reason}} ->

@@ -64,6 +64,15 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  mnesia_db_location =
+    System.get_env("MNESIA_DB_DIR") ||
+      raise """
+      environment variable MNESIA_DB_DIR is missing.
+      Please point to a directory where Mnesia can store its database.
+      """
+
+  config :mnesia, dir: ~c"#{mnesia_db_location}"
+
   # PROD-TODO Change In Production
   # config :wax_,
   #   origin: host,

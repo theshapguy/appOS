@@ -100,18 +100,32 @@
     When you upgrade to the lifetime plan, I’ll manually cancel your current subscription. If a subscription charge takes places before I can cancel it, I’ll refund the subscription charge.
   </div>
 
-  <div class="flex justify-center mt-4 w-full" id="subscrible-paddle-button">
+  <div class="flex justify-center mt-12 w-full" id="subscrible-paddle-button">
     <button
       type="submit"
-      class="w-full text-center bg-blue-600 hover:bg-rouge-400 px-8 py-4 rounded-md text-white font-semibold cursor-pointer"
+      class="flex items-center justify-center gap-2 w-full text-center bg-brand hover:bg-rouge-400 px-8 py-4 rounded-md text-white font-semibold cursor-pointer outline outline-blue-400 hover:bg-blue-600 hover:outline-blue-600"
     >
-      Upgrade
+      <span class="block flex-1">Upgrade</span>
     </button>
+  </div>
+
+  <div
+    id="progress-indicator"
+    class="opacity-0 transition-opacity ease-in-out duration-700  mt-4 h-1.5 mx-2 bg-blue-100 overflow-hidden"
+  >
+    <div class="progress w-full h-full bg-brand left-right"></div>
+  </div>
+
+  <div
+    id="progress-indicator-status"
+    class="opacity-0 transition-opacity ease-in-out duration-700 text-sm text-red-500 text-center cursor-default"
+  >
+    Error redirecting to payment page, please refresh and try again.
   </div>
   <%!-- </form> --%>
 </form>
 
-<div class="mt-6 text-center text-sm text-gray-500">
+<div class="mt-2 text-center text-sm text-gray-500">
   <p>Powered by {@processor_humanized}</p>
   <p :if={@vat_included? == false} class="text-xs text-gray-400 mt-2">
     Prices exclude VAT and local sales tax.
@@ -120,6 +134,7 @@
   </p>
 </div>
 
+<%!-- JS Code --%>
 <script :if={@processor == :creem || @processor == :stripe}>
   const form = document.getElementById('plans-form');
 
@@ -142,6 +157,8 @@
           // other data recieved from session data
       }
 
+      showProgressIndicator()
+
       fetch('<%= ~p"/formdata-api/checkout-session" %>', {
         method: "POST",
         credentials: 'include',
@@ -156,16 +173,42 @@
         if (data.checkout_url) {
           window.location.href = data.checkout_url;
         }else{
-          console.log("Error Then Data", data);
+          hideProgressIndicator()
         }          
       })
       .catch(error => {
-        console.error("Error", error);
+          console.error("Error", error);
+          hideProgressIndicator()
       });
 
-      // openCheckout(product_id, price_id, [item]);
-
   });
+
+  function hideProgressIndicator() {
+      // Make the progress indicator invisible
+      let progressIndicator = document.getElementById('progress-indicator');
+      progressIndicator.classList.add('opacity-0');
+      progressIndicator.classList.remove('opacity-100');
+      
+
+      let progressIndicatorStatus = document.getElementById('progress-indicator-status');
+      progressIndicatorStatus.classList.add('opacity-100');
+      progressIndicatorStatus.classList.remove('opacity-0');
+
+  }
+
+    function showProgressIndicator() {
+      // Make the progress indicator visible
+      let progressIndicator = document.getElementById('progress-indicator');
+      
+      progressIndicator.classList.remove('opacity-0');
+      progressIndicator.classList.add('opacity-100');
+
+      let progressIndicatorStatus = document.getElementById('progress-indicator-status');
+      progressIndicatorStatus.classList.remove('opacity-100');
+      progressIndicatorStatus.classList.add('opacity-0');
+      
+
+  }
 </script>
 
 <script :if={@processor == :paddle} src="https://cdn.paddle.com/paddle/v2/paddle.js">
@@ -256,4 +299,16 @@
       // console.log('Lifetime parameter is set to yes');
       form.requestSubmit();
   }
+</script>
+
+<script>
+  <%!-- TODO --%>
+  <%!-- Check Tests: Failing --%>
+  <%!-- Select the first plan and check the radio button  --%>
+  document.addEventListener('DOMContentLoaded', function() {
+    const priceInputs = document.querySelectorAll('input[name="price_id"]');
+    if (priceInputs.length > 0) {
+      priceInputs[0].checked = true;
+    }
+  });
 </script>

@@ -1,6 +1,7 @@
 defmodule Planet.Payments.Creem do
   alias Planet.HTTPRequest
   alias Planet.Organizations.Organization
+  alias Planet.Subscriptions.Subscription
   alias Planet.Accounts.User
   alias Planet.Payments.Plans
   require Logger
@@ -70,25 +71,45 @@ defmodule Planet.Payments.Creem do
     |> handle_response()
   end
 
+  def add_customer_details(%User{
+        email: email,
+        organization: %Organization{
+          subscription: %Subscription{
+            customer_id: nil
+          }
+        }
+      }) do
+    %{email: email}
+  end
+
+  # Always user customer id if available
+  def add_customer_details(%User{
+        email: _email,
+        organization: %Organization{
+          subscription: %Subscription{
+            customer_id: customer_id
+          }
+        }
+      }) do
+    %{id: customer_id}
+  end
+
   def checkout_session_url(
         %User{
           id: user_id,
-          email: email,
+          email: _email,
           organization: %Organization{
             id: organization_id
           }
-        },
+        } = user,
         product_id
       ) do
-    # def checkout_session_url(organization_id, price_id, email) do
-
     url = "#{@api_endpoint}/checkouts"
 
     headers = [
       {"accept", "application/json"},
       {"x-api-key", @api_key},
-      {"Content-Type", "application/json"},
-      {"User-Agent", "Planet/1.0"}
+      {"Content-Type", "application/json"}
     ]
 
     # Manage the URL according to subscription, if lifetime plan ignore body
@@ -96,9 +117,7 @@ defmodule Planet.Payments.Creem do
       %{
         request_id: organization_id,
         product_id: product_id,
-        customer: %{
-          email: email
-        },
+        customer: add_customer_details(user),
         metadata: %{
           user_id: user_id,
           organization_id: organization_id,
@@ -115,7 +134,6 @@ defmodule Planet.Payments.Creem do
         {:ok, decoded_body}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: _body}} ->
-        # IO.inspect(body)
         {:error, "Request failed with status code #{status_code}"}
 
       {:error, %HTTPoison.Error{reason: reason}} ->
@@ -149,7 +167,6 @@ defmodule Planet.Payments.Creem do
          }}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: _body}} ->
-        # IO.inspect(body)
         {:error, "Request failed with status code #{status_code}"}
 
       {:error, %HTTPoison.Error{reason: reason}} ->

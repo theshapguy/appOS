@@ -11,10 +11,9 @@ defmodule PlanetWeb.PaymentWebhookController do
   alias Planet.Payments.Creem
   alias Planet.Payments.Stripe
 
-  # Only Checking for Stripe Webhook Events After Signature Verification
   plug(Planet.Plug.StripeWhitelist when action in [:stripe_webhook])
   plug(Planet.Plug.StripeSignature when action in [:stripe_webhook])
-  # plug(Planet.Plug.StripeUniqueWebhookEvents when action in [:stripe_webhook])
+  plug(Planet.Plug.StripeUniqueWebhookEvents when action in [:stripe_webhook])
 
   plug(Planet.Plug.PaddleSignature when action in [:paddle_webhook])
   plug(Planet.Plug.PaddleWhitelist when action in [:paddle_webhook])

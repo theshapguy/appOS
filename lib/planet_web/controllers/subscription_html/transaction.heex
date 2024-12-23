@@ -11,10 +11,10 @@
       <% end %>
 
     Paddle.Initialize({
-      token: '<%= Application.fetch_env!(:planet, :paddle) |> Keyword.fetch!(:client_key) %>', // replace with a client-side token
+      token: '<%= Application.fetch_env!(:planet, :paddle) |> Keyword.fetch!(:client_key) %>', 
       // prints events to console for debugging
       eventCallback: function(data) {
-        console.log(data);
+        // console.log(data);
       },
       checkout: {
         settings: {

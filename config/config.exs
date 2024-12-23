@@ -35,6 +35,7 @@ config :planet, Planet.Mailer,
   sender_name: "Shap",
   sender_email: "shap@planet.com",
   # 100px
+  # Upload to Cloudflare and Set Icon Here
   icon: "https://i.pravatar.cc/150?u=men",
   hostname: "planet.com",
   company_name: "Planet Inc.",
@@ -86,7 +87,16 @@ config :logger, :console,
 config :phoenix, :json_library, Jason
 
 # Added
-config :mnesia, dir: ~c"mnesia/#{Mix.env()}/1"
+# config :mnesia, dir: ~c"#{:code.priv_dir(:planet)}/#{Mix.env()}/#{node()}"
+
+# https://stackoverflow.com/a/43431071
+config :mnesia,
+  debug: false,
+  dir:
+    [__DIR__, "..", "priv", "mnesia_data"]
+    |> Path.join()
+    |> Path.expand()
+    |> to_charlist()
 
 # [Release] Check Production Or Runtime Variables
 config :planet, :payment,

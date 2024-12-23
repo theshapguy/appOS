@@ -209,8 +209,23 @@ defmodule Planet.Storage.StripeWebhookEventsDB do
     {:noreply, state}
   end
 
+  defp schedule_cleanup(false) do
+    Process.send_after(self(), :cleanup_events, :timer.hours(5))
+  end
+
+  defp schedule_cleanup(true) do
+    Process.send_after(self(), :cleanup_events, :timer.minutes(5))
+  end
+
   # Schedule the cleanup to run every hour to remove older events
-  defp schedule_cleanup do
-    Process.send_after(self(), :cleanup_events, 60 * 60 * 1000)
+  # Cleanup faster when in live payment mode
+  # Not using Mix as payment_sandbox is a better option due to it being
+  # true and false only
+
+  # Using this method so that scheduled_cleanup can be set to true or false
+  # according to the environment without getting compile errors
+  defp schedule_cleanup() do
+    payment_sandbox? = Application.get_env(:planet, :payment) |> Keyword.fetch!(:sandbox?)
+    schedule_cleanup(payment_sandbox?)
   end
 end

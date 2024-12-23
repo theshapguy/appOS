@@ -31,11 +31,7 @@ defmodule Planet.Plug.PaddleWhitelist do
   end
 
   defp is_whitelisted?(remote_ip) do
-    remote_ip in ip_whitelist()
-  end
-
-  def ip_whitelist do
-    PaddleAllowlistIP.get_ips()
+    remote_ip in PaddleAllowlistIP.get_ips()
 
     # |> Enum.map(fn ip -> :inet.parse_address(Kernel.to_charlist(ip)) end)
     # |> Enum.map(fn {:ok, ip} -> ip end)

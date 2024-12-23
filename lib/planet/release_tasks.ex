@@ -14,7 +14,7 @@ defmodule App.ReleaseTasks do
   def priv_directory do
     load_app()
 
-    :code.priv_dir(:app)
+    :code.priv_dir(@app)
     |> List.to_string()
     |> IO.inspect()
   end
@@ -22,8 +22,8 @@ defmodule App.ReleaseTasks do
   def priv_static_directory do
     load_app()
 
-    List.to_string([:code.priv_dir(:app), "/static"])
-    |> IO.puts()
+    List.to_string([:code.priv_dir(@app), "/static"])
+    |> IO.inspect()
   end
 
   defp load_app do

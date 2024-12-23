@@ -13,8 +13,6 @@ defmodule Planet.Plug.SubscriptionCheck do
   def call(conn, _opts) do
     subscription = conn.assigns.current_user.organization.subscription
 
-    # Allow Access To Home
-
     case subscription.status do
       :active ->
         conn

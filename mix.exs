@@ -1,8 +1,7 @@
 defmodule Planet.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
-  @version_code "1"
+  @version "1.0.0"
 
   def project do
     [
@@ -32,7 +31,7 @@ defmodule Planet.MixProject do
           # version: {:from_app, :app}
           # https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-requirements
           # version: @version,
-          version: "#{@version_code}-#{build_version()}"
+          version: "#{build_name()}"
           # version: "123123" <> "+" <> "darwin_x84",
         ]
       ],
@@ -92,12 +91,9 @@ defmodule Planet.MixProject do
       {:bandit, "~> 1.5"},
       # Added
       {:httpoison, "~> 2.2.1"},
-      # {:stripy, path: "./modified_deps/stripy"},
       {:hashids, "~>2.1.0"},
-      {:php_serializer, "~> 2.0.0"},
-      # https://hexdocs.pm/timex/Timex.Format.DateTime.Formatters.Default.html
       {:timex, "~> 3.0"},
-      {:bodyguard, path: "./modified_deps/bodyguard"},
+      {:bodyguard, "~> 2.4.3"},
       # {:wax_, "~> 0.6.0"},
       {:cbor, "~> 1.0.0"},
       {:mimic, "~> 1.7", only: :test},
@@ -133,43 +129,38 @@ defmodule Planet.MixProject do
     ]
   end
 
-  defp target_triple() do
-    # https://fiqus.coop/en/2019/07/15/add-git-commit-info-to-your-elixir-phoenix-app/
-    case System.cmd("gcc", ["-dumpmachine"]) do
-      {commit_sha, 0} -> String.trim(commit_sha) <> "+"
-      _ -> "unknown+"
-    end
-  end
-
-  defp get_commit_sha() do
-    case System.cmd("git", ["rev-parse", "--short", "HEAD"]) do
-      {commit_sha, 0} -> String.trim(commit_sha)
-      _ -> System.system_time(:second)
-    end
-  end
-
-  defp get_commit_branch() do
-    case System.cmd("git", ["rev-parse", "--abbrev-ref", "HEAD"]) do
-      {commit_sha, 0} ->
-        case String.trim(commit_sha) do
-          "main" -> ""
-          branch -> "-#{branch}"
-        end
-
-      _ ->
-        "-not-git"
-    end
-  end
-
-  defp build_version() do
-    target_triple() <> get_commit_branch() <> get_commit_sha()
-
+  defp build_name() do
     # https://stackoverflow.com/a/52074767
     # https://fiqus.coop/en/2019/07/15/add-git-commit-info-to-your-elixir-phoenix-app/
+    target =
+      case System.cmd("gcc", ["-dumpmachine"]) do
+        {target, 0} -> String.trim(target) <> "+"
+        _ -> "unknown+"
+      end
+
+    commit_sha =
+      case System.cmd("git", ["rev-parse", "--short", "HEAD"]) do
+        {commit_sha, 0} -> String.trim(commit_sha)
+        _ -> System.system_time(:second) |> Integer.to_string()
+      end
+
+    branch =
+      case System.cmd("git", ["rev-parse", "--abbrev-ref", "HEAD"]) do
+        {branch_name, 0} ->
+          case String.trim(branch_name) do
+            "main" -> ""
+            branch -> "-#{branch}"
+          end
+
+        _ ->
+          "-not-git"
+      end
+
+    @version <> "-" <> target <> branch <> commit_sha
   end
 
   def user_agent_version() do
-    @version_code
+    @version
   end
 
   defp dialyzer do

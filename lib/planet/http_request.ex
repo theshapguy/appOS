@@ -1,6 +1,10 @@
 defmodule Planet.HTTPRequest do
   @moduledoc """
   A custom HTTP client that sets default headers for all requests.
+
+  This allows us to set a default User-Agent header for all requests
+  and if required change the adapter to use a different
+  HTTP client library.
   """
 
   @default_headers [

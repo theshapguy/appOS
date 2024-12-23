@@ -13,11 +13,11 @@ defmodule PlanetWeb.UserSettingsOrganizationController do
 
   plug(:assign_changesets)
 
-  plug Bodyguard.Plug.Authorize,
-    policy: Planet.Policies.Organization,
-    action: {Phoenix.Controller, :action_name},
-    user: {PlanetWeb.UserAuthorize, :current_user},
-    fallback: PlanetWeb.BodyguardFallbackController
+  # plug Bodyguard.Plug.Authorize,
+  #   policy: Planet.Policies.Organization,
+  #   action: {Phoenix.Controller, :action_name},
+  #   user: {PlanetWeb.UserAuthorize, :current_user},
+  #   fallback: PlanetWeb.BodyguardFallbackController
 
   def edit(conn, _params) do
     render(conn, :edit)

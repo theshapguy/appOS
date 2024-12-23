@@ -48,11 +48,9 @@ defmodule Planet.Periodic.StripeAllowlistIP do
           state
 
         {:ok, ips} ->
-          IO.inspect(ips, label: "NEW")
           ips
 
         {:error, _} ->
-          IO.inspect(state, label: "OLD")
           # If Any Error, Don't Deviate From The Loaded State
           state
       end

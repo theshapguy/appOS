@@ -31,11 +31,8 @@ defmodule Planet.Plug.StripeWhitelist do
   end
 
   defp is_whitelisted?(remote_ip) do
-    remote_ip in ip_whitelist()
-  end
+    remote_ip in StripeAllowlistIP.get_ips()
 
-  defp ip_whitelist do
-    StripeAllowlistIP.get_ips()
     # |> Enum.map(fn ip -> :inet.parse_address(Kernel.to_charlist(ip)) end)
     # |> Enum.map(fn {:ok, ip} -> ip end)
   end

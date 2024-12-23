@@ -2,9 +2,8 @@ defmodule Planet.Policies.Organization do
   @behaviour Bodyguard.Policy
   use Planet.Policies.Default
 
-  def authorize(:update, user, _params) do
+  def authorize(:payment, user, _params) do
     require_organization_admin(user)
-    # if user.organization_admin?, do: :ok, else: {:error, "Not A Team Admin"}
   end
 
   def authorize(:edit, _user, _params), do: :ok

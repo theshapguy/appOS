@@ -1,6 +1,7 @@
 {
     "skip_files": [
       "test",
-      "deps"
+      "deps",
+      "Ξdeprecated"
     ]
   }

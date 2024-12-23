@@ -49,7 +49,9 @@ defmodule PlanetWeb.Router do
   end
 
   pipeline :enforce_user_authentication do
+    # Only require to be logged in
     plug :require_authenticated_user
+    # Requires user to to have active subscription
     plug Planet.Plug.SubscriptionCheck
   end
 

@@ -1,14 +1,14 @@
-ARG ELIXIR_VERSION=1.16.1
-ARG OTP_VERSION=26.2.1
-ARG UBUNTU_VERSION=20231004
-
-ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-ubuntu-jammy-${UBUNTU_VERSION}"
-# ARG RUNNER_IMAGE="ubuntu-jammy:${UBUNTU_VERSION}"
+ARG ELIXIR_VERSION=1.18.0
+ARG OTP_VERSION=27.2
+ARG UBUNTU_VERSION=20240808
 # Platform is Fixed To This Because of Production Server Being In This Target Triple
-FROM --platform="linux/amd64" node:lts-bookworm-slim as node
-FROM --platform="linux/amd64" python:3.12.4-bookworm as python-build
+ARG BUILDPLATFORM=linux/amd64
+# ARG BUILDER_IMAGE="hexpm/elixir:1.18.0-erlang-27.2-ubuntu-jammy-20240808"
+ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-ubuntu-jammy-${UBUNTU_VERSION}"
 
-FROM --platform="linux/amd64" ${BUILDER_IMAGE} as builder
+FROM --platform=${BUILDPLATFORM} node:lts-bookworm-slim AS node
+FROM --platform=${BUILDPLATFORM} python:3.12.4-bookworm AS python-build
+FROM --platform=${BUILDPLATFORM} ${BUILDER_IMAGE} AS builder
 
 # https://elixirforum.com/t/apple-silicon-and-cross-platform-docker-fails-minikube/60699
 # https://archive.ph/eyUIN

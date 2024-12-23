@@ -6,15 +6,13 @@ defmodule Planet.Periodic.Runner do
   end
 
   def init(state) do
-    IO.inspect(state)
     schedule_coin_fetch()
     {:ok, state}
   end
 
   def handle_info(:coin_fetch, state) do
     # price = coin_price()
-    IO.inspect("123")
-    # IO.inspect("Current Bitcoin price is $#{price}")
+
     schedule_coin_fetch()
     {:noreply, Map.put(state, :btc, "123")}
   end

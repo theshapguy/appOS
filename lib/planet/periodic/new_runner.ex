@@ -15,14 +15,11 @@ defmodule Planet.Periodic.NewRunner do
 
   @doc false
   def init(_args) do
-    IO.inspect(%__MODULE__{}, label: "MODULE STATE")
     {:ok, %__MODULE__{}, {:continue, :coin_fetch_init}}
   end
 
   @doc false
   def handle_continue(:coin_fetch_init, state) do
-    IO.inspect("Continue Fetch")
-    IO.inspect(state, label: "State Matter")
     # updated_state = %__MODULE__{state | items: ["cheese" | items]}
 
     schedule_coin_fetch()
@@ -32,8 +29,6 @@ defmodule Planet.Periodic.NewRunner do
 
   def handle_info(:coin_fetch, state) do
     # price = coin_price()
-    IO.inspect("Do some work with ahdnele info")
-    # IO.inspect("Current Bitcoin price is $#{price}")
     schedule_coin_fetch()
     {:noreply, Map.put(state, :btc, "123")}
   end

@@ -16,9 +16,6 @@ defmodule Planet.Plug.SubscriptionManagementRedirect do
       ) do
     subscription = conn.assigns.current_user.organization.subscription
 
-    # IO.inspect(subscription)
-    # IO.inspect(subscription)
-
     # %{billing_frequency: frequency} =
     plan = Plans.variant_by_price_id(subscription.processor, subscription.price_id)
 

@@ -214,9 +214,7 @@ defmodule Planet.Accounts do
     |> maybe_insert_provider(ueberauth_auth)
 
     # |> Ecto.Multi.run(:user_providers, fn repo, %{user: user} ->
-    #   # IO.inspect(social_auth)
-    #   # IO.inspect(social_auth.extra.raw_info, label: "Raw Info")
-    #   # convert(social_auth.extra.raw_info) |> IO.inspect()
+    #   # convert(social_auth.extra.raw_info)
 
     #   %UserProvider{}
     #   |> UserProvider.changeset(%{
@@ -250,11 +248,6 @@ defmodule Planet.Accounts do
 
       {:error, :subscription, changeset, _} ->
         {:error, changeset}
-
-        # {:error, _, changeset, _} ->
-        #   IO.inspect(changeset)
-        #   {:error, changeset}
-        # {:error, :user_credential, changeset, _} -> {:error, changeset}
     end
   end
 
@@ -274,10 +267,6 @@ defmodule Planet.Accounts do
   def maybe_insert_provider(multi, %Ueberauth.Auth{} = social_auth) do
     multi
     |> Ecto.Multi.run(:user_providers, fn repo, %{user: user} ->
-      # IO.inspect(social_auth)
-      # IO.inspect(social_auth.extra.raw_info, label: "Raw Info")
-      # convert(social_auth.extra.raw_info) |> IO.inspect()
-
       %UserProvider{}
       |> UserProvider.changeset(%{
         "token" => social_auth.credentials.token,

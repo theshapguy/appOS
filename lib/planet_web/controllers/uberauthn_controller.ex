@@ -8,24 +8,7 @@ defmodule PlanetWeb.UberAuthNController do
 
   plug Ueberauth
 
-  # def request(conn, _params) do
-  #   # IO.inspect("REQUEST")
-  #   Ueberauth.Strategy.Helpers.callback_url(conn) |> IO.inspect()
-
-  #   Phoenix.Controller.redirect(conn, to: Ueberauth.Strategy.Helpers.callback_url(conn))
-  # end
-
-  # def callback(%{assigns: %{ueberauth_auth: ueberauth_auth}} = conn, %{"provider" => "tiktok"}) do
-  #   IO.inspect(conn)
-
-  #   conn
-  #   |> put_flash(:info, "{Tiktok Auth Success}.")
-  #   |> redirect(to: ~p"/")
-  # end
-
   def callback(%{assigns: %{ueberauth_auth: ueberauth_auth}} = conn, %{"provider" => provider}) do
-    # IO.inspect(conn)
-
     case Accounts.get_user_by_email(ueberauth_auth.info.email) do
       %User{} = user ->
         case UserProviders.upsert_provider(user, ueberauth_auth) do

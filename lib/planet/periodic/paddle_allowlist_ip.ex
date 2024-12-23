@@ -5,8 +5,7 @@ defmodule Planet.Periodic.PaddleAllowlistIP do
 
   # Fetch every 4 hour
   @interval :timer.minutes(240)
-
-  @sandbox? Application.compile_env(:planet, :payment)[:sandbox?]
+  # @sandbox? Application.compile_env!(:planet, :payment) |> Keyword.fetch!(:sandbox?)
 
   @initial_ip_list [
     "34.232.58.13",
@@ -36,11 +35,12 @@ defmodule Planet.Periodic.PaddleAllowlistIP do
   end
 
   # Server Callbacks
-  @dialyzer {:nowarn_function, init: 1}
   def init(_) do
     schedule_fetch()
+    # Using this as get_env and not compile_env so I don't get warning errors
+    sandbox? = Application.get_env(:planet, :payment) |> Keyword.fetch!(:sandbox?)
 
-    case @sandbox? do
+    case sandbox? do
       true -> {:ok, @initial_ip_list_sandbox}
       false -> {:ok, @initial_ip_list}
     end
