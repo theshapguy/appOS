@@ -16,8 +16,6 @@ defmodule Planet.Plug.StripeWhitelist do
     if RemoteIP.get(conn) |> is_whitelisted?() do
       conn
     else
-      Logger.error("Host not allowed: #{__MODULE__}")
-
       conn
       |> put_status(403)
       |> json(%{

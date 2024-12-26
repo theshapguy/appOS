@@ -17,14 +17,9 @@ config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: Planet.Finch
 # Do not print debug messages in production
 config :logger, level: :info
 
+config :planet, :payment,
+  sandbox?: false,
+  processor: :creem
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
-
-# TODO Configure Before Going Live
-config :planet, :paddle,
-  sandbox: false,
-  api_key: "3071a1d8b877b7325866d3ece8857018",
-  bank_statement: "PADDLE.NET* RINKO"
-
-# [Release] Check Runtime As Well
-config :mnesia, dir: ~c"priv/mnesia"

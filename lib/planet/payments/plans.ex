@@ -2,13 +2,22 @@ defmodule Planet.Payments.Plans do
   require Logger
   alias Planet.Subscriptions.Subscription
 
+  # @sandbox? Application.compile_env!(:planet, :payment) |> Keyword.fetch!(:sandbox?)
   @default_processor Application.compile_env!(:planet, :payment) |> Keyword.fetch!(:processor)
-  @payment_sandbox? Application.compile_env!(:planet, :payment) |> Keyword.fetch!(:sandbox?)
+  # Only Add Once All Integrations are Ready
   @valid_processors [:stripe, :paddle, :creem]
+  @plans_path "priv/plans/plans_v1.jsonc"
+
+  def supported_processors() do
+    @valid_processors
+  end
+
+  def default_processor() do
+    @default_processor
+  end
 
   def list(billing_frequency \\ nil, exclude_free \\ true) do
-    with {:ok, plans_file_path} <- choose_plans_file_path(),
-         {:ok, content} <- File.read(plans_file_path),
+    with {:ok, content} <- read_jsonc_file!(@plans_path),
          {:ok, decoded} <- Jason.decode(content, keys: :atoms) do
       decoded.plans
       |> filter_out_free_plans(exclude_free)
@@ -18,14 +27,32 @@ defmodule Planet.Payments.Plans do
     end
   end
 
-  @dialyzer {:nowarn_function, choose_plans_file_path: 0}
-  defp choose_plans_file_path() do
+  def coupons() do
+    with {:ok, content} <- read_jsonc_file!(@plans_path),
+         {:ok, decoded} <- Jason.decode(content, keys: :atoms) do
+      decoded.coupons
+    else
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  def coupon(coupon_code) do
+    coupons()
+    |> Enum.find(fn coupon ->
+      coupon.code == coupon_code
+    end)
+  end
+
+  @doc """
+  Removing Comments from JSONC file so that Jason can parse it
+  """
+  def read_jsonc_file!(filename) do
     {
       :ok,
-      if(@payment_sandbox?,
-        do: "priv/plans/plans_v1_debug.json",
-        else: "priv/plans/plans_v1.json"
-      )
+      File.stream!(filename)
+      |> Stream.map(&String.trim/1)
+      |> Stream.reject(&String.starts_with?(&1, "//"))
+      |> Enum.to_list()
     }
   end
 
@@ -73,6 +100,36 @@ defmodule Planet.Payments.Plans do
     end
   end
 
+  @doc """
+  Returns the key for the payment environment to match the json file - plans_v1.json
+  """
+  def payment_environment_key() do
+    payment_sandbox? = Application.fetch_env!(:planet, :payment) |> Keyword.fetch!(:sandbox?)
+
+    if(payment_sandbox?, do: :sandbox, else: :live)
+  end
+
+  def get_plan_by_enviroment(
+        # Pattern matching so keeping this structure to make sure we get the correct format
+        %{
+          sandbox:
+            %{
+              price_id: _sandbox_price_id,
+              product_id: _sandbox_product_id
+            } = _sandbox_plan,
+          live:
+            %{
+              price_id: _live_price_id,
+              product_id: _live_product_id
+            } = _live_plan
+        } = plan
+      ) do
+    get_in(
+      plan,
+      [payment_environment_key()]
+    )
+  end
+
   def free_default_plan() do
     list(nil, false)
     |> Enum.find(fn plan ->
@@ -85,35 +142,21 @@ defmodule Planet.Payments.Plans do
       variations: [
         %{
           processors: %{
-            manual:
-              %{
-                price_id: _price_id,
-                product_id: _product_id
-              } = manual_plan
+            manual: plan
           }
         }
         | _
       ]
     } = free_default_plan()
 
-    manual_plan
+    plan |> get_plan_by_enviroment()
   end
 
   def free_default_plan_as_subscription_attrs() do
     %{
-      variations: [
-        %{
-          processors: %{
-            manual:
-              %{
-                price_id: price_id,
-                product_id: product_id
-              } = _manual_plan
-          }
-        }
-        | _
-      ]
-    } = free_default_plan()
+      price_id: price_id,
+      product_id: product_id
+    } = free_default_plan_ids()
 
     %{
       "processor" => "manual",
@@ -133,7 +176,10 @@ defmodule Planet.Payments.Plans do
     |> Enum.find_value(fn plan ->
       plan.variations
       |> Enum.find(fn variation ->
-        match = get_in(variation.processors, [processor, :price_id]) == price_id
+        match =
+          get_in(variation.processors, [processor, payment_environment_key(), :price_id]) ==
+            price_id
+
         match
       end)
     end)
@@ -189,7 +235,7 @@ defmodule Planet.Payments.Plans do
 
   def checkout_success_redirect_url(processor) do
     Logger.error("⚠️ Unknown Redirect URL: checkout_success_redirect_url: Processor #{processor}")
-    "/"
+    "/users/billing/verify?processor=UNKNOWN&fix_code=1"
   end
 
   def checkout_failed_redirect_url(:stripe, session_id) do
@@ -206,7 +252,7 @@ defmodule Planet.Payments.Plans do
 
   def checkout_failed_redirect_url(processor, _transaction_id) do
     Logger.error("⚠️ Unknown Redirect URL: checkout_failed_redirect_url: Processor #{processor}")
-    "/"
+    "/users/billing/signup?payment_failed=1&processor=UNKNOWN&checkout_id=UNKNOWN"
   end
 
   def processor(%Subscription{processor: :manual}) do
@@ -228,7 +274,27 @@ defmodule Planet.Payments.Plans do
     |> Keyword.fetch!(:vat_included)
   end
 
-  def is_lifetime_plan?(%Subscription{price_id: price_id}) do
+  @doc """
+  Check if the subscription is a lifetime plan
+
+  If subscription id is nil, subscription was activated manually so need to allow futher updates
+  to get full details of the transaction.completed webhook
+
+  Hence checking with subscription_id
+  """
+  def webhook_check_is_lifetime_plan?(%Subscription{
+        price_id: price_id,
+        subscription_id: nil
+      })
+      when is_binary(price_id) do
+    false
+  end
+
+  def webhook_check_is_lifetime_plan?(%Subscription{
+        price_id: price_id,
+        subscription_id: subscription_id
+      })
+      when is_binary(subscription_id) and is_binary(price_id) do
     # Function to extract all price_ids from variations and processors
     price_ids_lifetime_plan_for_all_processors =
       list("once", true)
@@ -237,7 +303,13 @@ defmodule Planet.Payments.Plans do
         |> Enum.flat_map(fn variation ->
           variation.processors
           |> Map.values()
-          |> Enum.map(& &1.price_id)
+          |> Enum.flat_map(fn processor ->
+            processor
+            # Filter out keys for the current environment
+            |> Map.filter(fn {key, _} -> key == payment_environment_key() end)
+            |> Map.values()
+            |> Enum.map(& &1.price_id)
+          end)
         end)
       end)
 

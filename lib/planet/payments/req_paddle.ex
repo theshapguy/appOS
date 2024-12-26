@@ -2,26 +2,33 @@ defmodule Planet.Payments.Paddle do
   alias Planet.HTTPRequest
   require Logger
 
-  @api_key Application.compile_env!(:planet, :paddle) |> Keyword.fetch!(:api_key)
-  @api_endpoint Application.compile_env!(:planet, :paddle) |> Keyword.fetch!(:api_endpoint)
+  defp api_key() do
+    # Using fetch env and not compile env due to runtime.ex config being used
+    # to set values
+    Application.fetch_env!(:planet, :paddle) |> Keyword.fetch!(:api_key)
+  end
+
+  defp api_endpoint() do
+    Application.fetch_env!(:planet, :paddle) |> Keyword.fetch!(:api_endpoint)
+  end
 
   # API Calls
   # defp build_url(id, opts \\ [])
 
   defp build_url("txn_" <> _id = transaction_id, opts),
-    do: "#{@api_endpoint}/transactions/#{transaction_id}#{build_query_params(opts)}"
+    do: "#{api_endpoint()}/transactions/#{transaction_id}#{build_query_params(opts)}"
 
   defp build_url("ctm_" <> _id = customer_id, opts),
-    do: "#{@api_endpoint}/customers/#{customer_id}#{build_query_params(opts)}"
+    do: "#{api_endpoint()}/customers/#{customer_id}#{build_query_params(opts)}"
 
   defp build_url("sub_" <> _id = subscription_id, opts),
-    do: "#{@api_endpoint}/subscriptions/#{subscription_id}#{build_query_params(opts)}"
+    do: "#{api_endpoint()}/subscriptions/#{subscription_id}#{build_query_params(opts)}"
 
   defp build_url("webhook_ips", _opts),
-    do: "#{@api_endpoint}/ips"
+    do: "#{api_endpoint()}/ips"
 
   defp build_post_url("sub_" <> _id = subscription_id, body, opts) do
-    url = "#{@api_endpoint}/subscriptions/#{subscription_id}/cancel#{build_query_params(opts)}"
+    url = "#{api_endpoint()}/subscriptions/#{subscription_id}/cancel#{build_query_params(opts)}"
     {url, body}
   end
 
@@ -30,7 +37,7 @@ defmodule Planet.Payments.Paddle do
 
   defp headers() do
     [
-      {"Authorization", "Bearer #{@api_key}"},
+      {"Authorization", "Bearer #{api_key()}"},
       {"Content-Type", "application/json"}
     ]
   end
@@ -41,7 +48,7 @@ defmodule Planet.Payments.Paddle do
   end
 
   defp handle_response({:ok, %HTTPoison.Response{status_code: status_code, body: body}}) do
-    Logger.info("Request failed with status code #{status_code} and body #{body}")
+    Logger.debug("Request failed with status code #{status_code} and body #{body}")
     {:error, "Request failed with status code #{status_code}"}
   end
 
@@ -52,7 +59,7 @@ defmodule Planet.Payments.Paddle do
   def request(id, opts \\ []) do
     url = build_url(id, opts)
 
-    Logger.info("Requesting #{url}")
+    Logger.debug("Requesting #{url}")
 
     HTTPRequest.get(url, headers())
     |> handle_response()
@@ -62,7 +69,7 @@ defmodule Planet.Payments.Paddle do
     {url, body} = build_post_url(id, body, opts)
     body = Jason.encode!(body)
 
-    Logger.info("Requesting #{url}")
+    Logger.debug("Requesting #{url}")
 
     HTTPRequest.post(url, body, headers())
     |> handle_response()
@@ -70,12 +77,7 @@ defmodule Planet.Payments.Paddle do
 
   ### POST Requests
   def create_portal_session(%Planet.Subscriptions.Subscription{} = subscription) do
-    url = "#{@api_endpoint}/customers/#{subscription.customer_id}/portal-sessions"
-
-    # headers = [
-    #   {"Authorization", "Bearer #{@api_key}"},
-    #   {"Content-Type", "application/json"}
-    # ]
+    url = "#{api_endpoint()}/customers/#{subscription.customer_id}/portal-sessions"
 
     # Manage the URL according to subscription, if lifetime plan ignore body
     body =

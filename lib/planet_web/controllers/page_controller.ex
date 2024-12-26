@@ -1,4 +1,5 @@
 defmodule PlanetWeb.PageController do
+  alias Planet.Payments.Plans
   use PlanetWeb, :controller
 
   plug Planet.Plug.PageTitle, title: "Home"
@@ -17,8 +18,10 @@ defmodule PlanetWeb.PageController do
     render(conn, :app_home, put_layout: :app_dashboard)
   end
 
-  # Payment On Signup
-  def plans(conn, _) do
+  def plans(conn, params) do
+    promo_code_param = params |> Map.get("discount")
+    coupon = Plans.coupon(promo_code_param)
+
     conn
     |> render(:plans,
       subscription_plans:
@@ -26,7 +29,8 @@ defmodule PlanetWeb.PageController do
           nil,
           !Application.get_env(:planet, :payment)[:allow_free_plan_access]
         ),
-      subscription_plans_without_free: Planet.Payments.Plans.list()
+      subscription_plans_without_free: Planet.Payments.Plans.list(),
+      discount_code: coupon || Plans.coupons() |> Enum.at(0)
     )
   end
 

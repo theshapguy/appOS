@@ -16,6 +16,7 @@ import Config
 #
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
+
 if System.get_env("PHX_SERVER") do
   config :planet, PlanetWeb.Endpoint, server: true
 end
@@ -48,7 +49,13 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
-  host = System.get_env("PHX_HOST") || "example.com"
+  # host = System.get_env("PHX_HOST") || "example.com"
+  host =
+    System.get_env("PHX_HOST") ||
+      raise """
+      environment variable PHX_HOST is missing.
+      """
+
   port = String.to_integer(System.get_env("PORT") || "4000")
 
   config :planet, PlanetWeb.Endpoint,
@@ -59,7 +66,7 @@ if config_env() == :prod do
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
       # See the documentation on https://hexdocs.pm/plug_cowboy/Plug.Cowboy.html
       # for details about using IPv6 vs IPv4 and loopback vs public addresses.
-      ip: {0, 0, 0, 0, 0, 0, 0, 0},
+      ip: {0, 0, 0, 0, 0, 0, 0, 1},
       port: port
     ],
     secret_key_base: secret_key_base
@@ -72,6 +79,127 @@ if config_env() == :prod do
       """
 
   config :mnesia, dir: ~c"#{mnesia_db_location}"
+
+  config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+    client_id:
+      System.get_env("GOOGLE_CLIENT_ID") ||
+        raise("""
+        environment variable GOOGLE_CLIENT_ID is missing.
+        """),
+    client_secret:
+      System.get_env("GOOGLE_CLIENT_SECRET") ||
+        raise("""
+        environment variable GOOGLE_CLIENT_SECRET is missing.
+        """)
+
+  config :ueberauth, Ueberauth.Strategy.Github.OAuth,
+    client_id:
+      System.get_env("GITHUB_CLIENT_ID") ||
+        raise("""
+        environment variable GITHUB_CLIENT_ID is missing.
+        """),
+    client_secret:
+      System.get_env("GITHUB_CLIENT_SECRET") ||
+        raise("""
+        environment variable GITHUB_CLIENT_SECRET is missing.
+        """)
+
+  config :planet, Planet.Mailer,
+    adapter: Swoosh.Adapters.Mailgun,
+    api_key:
+      System.get_env("MAILGUN_API_KEY") ||
+        raise("""
+        environment variable MAILGUN_API_KEY is missing.
+        """),
+    domain:
+      System.get_env("MAILGUN_DOMAIN") ||
+        raise("""
+        environment variable MAILGUN_DOMAIN is missing.
+        """),
+    app_name:
+      System.get_env("APP_NAME") ||
+        raise("""
+        environment variable MAILGUN_DOMAIN is missing.
+        """),
+    sender_name: "Shap",
+    sender_email: "shap@#{host}",
+    # 100px
+    # Upload to Cloudflare and Set Icon Here
+    icon:
+      System.get_env("APP_EMAIL_LOGO_URL") ||
+        raise("""
+        environment variable APP_EMAIL_LOGO_URL is missing.
+        """),
+    hostname: "#{host}",
+    company_name:
+      System.get_env("APP_COMPANY_NAME") ||
+        raise("""
+        environment variable APP_COMPANY_NAME is missing.
+        """),
+    support_email: "help@#{host}",
+    # Notify URL for Planet, using ntfy.sh
+    ntfy_url:
+      System.get_env("NFTY_URL") ||
+        raise("""
+        environment variable NFTY_URL is missing.
+        """)
+
+  case Application.compile_env(:planet, :payment)
+       |> Keyword.fetch!(:processor) do
+    :creem ->
+      config :planet, :creem,
+        api_key:
+          System.get_env("CREEM_API_KEY") ||
+            raise("""
+            environment variable CREEM_API_KEY is missing.
+            """),
+        webhook_secret_key:
+          System.get_env("CREEM_WEBHOOK_SECRET_KEY") ||
+            raise("""
+            environment variable CREEM_WEBHOOK_SECRET_KEY is missing.
+            """),
+        api_endpoint: "https://api.creem.io/v1",
+        portal_endpoint: "https://www.creem.io/my-orders/login"
+
+    :paddle ->
+      config :planet, :paddle,
+        client_key:
+          System.get_env("PADDLE_CLIENT_KEY") ||
+            raise("""
+            environment variable PADDLE_CLIENT_KEY is missing.
+            """),
+        api_key:
+          System.get_env("PADDLE_API_KEY") ||
+            raise("""
+            environment variable PADDLE_API_KEY is missing.
+            """),
+        webhook_secret_key:
+          System.get_env("PADDLE_WEBHOOK_SECRET_KEY") ||
+            raise("""
+            environment variable PADDLE_WEBHOOK_SECRET_KEY is missing.
+            """),
+        api_endpoint: "https://api.paddle.com",
+        # PROD-TODO Change In Production
+        portal_endpoint: "https://customer-portal.paddle.com/cpl_01h411b80rvpnhgcb87qktvg1n"
+
+    :stripe ->
+      config :planet, :stripe,
+        api_key:
+          System.get_env("STRIPE_API_KEY") ||
+            raise("""
+            environment variable STRIPE_API_KEY is missing.
+            """),
+        webhook_secret_key:
+          System.get_env("STRIPE_WEBHOOK_SECRET_KEY") ||
+            raise("""
+            environment variable STRIPE_WEBHOOK_SECRET_KEY is missing.
+            """),
+        # PROD-TODO Change In Production
+        portal_endpoint: "https://billing.stripe.com/p/login/test_cN28xS7YC7LM53ieUU"
+
+    _ ->
+      raise "Payment Processor Not Supported"
+  end
 
   # PROD-TODO Change In Production
   # config :wax_,
@@ -119,7 +247,7 @@ if config_env() == :prod do
   # Also, you may need to configure the Swoosh API client of your choice if you
   # are not using SMTP. Here is an example of the configuration:
   #
-  #     config :planet, PlanetMailer,
+  #     config :planet, Planet.Mailer,
   #       adapter: Swoosh.Adapters.Mailgun,
   #       api_key: System.get_env("MAILGUN_API_KEY"),
   #       domain: System.get_env("MAILGUN_DOMAIN")

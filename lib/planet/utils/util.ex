@@ -11,6 +11,11 @@ defmodule Planet.Utils do
     |> Base.encode64(padding: false)
   end
 
+  def md5_hash(string) when is_binary(string) do
+    :crypto.hash(:md5, string)
+    |> Base.encode16(case: :lower)
+  end
+
   # Max Age 100 years; Use Token Like It Never Expires
   def decrypt_string(token, conn \\ PlanetWeb.Endpoint, max_age \\ 3_153_600_000) do
     token

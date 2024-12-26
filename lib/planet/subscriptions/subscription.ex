@@ -26,7 +26,8 @@ defmodule Planet.Subscriptions.Subscription do
     :"direct-deposit",
     :creem,
     # When things get manual
-    :manual
+    :manual,
+    :forced
   ]
 
   @primary_key false
@@ -46,10 +47,6 @@ defmodule Planet.Subscriptions.Subscription do
     field(:price_id, :string)
 
     field(:customer_id, :string)
-    # Save Customer Ids when Plans Are Removed So That If The User
-    # Resubscribers Can Show them Saved Cards
-    field(:previous_customer_ids, :map)
-
     field(:subscription_id, :string)
 
     field(:status, Ecto.Enum, values: @status_values)
@@ -65,6 +62,17 @@ defmodule Planet.Subscriptions.Subscription do
     field(:transaction_history_url, :string, virtual: true)
 
     field(:processor, Ecto.Enum, values: @processor_values)
+
+    # Meta Fields
+    # Save Customer Ids when Plans Are Removed So That If The User
+    # Resubscribers Can Show them Saved Cards
+    # Unused for now
+    field(:previous_customer_ids, :map)
+    # This field denotes if the user has ever paid for the subscription in the past
+    field(:paid_once?, :boolean,
+      default: false,
+      source: :has_paid_once
+    )
 
     timestamps()
   end
@@ -90,6 +98,16 @@ defmodule Planet.Subscriptions.Subscription do
     |> where([s], s.status == ^status)
   end
 
+  def query_by_processor(query \\ __MODULE__, processor) when processor in @processor_values do
+    query
+    |> where([s], s.processor == ^processor)
+  end
+
+  def query_by_price_id(query \\ __MODULE__, price_id) do
+    query
+    |> where([s], s.price_id == ^price_id)
+  end
+
   def query_for_lock(query \\ __MODULE__) do
     query
     |> lock("FOR UPDATE")
@@ -109,7 +127,8 @@ defmodule Planet.Subscriptions.Subscription do
       :payment_attempt,
       :update_url,
       :cancel_url,
-      :processor
+      :processor,
+      :paid_once?
     ])
     |> validate_required([
       :product_id,

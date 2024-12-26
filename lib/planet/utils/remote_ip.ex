@@ -1,6 +1,12 @@
 defmodule Planet.Utils.RemoteIP do
   @moduledoc """
   Implements the strategy of retrieving client's remote IP
+
+  LEFT to implement if remote ip is coming from cloudflare or not
+  If not don't parse the headers
+
+  Example here
+  https://github.com/c-rack/plug_cloudflare/blob/5909989f6a415007de49f4e21aabe5bbb22c8ac3/lib/plug_cloudflare.ex
   """
 
   # Removes port from both IPv4 and IPv6 addresses. From https://regexr.com/3hpvt

@@ -3,12 +3,12 @@
 <script src="https://cdn.paddle.com/paddle/v2/paddle.js">
 </script>
 <script type="text/javascript">
-      const urlParams = new URLSearchParams(window.location.search);
-      var transactionId = urlParams.get('_ptxn')
+    const urlParams = new URLSearchParams(window.location.search);
+    var transactionId = urlParams.get('_ptxn')
 
-      <%= if @payment_debug? do %>
-          Paddle.Environment.set('sandbox');
-      <% end %>
+    <%= if @payment_debug? do %>
+        Paddle.Environment.set('sandbox');
+    <% end %>
 
     Paddle.Initialize({
       token: '<%= Application.fetch_env!(:planet, :paddle) |> Keyword.fetch!(:client_key) %>', 

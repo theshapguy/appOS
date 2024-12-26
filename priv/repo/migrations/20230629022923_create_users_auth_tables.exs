@@ -68,6 +68,8 @@ defmodule Planet.Repo.Migrations.CreateUsersAuthTables do
         null: false
       )
 
+      add(:has_paid_once, :boolean, default: false, null: false)
+
       add(:issued_at, :utc_datetime, null: false)
       add(:valid_until, :utc_datetime, null: false)
 

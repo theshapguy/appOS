@@ -46,8 +46,6 @@ defmodule PlanetWeb.UserAuthLive do
     if current_user_id == user_id do
       {:cont, socket}
     else
-      # Logger.info("Not Allowed Due To Logged In User And User Id From Different Organization")
-
       {
         :halt,
         socket

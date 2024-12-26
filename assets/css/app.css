@@ -4,80 +4,115 @@
 
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=fallback');
+
 /* This file is for your main application CSS */
 /* @import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;600;800&family=Sofia+Sans:ital,wght@0,1..1000;1,1..1000&display=fallback'); */
 
-@keyframes gradientBG {
-    0% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%;
-    }
+@keyframes highlight-plan-keyframe {
+  0% {
+    background-position: 0% 50%;
   }
-  
-  .gradient-bg {
-    background: linear-gradient(-45deg, 
-      rgba(255, 241, 235, 0.8), /* Light peach */
-      rgba(255, 235, 245, 0.8), /* Light pink */
-      rgba(230, 245, 255, 0.8), /* Light blue */
-      rgba(235, 255, 250, 0.8)  /* Light teal */
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.plan__gradient-background {
+  background: linear-gradient(-45deg,
+      rgba(255, 241, 235, 0.8),
+      /* Light peach */
+      rgba(255, 235, 245, 0.8),
+      /* Light pink */
+      rgba(230, 245, 255, 0.8),
+      /* Light blue */
+      rgba(235, 255, 250, 0.8)
+      /* Light teal */
     );
-    background-size: 400% 400%;
-    animation: gradientBG 3s ease infinite;
-    transition: all 0.3s ease;
-  }
+  background-size: 400% 400%;
+  animation: highlight-plan-keyframe 3s ease infinite;
+  transition: all 0.3s ease;
+}
 
-  .gradient-hover:hover {
-    background: linear-gradient(-45deg, 
-      rgba(255, 241, 235, 0.8), /* Light peach */
-      rgba(255, 235, 245, 0.8), /* Light pink */
-      rgba(230, 245, 255, 0.8), /* Light blue */
-      rgba(235, 255, 250, 0.8)  /* Light teal */
+.plan__gradient-background_hover:hover {
+  background: linear-gradient(-45deg,
+      rgba(255, 241, 235, 0.8),
+      /* Light peach */
+      rgba(255, 235, 245, 0.8),
+      /* Light pink */
+      rgba(230, 245, 255, 0.8),
+      /* Light blue */
+      rgba(235, 255, 250, 0.8)
+      /* Light teal */
     );
-    background-size: 400% 400%;
-    animation: gradientBG 3s ease infinite;
-    transition: all 0.3s ease;
-  }
-  
+  background-size: 400% 400%;
+  animation: highlight-plan-keyframe 3s ease infinite;
+  transition: all 0.3s ease;
+}
 
-  .gradient-hover:hover {
-    background: linear-gradient(-45deg, 
-      rgba(255, 241, 235, 0.8), /* Light peach */
-      rgba(255, 235, 245, 0.8), /* Light pink */
-      rgba(230, 245, 255, 0.8), /* Light blue */
-      rgba(235, 255, 250, 0.8)  /* Light teal */
-    );
-    background-size: 400% 400%;
-    animation: gradientBG 3s ease infinite;
-    transition: all 0.3s ease;
-  }
-  
-  /* Optional: add a subtle text shadow to improve readability further */
-  .gradient-hover:hover * {
-    text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+.plan__gradient-background:hover {
+  background-size: 100% 100%;
+  transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes animate-with-gradient-border-keyframe {
+  0% {
+    background-position: 100% 0%;
   }
 
+  100% {
+    background-position: -100% 0%;
+  }
+}
 
+.button__animate-with-gradient-border {
+  animation: animate-with-gradient-border-keyframe 3s linear infinite;
+  background: linear-gradient(90deg,
+      #e6f3ff 0%,
+      #e6f3ff 45%,
+      #0066ff 48%,
+      #0066ff 52%,
+      #e6f3ff 55%,
+      #e6f3ff 100%);
+  background-size: 200% 100%;
+}
 
-  .progress {
-    animation: progress 1s infinite linear;
-  }
-  
-  .left-right {
-      transform-origin: 0% 50%;
-  }
-      @keyframes progress {
-      0% {
-          transform:  translateX(0) scaleX(0);
-      }
-      40% {
-          transform:  translateX(0) scaleX(0.4);
-      }
-      100% {
-          transform:  translateX(100%) scaleX(0.5);
-      }
-  }
+.coupon_code {
+  width: 400px;
+  height: 180px;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.2);
+  background-color: #dc143c;
+  /* background-color: #fff; */
+  padding: 10px 10px;
+  position: relative;
+}
+
+.coupon_code::after {
+  position: absolute;
+  content: "";
+  height: 40px;
+  right: -20px;
+  border-radius: 40px;
+  z-index: 1;
+  top: 70px;
+  background-color: white;
+  width: 40px;
+}
+
+.coupon_code::before {
+  position: absolute;
+  content: "";
+  height: 40px;
+  left: -20px;
+  border-radius: 40px;
+  z-index: 1;
+  top: 70px;
+  background-color: white;
+  width: 40px;
+}

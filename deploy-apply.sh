@@ -28,8 +28,6 @@ rm -rf planet
 echo "Renaming 'planet_red' folder to 'planet'..."
 mv planet_red planet
 
-#  TODO Add Migrate Step
-
 # Start the service
 echo "Starting the service..."
 sudo service planet start

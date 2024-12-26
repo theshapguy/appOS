@@ -5,7 +5,6 @@ defmodule Planet.Periodic.PaddleAllowlistIP do
 
   # Fetch every 4 hour
   @interval :timer.minutes(240)
-  # @sandbox? Application.compile_env!(:planet, :payment) |> Keyword.fetch!(:sandbox?)
 
   @initial_ip_list [
     "34.232.58.13",

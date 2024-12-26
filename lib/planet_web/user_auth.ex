@@ -196,6 +196,17 @@ defmodule PlanetWeb.UserAuth do
     end
   end
 
+  # ORIGINAL-FUNCTION: edited from this
+  # if conn.assigns[:current_user] do
+  #   conn
+  # else
+  #   conn
+  #   |> put_flash(:error, "You must log in to access this page.")
+  #   |> maybe_store_return_to()
+  #   |> redirect(to: ~p"/users/log_in")
+  #   |> halt()
+  # end
+
   @doc """
   Used for routes that require the user to be authenticated.
 
@@ -219,17 +230,28 @@ defmodule PlanetWeb.UserAuth do
           "You must log in to access this page."
         )
     end
+  end
 
-    # ORIGINAL-FUNCTION: edited from this
-    # if conn.assigns[:current_user] do
-    #   conn
-    # else
-    #   conn
-    #   |> put_flash(:error, "You must log in to access this page.")
-    #   |> maybe_store_return_to()
-    #   |> redirect(to: ~p"/users/log_in")
-    #   |> halt()
-    # end
+  @doc """
+  Used for routes that require the superuser to be authenticated.
+  """
+  def require_authenticated_superuser(conn, _opts) do
+    case conn.assigns[:current_user] do
+      %User{active?: true, superuser?: true} ->
+        conn
+
+      %User{active?: false} ->
+        unauthenticated_response(
+          conn,
+          "Inactive Account. Contact your Team Admin."
+        )
+
+      _ ->
+        unauthenticated_response(
+          conn,
+          "You must logged in as superuser to access this page."
+        )
+    end
   end
 
   # """

@@ -38,7 +38,7 @@ defmodule PlanetWeb.PaymentWebhookController do
       :unhandled ->
         conn
         |> put_status(:ok)
-        |> json(%{message: "no content"})
+        |> json(%{message: "no content: unhandled"})
     end
   end
 
@@ -73,7 +73,7 @@ defmodule PlanetWeb.PaymentWebhookController do
 
         conn
         |> put_status(:ok)
-        |> json(%{message: "no content"})
+        |> json(%{message: "no content: unhandled"})
     end
   end
 
@@ -94,7 +94,7 @@ defmodule PlanetWeb.PaymentWebhookController do
       :unhandled ->
         conn
         |> put_status(:ok)
-        |> json(%{message: "no content"})
+        |> json(%{message: "no content: unhandled"})
     end
   end
 
@@ -112,7 +112,7 @@ defmodule PlanetWeb.PaymentWebhookController do
       {:ok, body} ->
         conn
         |> put_status(:ok)
-        |> json(%{message: "success", checkout_url: body["checkout_url"]})
+        |> success_response_body(body["checkout_url"])
 
       {:error, _e} ->
         conn
@@ -135,12 +135,17 @@ defmodule PlanetWeb.PaymentWebhookController do
       {:ok, body} ->
         conn
         |> put_status(:ok)
-        |> json(%{message: "success", checkout_url: body["url"]})
+        |> success_response_body(body["url"])
 
       {:error, _e} ->
         conn
         |> put_status(:bad_request)
         |> json(%{message: "failed"})
     end
+  end
+
+  def success_response_body(conn, url) do
+    conn
+    |> json(%{message: "success", checkout_url: url})
   end
 end

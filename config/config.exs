@@ -33,13 +33,16 @@ config :planet, Planet.Mailer,
   adapter: Swoosh.Adapters.Local,
   app_name: "Planet",
   sender_name: "Shap",
+  # [PROD CHANGES] Change In Production
   sender_email: "shap@planet.com",
   # 100px
   # Upload to Cloudflare and Set Icon Here
   icon: "https://i.pravatar.cc/150?u=men",
   hostname: "planet.com",
   company_name: "Planet Inc.",
-  support_email: "help@planet.inc"
+  support_email: "help@planet.inc",
+  # Notify URL for Planet, using ntfy.sh
+  ntfy_url: "https://ntfy.sh/Planet_DevAlerts"
 
 # Configure esbuild (the version is required)
 config :esbuild,
@@ -101,7 +104,7 @@ config :mnesia,
 # [Release] Check Production Or Runtime Variables
 config :planet, :payment,
   sandbox?: true,
-  processor: :creem,
+  processor: :paddle,
   # If Free Plan Allows Access, Don't Redirect to Billing Page On Free Plan
   allow_free_plan_access: true,
   # Make sure show_billing_page is set to false only when allow_free_plan_access is true
@@ -109,16 +112,16 @@ config :planet, :payment,
 
 config :planet, :stripe,
   description: "Stripe. Secure payment processing.",
-  client_key: "pk_test_Xvhna4CeSxcU8hywnhPcRCLR",
+  # Not Required
+  # client_key: "pk_test_Xvhna4CeSxcU8hywnhPcRCLR",
   api_key: "sk_test_LTxLpQv9BFYdWI6ulWA0J51Z",
   webhook_secret_key: "whsec_kT9OoRnIbrZCke6PbFkVdxQ3a2KDSjMo",
   api_endpoint: "https://api.stripe.com/v1",
   portal_endpoint: "https://billing.stripe.com/p/login/test_cN28xS7YC7LM53ieUU",
   vat_included: true,
   bank_statement: "SOCIAL REECH CRM",
-  version: "2024-11-20.acacia"
-
-# For AllowList IPs, Check lib/planet/periodic/stripe_allowlist_ip.ex
+  version: "2024-11-20.acacia",
+  allow_list_check_at: "lib/planet/periodic/stripe_allowlist_ip.ex"
 
 config :planet, :paddle,
   description: "Paddle. Secure payment processing.",
@@ -128,9 +131,8 @@ config :planet, :paddle,
   api_endpoint: "https://sandbox-api.paddle.com",
   portal_endpoint: "https://sandbox-customer-portal.paddle.com/cpl_01h411b80rvpnhgcb87qktvg1n",
   vat_included: false,
-  bank_statement: "PADDLE.NET* RINKO"
-
-# For AllowList IPs, Check lib/planet/periodic/paddle_allowlist_ip.ex
+  bank_statement: "PADDLE.NET* RINKO",
+  allow_list_check_at: "lib/planet/periodic/paddle_allowlist_ip.ex"
 
 config :planet, :creem,
   description:

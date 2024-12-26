@@ -475,4 +475,24 @@ defmodule PlanetWeb.UserComponents do
     </div>
     """
   end
+
+  attr :class, :string, default: nil
+
+  def chevron(assigns) do
+    ~H"""
+    <svg
+      class={[@class]}
+      fill="none"
+      height="20"
+      width="20"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+    >
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+    """
+  end
 end

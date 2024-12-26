@@ -5,19 +5,26 @@ defmodule Planet.Payments.Stripe do
   alias Planet.Accounts.User
   alias Planet.Payments.Plans
   require Logger
+  import Planet.Payments.Plans, only: [payment_environment_key: 0]
 
-  @api_key Application.compile_env!(:planet, :stripe) |> Keyword.fetch!(:api_key)
-  @api_endpoint Application.compile_env!(:planet, :stripe) |> Keyword.fetch!(:api_endpoint)
-  @webhook_ips_url "https://stripe.com/files/ips/ips_webhooks.json"
+  defp api_key() do
+    # Using fetch env and not compile env due to runtime.ex config being used
+    # to set values
+    Application.fetch_env!(:planet, :stripe) |> Keyword.fetch!(:api_key)
+  end
+
+  defp api_endpoint() do
+    Application.fetch_env!(:planet, :stripe) |> Keyword.fetch!(:api_endpoint)
+  end
 
   defp build_url("cs_" <> _id = checkout_session_id, opts),
-    do: "#{@api_endpoint}/checkout/sessions/#{checkout_session_id}#{build_query_params(opts)}"
+    do: "#{api_endpoint()}/checkout/sessions/#{checkout_session_id}#{build_query_params(opts)}"
 
   defp build_url("in_" <> _id = invoice_id, opts),
-    do: "#{@api_endpoint}/invoices/#{invoice_id}#{build_query_params(opts)}"
+    do: "#{api_endpoint()}/invoices/#{invoice_id}#{build_query_params(opts)}"
 
   defp build_url("sub_" <> _id = subscription_id, opts),
-    do: "#{@api_endpoint}/subscriptions/#{subscription_id}#{build_query_params(opts)}"
+    do: "#{api_endpoint()}/subscriptions/#{subscription_id}#{build_query_params(opts)}"
 
   defp build_url("webhook_ips", _opts),
     do: "https://stripe.com/files/ips/ips_webhooks.txt"
@@ -27,7 +34,7 @@ defmodule Planet.Payments.Stripe do
 
   defp headers() do
     [
-      {"Authorization", "Basic " <> Base.encode64("#{@api_key}:")},
+      {"Authorization", "Basic " <> Base.encode64("#{api_key()}:")},
       {"Content-Type", "application/json"}
     ]
   end
@@ -38,7 +45,7 @@ defmodule Planet.Payments.Stripe do
   end
 
   defp handle_response({:ok, %HTTPoison.Response{status_code: status_code, body: body}}) do
-    Logger.info("Request failed with status code #{status_code} and body #{body}")
+    Logger.debug("Request failed with status code #{status_code} and body #{body}")
     {:error, "Request failed with status code #{status_code}"}
   end
 
@@ -49,24 +56,26 @@ defmodule Planet.Payments.Stripe do
   # Doing it this way because the webhook_ips_url is not a part of the API
   # But trying to match the same pattern as the other payment requests
   def request("webhook_ips") do
-    url = @webhook_ips_url
-    Logger.info("Requesting #{url}")
+    url = "https://stripe.com/files/ips/ips_webhooks.json"
+    Logger.debug("Requesting #{url}")
 
-    HTTPRequest.get(url)
+    url
+    |> HTTPRequest.get()
     |> handle_response()
   end
 
   def request(id, opts \\ []) do
     url = build_url(id, opts)
-    Logger.info("Requesting #{url}")
+    Logger.debug("Requesting #{url}")
 
-    HTTPRequest.get(url, headers())
+    url
+    |> HTTPRequest.get(headers())
     |> handle_response()
   end
 
   def request_delete(id, opts \\ []) do
     url = build_url(id, opts)
-    Logger.info("Requesting DELETE: #{url}")
+    Logger.debug("Requesting DELETE: #{url}")
 
     HTTPRequest.delete(url, headers())
     |> handle_response()
@@ -158,12 +167,12 @@ defmodule Planet.Payments.Stripe do
         price_id
       ) do
     # def checkout_session_url(organization_id, price_id, email) do
-    url = "#{@api_endpoint}/checkout/sessions"
+    url = "#{api_endpoint()}/checkout/sessions"
 
     %{billing_frequency: frequency} = Plans.variant_by_price_id(:stripe, price_id)
 
     %{price_id: ^price_id, product_id: product_id} =
-      Plans.variant_by_price_id(:stripe, price_id).processors.stripe
+      Plans.variant_by_price_id(:stripe, price_id).processors.stripe[payment_environment_key()]
 
     mode = if(frequency == "once", do: "payment", else: "subscription")
 
@@ -188,7 +197,7 @@ defmodule Planet.Payments.Stripe do
       |> URI.encode_query()
 
     headers = [
-      {"Authorization", "Basic " <> Base.encode64("#{@api_key}:")},
+      {"Authorization", "Basic " <> Base.encode64("#{api_key()}:")},
       {"Content-Type", "application/x-www-form-urlencoded"}
     ]
 
@@ -205,10 +214,10 @@ defmodule Planet.Payments.Stripe do
   end
 
   def create_portal_session(%Planet.Subscriptions.Subscription{} = subscription) do
-    url = "#{@api_endpoint}/billing_portal/sessions"
+    url = "#{api_endpoint()}/billing_portal/sessions"
 
     headers = [
-      {"Authorization", "Basic " <> Base.encode64("#{@api_key}:")},
+      {"Authorization", "Basic " <> Base.encode64("#{api_key()}:")},
       {"Content-Type", "application/x-www-form-urlencoded"}
     ]
 

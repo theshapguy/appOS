@@ -44,8 +44,6 @@ defmodule Planet.Plug.StripeUniqueWebhookEvents do
   end
 
   defp failed_response(conn, message) do
-    Logger.error("Failed to decode Stripe event: #{message}")
-
     conn
     |> put_status(:bad_request)
     |> json(%{message: message})

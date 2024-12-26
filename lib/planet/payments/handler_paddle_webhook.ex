@@ -41,7 +41,7 @@ defmodule Planet.Payments.PaddleHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    case Plans.is_lifetime_plan?(subscription) do
+    case Plans.webhook_check_is_lifetime_plan?(subscription) do
       true ->
         {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
@@ -52,6 +52,7 @@ defmodule Planet.Payments.PaddleHandler do
           |> Map.put("valid_until", convert_paddle_webhook_datetime(ends_at))
           |> Map.put("customer_id", customer_id)
           |> Map.put("subscription_id", subscription_id)
+          |> Map.put("paid_once?", true)
 
         # |> Map.put("payment_attempt", nil)
 
@@ -73,7 +74,7 @@ defmodule Planet.Payments.PaddleHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    case Plans.is_lifetime_plan?(subscription) do
+    case Plans.webhook_check_is_lifetime_plan?(subscription) do
       true ->
         {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
@@ -102,7 +103,7 @@ defmodule Planet.Payments.PaddleHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    case Plans.is_lifetime_plan?(subscription) do
+    case Plans.webhook_check_is_lifetime_plan?(subscription) do
       true ->
         {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
@@ -134,7 +135,7 @@ defmodule Planet.Payments.PaddleHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    case Plans.is_lifetime_plan?(subscription) do
+    case Plans.webhook_check_is_lifetime_plan?(subscription) do
       true ->
         {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
@@ -146,6 +147,7 @@ defmodule Planet.Payments.PaddleHandler do
           |> Map.put("customer_id", customer_id)
           |> Map.put("subscription_id", subscription_id)
           |> Map.put("payment_attempt", nil)
+          |> Map.put("paid_once?", true)
 
         # |> Map.put("update_url", "https://sandbox-api.paddle.com/subscriptions/#{subscription_id}")
         # |> Map.put("cancel_url", "https://sandbox-api.paddle.com/subscriptions/#{subscription_id}")
@@ -173,7 +175,7 @@ defmodule Planet.Payments.PaddleHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    case Plans.is_lifetime_plan?(subscription) do
+    case Plans.webhook_check_is_lifetime_plan?(subscription) do
       true ->
         {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
@@ -187,6 +189,7 @@ defmodule Planet.Payments.PaddleHandler do
           |> Map.put("subscription_id", transaction_id)
           |> Map.put("payment_attempt", nil)
           |> Map.put("status", "active")
+          |> Map.put("paid_once?", true)
 
         %{
           "customer_id" => customer_id,
@@ -204,7 +207,7 @@ defmodule Planet.Payments.PaddleHandler do
         _conn,
         %{"event_type" => _event_type} = params
       ) do
-    Logger.info(params)
+    Logger.debug(params)
     :unhandled
   end
 

@@ -194,7 +194,7 @@ defmodule Planet.Payments.PaddleClassicHandler do
   #       _conn,
   #       %{"alert_name" => _} = params
   #     ) do
-  #   Logger.info(params)
+  #
   #   :unhandled
   # end
 

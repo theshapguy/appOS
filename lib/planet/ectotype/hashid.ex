@@ -13,7 +13,7 @@ defmodule Planet.EctoType.HashId do
 
   def type, do: :id
 
-  # TODO: Validate the hashid is valid on cast
+  # Left: Validate the hashid is valid on cast
   def cast(term) when is_binary(term), do: {:ok, term}
   def cast(_), do: :error
 

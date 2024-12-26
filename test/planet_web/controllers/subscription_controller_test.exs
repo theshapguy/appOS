@@ -70,7 +70,8 @@ defmodule PlanetWeb.SubscriptionControllerTest do
              "status" => "completed",
              "created_at" => "2024-03-20T15:30:00Z",
              "custom_data" => %{
-               "organization_id" => user.organization_id
+               "organization_id" => user.organization_id,
+               "price_id" => "new_paid_price_id"
              }
            }
          }}
@@ -96,7 +97,8 @@ defmodule PlanetWeb.SubscriptionControllerTest do
              "status" => "incomplete",
              "created_at" => "2024-03-20T15:30:00Z",
              "custom_data" => %{
-               "organization_id" => user.organization_id
+               "organization_id" => user.organization_id,
+               "price_id" => "new_paid_price_id"
              }
            }
          }}

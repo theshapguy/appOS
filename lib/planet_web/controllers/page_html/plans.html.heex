@@ -7,18 +7,15 @@
   </div>
 </header>
 
-<section class="py-12 px-4 xl:px-0">
+<section class="pt-4 pb-12 px-4 xl:px-0">
   <div class="max-w-5xl mx-auto">
-    <!-- Three-way Toggle -->
-    <!-- Pricing Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-      <!-- Basic Plan -->
-
+    <div class="flex flex-col md:flex-row justify-center gap-8 mb-16">
       <%= for plan <- @subscription_plans_without_free do %>
         <div class={[
-          "flex flex-col border border-gray-200 rounded-lg p-6 bg-gray-100",
-          plan.productFamily == "lifetime" && "gradient-bg"
+          "relative flex flex-col border border-gray-200 rounded-lg p-6 bg-gray-100 basis-1/3",
+          plan.productFamily == "lifetime" && "plan__gradient-background"
         ]}>
+          <%!-- <div class="absolute top-0 bg-red-300 right-0 left-0 rounded-t-md ">Most Popular</div> --%>
           <h2 class="text-lg font-semibold text-gray-900">{plan.name}</h2>
           <p class={[
             "mt-1 text-sm text-gray-600",
@@ -28,7 +25,6 @@
           </p>
 
           <div class="mt-6 space-y-4 flex-1">
-            <!-- Monthly Pricing -->
             <%= for {variant, index} <- Enum.with_index(plan.variations) do %>
               <div>
                 <span class="text-2xl font-bold">${variant.price}</span><span class="text-gray-600">/{variant.billing_frequency}</span>
@@ -42,7 +38,18 @@
             <% end %>
           </div>
 
-          <.link class="w-full" href={~p"/users/billing"}>
+          <% price_id_query_param_id =
+            plan.variations
+            |> List.last()
+            |> Map.get(:processors)
+            |> Map.get(Planet.Payments.Plans.default_processor())
+            |> Map.get(Planet.Payments.Plans.payment_environment_key())
+            |> Map.get(:price_id) %>
+
+          <.link
+            class="w-full"
+            href={~p"/users/billing/signup?price_id=#{price_id_query_param_id}"}
+          >
             <button class="w-full mt-6 bg-black text-white rounded-md px-4 py-2 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
               Get Started
             </button>
@@ -107,9 +114,7 @@
       <details class="group border border-gray-200 rounded-lg p-4 bg-white">
         <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
           <span>What do I actually get with each plan?</span>
-          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
-            ⌄
-          </span>
+          <.chevron class="text-gray-400 group-open:rotate-180 transition-transform duration-200" />
         </summary>
         <p class="text-gray-600 mt-3">
           All plans give you access to our core toolkit—everything you need to get started. As you move up, you unlock extra perks: more integrations, bigger data limits, advanced features—basically, all the goodies to help you level up as your business grows.
@@ -120,9 +125,7 @@
       <details class="group border border-gray-200 rounded-lg p-4 bg-white">
         <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
           <span>Can I switch plans whenever I want?</span>
-          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
-            ⌄
-          </span>
+          <.chevron class="text-gray-400 group-open:rotate-180 transition-transform duration-200" />
         </summary>
         <p class="text-gray-600 mt-3">
           Yup. No red tape, no begging. Just head into your account settings and hit “upgrade” or “downgrade.” It’s all self-serve and changes kick in right away. You’re always in control.
@@ -133,9 +136,7 @@
       <details class="group border border-gray-200 rounded-lg p-4 bg-white">
         <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
           <span>Do you have a free trial?</span>
-          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
-            ⌄
-          </span>
+<.chevron class="text-gray-400 group-open:rotate-180 transition-transform duration-200" />
         </summary>
         <p class="text-gray-600 mt-3">
           Absolutely. We get that you want to test the waters. Sign up for our free trial and try everything out. No credit card required—if you’re not feeling it, just walk away, no hard feelings.
@@ -146,9 +147,7 @@
       <details class="group border border-gray-200 rounded-lg p-4 bg-white">
         <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
           <span>How’s your billing work?</span>
-          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
-            ⌄
-          </span>
+          <.chevron class="text-gray-400 group-open:rotate-180 transition-transform duration-200" />
         </summary>
         <p class="text-gray-600 mt-3">
           We keep it simple. Pay monthly, every 3 months, or yearly—whichever works for you. The longer your billing cycle, the more you save. It’s that easy.
@@ -159,9 +158,7 @@
       <details class="group border border-gray-200 rounded-lg p-4 bg-white">
         <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
           <span>What payment methods do you take?</span>
-          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
-            ⌄
-          </span>
+          <.chevron class="text-gray-400 group-open:rotate-180 transition-transform duration-200" />
         </summary>
         <p class="text-gray-600 mt-3">
           We accept all major cards. Want to talk bank transfers or something else for a larger deal? Shoot us a note. We’re pretty flexible.
@@ -172,9 +169,7 @@
       <details class="group border border-gray-200 rounded-lg p-4 bg-white">
         <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
           <span>Is my data safe with you?</span>
-          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
-            ⌄
-          </span>
+          <.chevron class="text-gray-400 group-open:rotate-180 transition-transform duration-200" />
         </summary>
         <p class="text-gray-600 mt-3">
           Heck yeah. We take security super seriously. Your data is encrypted and guarded with all the best practices. We’d never mess around with your privacy—our reputation’s on the line.
@@ -185,9 +180,7 @@
       <details class="group border border-gray-200 rounded-lg p-4 bg-white">
         <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
           <span>What if I need more features as I grow?</span>
-          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
-            ⌄
-          </span>
+          <.chevron class="text-gray-400 group-open:rotate-180 transition-transform duration-200" />
         </summary>
         <p class="text-gray-600 mt-3">
           That’s the dream, right? Just jump to a bigger plan if you need more firepower. Or ping us if you have something special in mind. We’re all about helping you scale.
@@ -198,9 +191,7 @@
       <details class="group border border-gray-200 rounded-lg p-4 bg-white">
         <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
           <span>Any discounts for startups, nonprofits, or schools?</span>
-          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
-            ⌄
-          </span>
+          <.chevron class="text-gray-400 group-open:rotate-180 transition-transform duration-200" />
         </summary>
         <p class="text-gray-600 mt-3">
           We’ve been there. If you’re doing good work or just starting out, let us know. We might hook you up with a special deal. We love supporting fellow underdogs.
@@ -211,9 +202,7 @@
       <details class="group border border-gray-200 rounded-lg p-4 bg-white">
         <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
           <span>What’s your refund policy?</span>
-          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
-            ⌄
-          </span>
+          <.chevron class="text-gray-400 group-open:rotate-180 transition-transform duration-200" />
         </summary>
         <p class="text-gray-600 mt-3">
           We hate buyer’s remorse as much as you do. If you’re on a longer-term plan and need out, we’ll work with you on a fair, prorated refund. No shady fine print.
@@ -224,9 +213,7 @@
       <details class="group border border-gray-200 rounded-lg p-4 bg-white">
         <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
           <span>How do I cancel my subscription?</span>
-          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
-            ⌄
-          </span>
+          <.chevron class="text-gray-400 group-open:rotate-180 transition-transform duration-200" />
         </summary>
         <p class="text-gray-600 mt-3">
           No need to contact support or jump through hoops. You can cancel directly from within the app—just head to your account billing settings, and it’s done. You’re in control, always.
@@ -237,9 +224,7 @@
       <details class="group border border-gray-200 rounded-lg p-4 bg-white">
         <summary class="flex justify-between items-center font-medium text-gray-800 cursor-pointer">
           <span>I’ve got a billing problem—how do I get help?</span>
-          <span class="text-gray-400 group-open:rotate-180 transition-transform duration-200">
-            ⌄
-          </span>
+          <.chevron class="text-gray-400 group-open:rotate-180 transition-transform duration-200" />
         </summary>
         <p class="text-gray-600 mt-3">
           Hit us up via email, chat, or the support form in your dashboard. We’re a small team, but we hustle to solve issues fast. Your success is our success, after all.
@@ -249,10 +234,89 @@
   </div>
 </section>
 
-<footer class="px-4 xl:px-0">
+<footer class="px-4 xl:px-0 pb-20">
   <div class="max-w-5xl mx-auto border-t border-gray-200 py-10">
     <p class="text-sm text-gray-600">
       &copy; {Date.utc_today().year} {Application.get_env(:planet, Planet.Mailer)[:app_name]}. All rights reserved. {}
     </p>
   </div>
 </footer>
+
+<% coupon = @discount_code %>
+<div :if={coupon && coupon.visible} class="relative">
+  <div
+    x-data={"{visible: #{coupon.visible}, 
+      copied: false,
+      couponCode: '#{coupon.code}',
+      copyCode() {
+        navigator.clipboard.writeText(this.couponCode);
+        this.copied = true;
+        setTimeout(() => this.copied = false, 2000);
+      },
+      close() {
+        this.visible = false;
+      }
+    }"}
+    x-show="visible"
+    class="fixed bottom-4 left-4 z-50"
+  >
+    <div class="relative bg-white border-2 border-brand shadow-lg w-72 p-4 rounded-lg">
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <h4 class="font-semibold text-brand">Special Offer!</h4>
+          <span
+            x-show="copied"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            class="text-green-600 text-sm flex-1 text-right"
+          >
+            Copied!
+          </span>
+          <span
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-show="!copied"
+            class="cursor-pointer hidden sm:block"
+            @click="close()"
+          >
+            <.icon name="hero-x-mark-mini" class="h-4 w-4 text-brand/90 leading-3" />
+          </span>
+        </div>
+
+        <div>
+          <p class="text-sm text-gray-600 mb-2 small-caps">
+            {coupon.description}
+          </p>
+          <div
+            @click="copyCode()"
+            class="flex items-center justify-between bg-gray-100 p-2 rounded cursor-pointer hover:bg-gray-200 transition-colors"
+          >
+            <code class="font-mono text-lg font-bold text-brand" x-text="couponCode"></code>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 text-gray-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div class="block sm:hidden">
+          <button
+            @click="close()"
+            class="text-brand border border-brand rounded-md px-2 py-2 hover:bg-brand/90 hover:text-white transition-colors w-full"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

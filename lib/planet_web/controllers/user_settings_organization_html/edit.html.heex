@@ -72,9 +72,9 @@
 
 <div class="mt-20" id="manage-team">
   <.header class="text-center">
-    Manage Your Team
+    User Management
     <:subtitle>
-      Your Team Members And Their Associated Roles
+      Mange Your Team Members And Their Associated Roles
     </:subtitle>
   </.header>
 </div>
@@ -83,7 +83,8 @@
   <%= for user <- @organization_members do %>
     <div
       id={"manage-team-list-#{user.id}"}
-      class="p-4 bg-white border border-gray-300 rounded-md hover:border-zinc-400"
+      data-user-management-id={user.id}
+      class="p-4 border border-gray-300 rounded-md hover:border-zinc-400 scroll-m-24"
     >
       <p class="font-medium -mb-8">
         {user.name}&nbsp;
@@ -159,4 +160,14 @@
 </div>
 
 <script>
+  let anchor_id = window.location.hash;
+
+  document.addEventListener("DOMContentLoaded", function() {
+    if (anchor_id) {
+      anchor_id = anchor_id.replace(/^#/, "");
+      
+      let element = document.getElementById(anchor_id);
+      element.classList.add("bg-green-50")
+    }
+  });
 </script>

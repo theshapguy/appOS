@@ -36,4 +36,5 @@ config :logger, level: :warning
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
-config :planet, Oban, testing: :inline
+# config :planet, Oban, testing: :inline
+config :planet, Oban, plugins: false, queues: false, testing: :manual

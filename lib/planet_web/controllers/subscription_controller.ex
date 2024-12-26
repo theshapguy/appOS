@@ -91,35 +91,26 @@ defmodule PlanetWeb.SubscriptionController do
     failed_redirect_url =
       Plans.checkout_failed_redirect_url(String.to_existing_atom(processor), transaction_id)
 
-    case Paddle.request(transaction_id) do
-      {:ok,
-       %{
-         "data" => %{
-           "status" => status,
-           "created_at" => created_at,
-           "custom_data" => %{
-             "organization_id" => organization_id
-           }
-         }
-       }}
-      when status in ["billed", "completed", "paid"] ->
-        case Subscriptions.maybe_force_active(%{
-               "organization_id" => organization_id,
-               "timestamp" => "#{convert_paddle_webhook_datetime(created_at) |> Timex.to_unix()}"
-             }) do
-          {:ok, _subscription} ->
-            conn
-            |> put_flash(:info, "Your subscription has been activated.")
-            |> redirect(to: ~p"/app?greeting=hi")
-
-          {:error, _error} ->
-            conn |> failed_to_activate(failed_redirect_url)
-        end
-
-      {:ok, _error} ->
-        conn |> failed_to_activate(failed_redirect_url)
-
-      {:error, _error} ->
+    with {:ok,
+          %{
+            "data" => %{
+              "status" => status,
+              "created_at" => created_at,
+              "custom_data" => %{"organization_id" => organization_id, "price_id" => price_id}
+            }
+          }} <- Paddle.request(transaction_id),
+         true <- status in ["billed", "completed", "paid"],
+         {:ok, _subscription} <-
+           Subscriptions.activate_subscription(%{
+             "organization_id" => organization_id,
+             "timestamp" => "#{convert_paddle_webhook_datetime(created_at) |> Timex.to_unix()}",
+             "price_id" => price_id
+           }) do
+      conn
+      |> put_flash(:info, "Your subscription has been activated.")
+      |> redirect(to: ~p"/app?greeting=hi")
+    else
+      _ ->
         conn |> failed_to_activate(failed_redirect_url)
     end
   end
@@ -131,34 +122,26 @@ defmodule PlanetWeb.SubscriptionController do
     failed_redirect_url =
       Plans.checkout_failed_redirect_url(String.to_existing_atom(processor), session_id)
 
-    case Stripe.request(session_id) do
-      {:ok,
-       %{
-         "status" => "complete",
-         "created" => created,
-         "metadata" => %{
-           "organization_id" => organization_id,
-           "price_id" => _price_id,
-           "product_id" => _product_id
-         }
-       }} ->
-        case Subscriptions.maybe_force_active(%{
-               "organization_id" => organization_id,
-               "timestamp" => "#{created}"
-             }) do
-          {:ok, _subscription} ->
-            conn
-            |> put_flash(:info, "Your subscription has been activated.")
-            |> redirect(to: "/app?greeting=hi")
-
-          {:error, _error} ->
-            conn |> failed_to_activate(failed_redirect_url)
-        end
-
-      {:ok, _} ->
-        conn |> failed_to_activate(failed_redirect_url)
-
-      {:error, _} ->
+    with {:ok,
+          %{
+            "status" => "complete",
+            "created" => created,
+            "metadata" => %{
+              "organization_id" => organization_id,
+              "price_id" => price_id
+            }
+          }} <- Stripe.request(session_id),
+         {:ok, _subscription} <-
+           Subscriptions.activate_subscription(%{
+             "organization_id" => organization_id,
+             "timestamp" => "#{created}",
+             "price_id" => price_id
+           }) do
+      conn
+      |> put_flash(:info, "Your subscription has been activated.")
+      |> redirect(to: ~p"/app?greeting=hi")
+    else
+      _ ->
         conn |> failed_to_activate(failed_redirect_url)
     end
   end
@@ -169,8 +152,8 @@ defmodule PlanetWeb.SubscriptionController do
           "processor" => "creem" = processor,
           "checkout_id" => checkout_id,
           "signature" => signature,
-          # Using Request Id In Organzation Id, Since No Order Verification API available
-          "request_id" => _organization_id
+          # Using Request Id As Metadata, Since No Order Verification API available
+          "request_id" => _metadata_as_request_id
         } = params
       ) do
     failed_redirect_url =
@@ -183,24 +166,33 @@ defmodule PlanetWeb.SubscriptionController do
           %{
             "status" => "active",
             "current_period_start_date" => start_date,
-            "metadata" => %{"organization_id" => organization_id}
+            "metadata" => %{
+              "organization_id" => organization_id,
+              "price_id" => price_id
+            }
           }} <- maybe_verify_creem_order_id(params, subscription_id),
          {:ok, _subscription} <-
-           activate_subscription(%{
+           Subscriptions.activate_subscription(%{
              "organization_id" => organization_id,
-             "current_period_start_date" => start_date
+             "timestamp" => "#{convert_creem_webhook_datetime(start_date) |> Timex.to_unix()}",
+             "price_id" => price_id
            }) do
       conn
       |> put_flash(:info, "Your subscription has been activated.")
-      |> redirect(to: "/app?greeting=hi")
+      |> redirect(to: ~p"/app?greeting=hi")
     else
       _ -> failed_to_activate(conn, failed_redirect_url)
     end
   end
 
-  defp maybe_verify_creem_order_id(params, nil) do
-    # Mock since one time payment is not verifiable yet
-    # Assuming it is verified when redirect is made
+  defp maybe_verify_creem_order_id(%{"request_id" => request_id}, nil = _subscription_id) do
+    # Can verify using https://docs.creem.io/api-reference/endpoint/get-transactions
+    # But customer id is required, which is not available on this required
+    # Hence it is not implemented yet, and assuming it is verified when redirect is made
+
+    # Mock with same structure as subscription since one time payment is not verifiable yet
+    {organization_id, price_id} = Creem.request_id_metadata_to_tuple(request_id)
+
     {:ok,
      %{
        "status" => "active",
@@ -209,7 +201,8 @@ defmodule PlanetWeb.SubscriptionController do
          |> Timex.set(timezone: "UTC")
          |> Timex.format!("{ISO:Extended:Z}"),
        "metadata" => %{
-         "organization_id" => Map.fetch!(params, "request_id")
+         "organization_id" => organization_id,
+         "price_id" => price_id
        }
      }}
   end
@@ -224,23 +217,10 @@ defmodule PlanetWeb.SubscriptionController do
     |> redirect(to: failed_redirect_url)
   end
 
-  defp activate_subscription(%{
-         "organization_id" => org_id,
-         "current_period_start_date" => start_date
-       }) do
-    timestamp =
-      start_date
-      |> convert_creem_webhook_datetime()
-      |> Timex.to_unix()
-      |> to_string()
-
-    Subscriptions.maybe_force_active(%{
-      "organization_id" => org_id,
-      "timestamp" => timestamp
-    })
-  end
-
-  # Payment On Signup #For Paddle
+  @doc """
+  This method is used to render the transaction page for paddle, but currently
+  it is only used for debugging purposes.
+  """
   def transaction(conn, %{"_ptxn" => _}) do
     payment_debug? =
       Application.fetch_env!(:planet, :payment)

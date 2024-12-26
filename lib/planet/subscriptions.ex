@@ -4,10 +4,12 @@ defmodule Planet.Subscriptions do
   """
 
   import Ecto.Query, warn: false
+  alias Planet.Workers.NotifySubscriptionManuallyUpdatedNotByWebhook, as: NotifyUpdates
   alias Planet.Repo
 
   alias Planet.Subscriptions.Subscription
   alias Planet.Organizations.Organization
+  alias Planet.Payments.Plans
 
   @doc """
   Returns the list of subscriptions.
@@ -40,6 +42,22 @@ defmodule Planet.Subscriptions do
 
   """
   def get_subscription!(id), do: Repo.get!(Subscription, id)
+
+  @doc """
+  Gets a single subscription.
+
+  returns nil if the Subscription does not exist.
+
+  ## Examples
+
+      iex> get_subscription!(123)
+      %Subscription{}
+
+      iex> get_subscription(456)
+      ** nil
+
+  """
+  def get_subscription(id), do: Repo.get(Subscription, id)
 
   def get_subscription_by_customer_id(customer_id) when is_binary(customer_id) do
     Repo.get_by(Subscription, customer_id: customer_id)
@@ -127,27 +145,42 @@ defmodule Planet.Subscriptions do
     {:ok, :not_found}
   end
 
-  def maybe_force_active(%{"timestamp" => timestamp, "organization_id" => id}) do
+  def activate_subscription(%{
+        "timestamp" => timestamp,
+        "organization_id" => id,
+        "price_id" => price_id
+      })
+      when is_binary(timestamp) do
     # Add 1 hour to timestamp (3600s)
     timestamp_plus_1hr = Timex.from_unix(String.to_integer(timestamp) + 3600, :seconds)
+
+    %{price_id: default_price_id} = Plans.free_default_plan_ids()
 
     Repo.transaction(fn ->
       Subscription
       |> Subscription.query_by_id(id)
-      |> Subscription.query_by_status(:unpaid)
+      |> Subscription.query_by_processor(:manual)
+      |> Subscription.query_by_price_id(default_price_id)
       |> Subscription.query_for_lock()
       |> Repo.one()
       |> case do
         nil ->
           # Unpaid Subsriber Not Found, Probably Already Updated Via Webhook
+          # Not using status==unpaid due to the fact that free users can
+          # have status==active
           {:ok, :subscriber_not_found}
 
         %Subscription{} = subscription ->
+          %{"id" => subscription.organization_id}
+          |> NotifyUpdates.insert_job()
+
           subscription
           |> Subscription.changeset(%{
             status: :active,
             valid_until: timestamp_plus_1hr,
-            processor: :manual
+            price_id: price_id,
+            processor: :manual,
+            paid_once?: true
           })
           |> Repo.update!()
       end

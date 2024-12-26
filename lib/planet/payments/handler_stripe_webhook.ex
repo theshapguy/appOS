@@ -39,7 +39,7 @@ defmodule Planet.Payments.StripeHandler do
     # Mostly affected because cancellation can remove lifetime plan
 
     # Subscription Cancellation Takes Place After Lifetime Upgrade Completed
-    case Plans.is_lifetime_plan?(subscription) do
+    case Plans.webhook_check_is_lifetime_plan?(subscription) do
       true ->
         # Do not update lifetime subscription
         {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
@@ -56,6 +56,7 @@ defmodule Planet.Payments.StripeHandler do
           |> Map.put("payment_attempt", nil)
           |> Map.put("status", "active")
           |> Map.put("processor", "stripe")
+          |> Map.put("paid_once?", true)
 
         Subscriptions.update_subscription(subscription, subscription_attrs)
     end
@@ -73,7 +74,7 @@ defmodule Planet.Payments.StripeHandler do
       }) do
     subscription = Subscriptions.get_subscription_by_customer_id(customer_id)
 
-    case Plans.is_lifetime_plan?(subscription) do
+    case Plans.webhook_check_is_lifetime_plan?(subscription) do
       true ->
         # Do not update lifetime subscription
         {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
@@ -112,7 +113,7 @@ defmodule Planet.Payments.StripeHandler do
     user = Accounts.get_user_by_email(customer_email, :subscription)
     subscription = user.organization.subscription
 
-    case Plans.is_lifetime_plan?(subscription) do
+    case Plans.webhook_check_is_lifetime_plan?(subscription) do
       true ->
         # Do not update lifetime subscription
         {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
@@ -136,6 +137,7 @@ defmodule Planet.Payments.StripeHandler do
           |> Map.put("payment_attempt", nil)
           |> Map.put("status", "active")
           |> Map.put("processor", "stripe")
+          |> Map.put("paid_once?", true)
 
         %{
           "customer_id" => customer_id,
@@ -150,7 +152,7 @@ defmodule Planet.Payments.StripeHandler do
   end
 
   def handler(%{"type" => _} = params) do
-    Logger.info(params)
+    Logger.debug(params)
     :unhandled
   end
 

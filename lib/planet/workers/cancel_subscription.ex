@@ -13,7 +13,7 @@ defmodule Planet.Workers.CancelSubscription do
   alias Planet.Payments.Creem
 
   @impl Oban.Worker
-  def perform(%Oban.Job{
+  def perform(%{
         args: %{
           "subscription_id" => nil
         }
@@ -23,7 +23,7 @@ defmodule Planet.Workers.CancelSubscription do
   end
 
   @impl Oban.Worker
-  def perform(%Oban.Job{
+  def perform(%{
         args: %{
           "subscription_id" => subscription_id,
           "customer_id" => _customer_id,
@@ -36,7 +36,7 @@ defmodule Planet.Workers.CancelSubscription do
   end
 
   @impl Oban.Worker
-  def perform(%Oban.Job{
+  def perform(%{
         args:
           %{
             "subscription_id" => subscription_id,
@@ -51,7 +51,7 @@ defmodule Planet.Workers.CancelSubscription do
   end
 
   @impl Oban.Worker
-  def perform(%Oban.Job{
+  def perform(%{
         args: %{
           "subscription_id" => subscription_id,
           "customer_id" => _customer_id,

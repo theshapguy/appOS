@@ -25,7 +25,7 @@ defmodule Planet.Payments.CreemHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    case Plans.is_lifetime_plan?(subscription) do
+    case Plans.webhook_check_is_lifetime_plan?(subscription) do
       true ->
         {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
@@ -41,6 +41,7 @@ defmodule Planet.Payments.CreemHandler do
           |> Map.put("payment_attempt", nil)
           |> Map.put("status", "active")
           |> Map.put("processor", "creem")
+          |> Map.put("paid_once?", true)
 
         Subscriptions.update_subscription(subscription, subscription_attrs)
     end
@@ -66,7 +67,7 @@ defmodule Planet.Payments.CreemHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    case Plans.is_lifetime_plan?(subscription) do
+    case Plans.webhook_check_is_lifetime_plan?(subscription) do
       true ->
         {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
@@ -89,6 +90,7 @@ defmodule Planet.Payments.CreemHandler do
           |> Map.put("payment_attempt", nil)
           |> Map.put("status", "active")
           |> Map.put("processor", "creem")
+          |> Map.put("paid_once?", true)
 
         %{
           "customer_id" => customer_id,
@@ -119,7 +121,7 @@ defmodule Planet.Payments.CreemHandler do
     organization = Organizations.get_organization!(organization_id)
     subscription = organization.subscription
 
-    case Plans.is_lifetime_plan?(subscription) do
+    case Plans.webhook_check_is_lifetime_plan?(subscription) do
       true ->
         {:ok, %{"customer_already_in_lifetime_plan_cannot_edit_further" => true}}
 
@@ -132,7 +134,7 @@ defmodule Planet.Payments.CreemHandler do
   end
 
   def handler(%{"eventType" => _} = params) do
-    Logger.info(params)
+    Logger.debug(params)
     :unhandled
   end
 
