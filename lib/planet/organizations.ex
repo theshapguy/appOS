@@ -67,6 +67,15 @@ defmodule Planet.Organizations do
   end
 
   @doc """
+  Updates the user timezone
+  """
+  def update_organization_timezone(%Organization{} = organization, attrs) do
+    organization
+    |> Organization.timezone_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
   Returns an `%Ecto.Changeset{}` for tracking organization changes.
 
   ## Examples
@@ -90,5 +99,9 @@ defmodule Planet.Organizations do
   """
   def change_organization_for_registration(%Organization{} = organization, attrs \\ %{}) do
     Organization.registration_changeset(organization, attrs)
+  end
+
+  def change_organization_timezone(%Organization{} = organization, attrs \\ %{}) do
+    Organization.timezone_changeset(organization, attrs)
   end
 end

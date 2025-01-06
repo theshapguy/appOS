@@ -20,7 +20,8 @@ config :planet, PlanetWeb.Endpoint,
     layout: false
   ],
   pubsub_server: Planet.PubSub,
-  live_view: [signing_salt: "tPMgEeKF"]
+  live_view: [signing_salt: "tPMgEeKF"],
+  tz_cookie_key: "_tz_cookie"
 
 # Configures the mailer
 #
@@ -104,7 +105,7 @@ config :mnesia,
 # [Release] Check Production Or Runtime Variables
 config :planet, :payment,
   sandbox?: true,
-  processor: :paddle,
+  processor: :creem,
   # If Free Plan Allows Access, Don't Redirect to Billing Page On Free Plan
   allow_free_plan_access: true,
   # Make sure show_billing_page is set to false only when allow_free_plan_access is true

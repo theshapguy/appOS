@@ -6,7 +6,9 @@ defmodule PlanetWeb.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   @session_options [
     store: :cookie,
-    key: "_planet_key",
+    # key: "_planet_key",
+    key:
+      "_#{Application.compile_env(:planet, Planet.Mailer)[:app_name] |> String.downcase()}_key",
     signing_salt: "7IhQ8PWj",
     same_site: "Lax"
   ]

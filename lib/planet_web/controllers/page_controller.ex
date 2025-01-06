@@ -4,8 +4,6 @@ defmodule PlanetWeb.PageController do
 
   plug Planet.Plug.PageTitle, title: "Home"
 
-  @hash System.cmd("git", ["rev-parse", "HEAD"]) |> elem(0) |> String.trim()
-
   def home(conn, _params) do
     # The home page is often custom made,
     # so skip the default app layout.
@@ -50,8 +48,17 @@ defmodule PlanetWeb.PageController do
   end
 
   def version(conn, _params) do
-    conn
-    |> text(@hash)
+    commit_id =
+      with {"true\n", 0} <-
+             System.cmd("git", ["rev-parse", "--is-inside-work-tree"], stderr_to_stdout: true),
+           {commit_id, 0} <-
+             System.cmd("git", ["rev-parse", "HEAD"], stderr_to_stdout: true) do
+        commit_id
+      else
+        _ -> "version-not-git"
+      end
+
+    conn |> text(commit_id)
   end
 
   def health(conn, _params) do

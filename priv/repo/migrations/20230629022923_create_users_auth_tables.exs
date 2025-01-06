@@ -13,6 +13,7 @@ defmodule Planet.Repo.Migrations.CreateUsersAuthTables do
 
       add(:invited_by_id, references(:organizations))
       add(:refer_code, :uuid, null: false)
+      add(:timezone, :string, default: "Etc/UTC", null: false)
 
       timestamps()
     end
@@ -31,7 +32,7 @@ defmodule Planet.Repo.Migrations.CreateUsersAuthTables do
       add(:is_active, :boolean, null: false, default: true)
 
       add(:organization_id, references(:organizations, on_delete: :delete_all))
-      add(:timezone, :string, default: "UTC", null: false)
+      add(:timezone, :string, default: "Etc/UTC", null: false)
 
       # If Oauth, Provider Is Changed to That User
       # add(:provider, :string, default: "local")

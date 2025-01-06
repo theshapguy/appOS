@@ -7,9 +7,12 @@ defmodule PlanetWeb.UserSettingsControllerTest do
 
   setup :register_and_log_in_user
 
+  @tz_cookie_key Application.compile_env(:planet, PlanetWeb.Endpoint)
+                 |> Keyword.fetch!(:tz_cookie_key)
+
   setup %{conn: conn} do
     %{
-      conn: conn |> put_req_cookie("#__timezone__#", "UTC")
+      conn: conn |> put_req_cookie(@tz_cookie_key, "Etc/UTC")
     }
   end
 
@@ -184,7 +187,7 @@ defmodule PlanetWeb.UserSettingsControllerTest do
       conn =
         put(conn, ~p"/users/settings", %{
           "action" => "update_timezone",
-          "user" => %{"timezone" => "UTC"}
+          "user" => %{"timezone" => "Etc/UTC"}
         })
 
       response = html_response(conn, 200)

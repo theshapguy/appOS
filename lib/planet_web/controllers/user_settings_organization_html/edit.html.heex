@@ -25,6 +25,43 @@
     </.simple_form>
   </div>
 </div>
+
+<div class="mt-20">
+  <.header class="text-center">
+    Timezone Settings
+    <:subtitle>Change the timezone for your organization</:subtitle>
+  </.header>
+</div>
+
+<div class="space-y-12 divide-y">
+  <.simple_form
+    :let={f}
+    for={@timezone_changeset}
+    action={~p"/users/settings/team"}
+    id="update_timezone"
+  >
+    <.error :if={@timezone_changeset.action}>
+      Oops, something went wrong! Please check the errors below.
+    </.error>
+
+    <.input field={f[:action]} type="hidden" name="action" value="update_timezone" />
+
+    <.input field={f[:timezone]} label="Select a timezone" list="timezones_list" required />
+
+    <datalist id="timezones_list">
+      <%= for {tz, humanize_tz} <- PlanetWeb.UserSettingsHTML.humanize_timezone_list() do %>
+        <option value={tz}>
+          {humanize_tz}
+        </option>
+      <% end %>
+    </datalist>
+
+    <:actions>
+      <.button phx-disable-with="Changing...">Change Timezone</.button>
+    </:actions>
+  </.simple_form>
+</div>
+
 <div class="mt-20">
   <.header class="text-center">
     Add Team Members

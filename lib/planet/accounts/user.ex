@@ -98,7 +98,7 @@ defmodule Planet.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password, :name, :refer_code, :organization_admin?])
+    |> cast(attrs, [:email, :password, :name, :refer_code, :organization_admin?, :timezone])
     |> put_change_name_as_email()
     |> validate_length(:name, max: 240)
     |> validate_email(opts)
@@ -107,7 +107,7 @@ defmodule Planet.Accounts.User do
 
   def registration_changeset_organization_member(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:name, :email, :password, :organization_id])
+    |> cast(attrs, [:name, :email, :password, :organization_id, :timezone])
     |> put_change_name_as_email()
     |> validate_length(:name, max: 240)
     |> validate_email(opts)

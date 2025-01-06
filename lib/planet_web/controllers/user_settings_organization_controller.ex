@@ -37,6 +37,22 @@ defmodule PlanetWeb.UserSettingsOrganizationController do
     end
   end
 
+  def update(conn, %{"action" => "update_timezone"} = params) do
+    %{"organization" => organization_params} = params
+
+    organization = conn.assigns.current_user.organization
+
+    case Organizations.update_organization_timezone(organization, organization_params) do
+      {:ok, _organization} ->
+        conn
+        |> put_flash(:info, "Timezone updated successfully.")
+        |> redirect(to: ~p"/users/settings/team")
+
+      {:error, changeset} ->
+        render(conn, :edit, timezone_changeset: changeset)
+    end
+  end
+
   def update(conn, %{
         "action" => "add_organization_member",
         "user" => user_params,
@@ -114,6 +130,10 @@ defmodule PlanetWeb.UserSettingsOrganizationController do
     |> assign(
       :organization_changeset,
       Organizations.change_organization(user.organization)
+    )
+    |> assign(
+      :timezone_changeset,
+      Organizations.change_organization_timezone(user.organization)
     )
     |> assign(
       :user_changeset,

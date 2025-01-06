@@ -133,27 +133,31 @@ defmodule Planet.MixProject do
     # https://stackoverflow.com/a/52074767
     # https://fiqus.coop/en/2019/07/15/add-git-commit-info-to-your-elixir-phoenix-app/
     target =
-      case System.cmd("gcc", ["-dumpmachine"]) do
+      case System.cmd("gcc", ["-dumpmachine"], stderr_to_stdout: true) do
         {target, 0} -> String.trim(target) <> "+"
         _ -> "unknown+"
       end
 
     commit_sha =
-      case System.cmd("git", ["rev-parse", "--short", "HEAD"]) do
-        {commit_sha, 0} -> String.trim(commit_sha)
+      with {"true\n", 0} <-
+             System.cmd("git", ["rev-parse", "--is-inside-work-tree"], stderr_to_stdout: true),
+           {commit_sha, 0} <- System.cmd("git", ["rev-parse", "--short", "HEAD"]) do
+        String.trim(commit_sha)
+      else
         _ -> System.system_time(:second) |> Integer.to_string()
       end
 
     branch =
-      case System.cmd("git", ["rev-parse", "--abbrev-ref", "HEAD"]) do
-        {branch_name, 0} ->
-          case String.trim(branch_name) do
-            "main" -> ""
-            branch -> "-#{branch}"
-          end
-
-        _ ->
-          "-not-git"
+      with {"true\n", 0} <-
+             System.cmd("git", ["rev-parse", "--is-inside-work-tree"], stderr_to_stdout: true),
+           {branch_name, 0} <-
+             System.cmd("git", ["rev-parse", "--abbrev-ref", "HEAD"], stderr_to_stdout: true) do
+        case String.trim(branch_name) do
+          "main" -> ""
+          branch -> "-#{branch}"
+        end
+      else
+        _ -> "-not-git"
       end
 
     @version <> "-" <> target <> branch <> commit_sha

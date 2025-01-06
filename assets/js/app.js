@@ -46,6 +46,8 @@ let Hooks = {}
 
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+let tzCookieKey = document.querySelector("meta[name='tz-cookie-key']").getAttribute("content")
+
 // Without Alpine
 // let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
 
@@ -80,7 +82,7 @@ liveSocket.connect()
 window.liveSocket = liveSocket
 
 document.addEventListener("DOMContentLoaded", function (event) { 
-    Cookies.set('#__timezone__#', Intl.DateTimeFormat().resolvedOptions().timeZone, { sameSite: 'Lax' })
+    Cookies.set(tzCookieKey, Intl.DateTimeFormat().resolvedOptions().timeZone, { sameSite: 'Strict' })
 });
 
 

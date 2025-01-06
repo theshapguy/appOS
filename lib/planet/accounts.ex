@@ -147,7 +147,8 @@ defmodule Planet.Accounts do
 
     organization_changeset =
       %Organization{
-        invited_by_id: invited_by_organization_id
+        invited_by_id: invited_by_organization_id,
+        timezone: Map.get(attrs, "timezone", "Etc/UTC")
       }
       # Sending user attrs to cast email
       |> Organizations.change_organization_for_registration(attrs)

@@ -198,7 +198,7 @@ defmodule PlanetWeb.SubscriptionController do
        "status" => "active",
        "current_period_start_date" =>
          Timex.now()
-         |> Timex.set(timezone: "UTC")
+         |> Timex.set(timezone: "Etc/UTC")
          |> Timex.format!("{ISO:Extended:Z}"),
        "metadata" => %{
          "organization_id" => organization_id,

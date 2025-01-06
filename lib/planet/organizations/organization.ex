@@ -20,6 +20,7 @@ defmodule Planet.Organizations.Organization do
 
     # Refer Code
     field(:refer_code, :binary_id)
+    field(:timezone, :string)
 
     has_one(:subscription, Planet.Subscriptions.Subscription, foreign_key: :organization_id)
     has_many(:roles, Planet.Roles.Role)
@@ -30,8 +31,8 @@ defmodule Planet.Organizations.Organization do
   @doc false
   def changeset(organization, attrs) do
     organization
-    |> cast(attrs, [:name])
-    |> validate_required([:name])
+    |> cast(attrs, [:name, :timezone])
+    |> validate_required([:name, :timezone])
   end
 
   @doc false
@@ -42,7 +43,8 @@ defmodule Planet.Organizations.Organization do
       [
         :name,
         :active?,
-        :invited_by_id
+        :invited_by_id,
+        :timezone
         # :refer_code
       ]
     )
@@ -50,6 +52,32 @@ defmodule Planet.Organizations.Organization do
     |> generate_refer_code()
     |> validate_required([:name, :active?])
     |> unique_constraint(:name)
+  end
+
+  @doc """
+  A timezone changeset for changing the timezone
+
+  It requires the name to change otherwise an error is added.
+  """
+  def timezone_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:timezone])
+    |> validate_required([:timezone])
+    |> validate_length(:name, max: 255)
+    |> case do
+      %{changes: %{timezone: _}} = changeset -> changeset
+      %{} = changeset -> add_error(changeset, :timezone, "did not change")
+    end
+    |> validate_timezone()
+  end
+
+  def validate_timezone(changeset) do
+    timezone = changeset |> get_field(:timezone)
+
+    case Tzdata.zone_exists?(timezone) do
+      false -> changeset |> add_error(:timezone, "timezone does not exist")
+      true -> changeset
+    end
   end
 
   defp generate_organization_name_changeset(changeset) do

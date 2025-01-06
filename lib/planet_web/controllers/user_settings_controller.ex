@@ -103,10 +103,8 @@ defmodule PlanetWeb.UserSettingsController do
   defp setup_and_changesets(conn, _opts) do
     user = conn.assigns.current_user
 
-    %{"#__timezone__#" => timezone} = conn.cookies
-
     conn
-    |> assign(:timezone, timezone)
+    # |> assign(:timezone, timezone)
     |> assign(:timezone_changeset, Accounts.change_user_timezone(user))
     |> assign(:email_changeset, Accounts.change_user_email(user))
     |> assign(:password_changeset, Accounts.change_user_password(user))
