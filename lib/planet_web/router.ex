@@ -2,6 +2,7 @@ defmodule PlanetWeb.Router do
   use PlanetWeb, :router
 
   import PlanetWeb.UserAuth
+  import Oban.Web.Router
 
   pipeline :browser do
     plug(:accepts, ["html"])
@@ -122,6 +123,7 @@ defmodule PlanetWeb.Router do
 
     import Phoenix.LiveDashboard.Router
     live_dashboard("/dashboard", metrics: PlanetWeb.Telemetry)
+    oban_dashboard("/oban")
   end
 
   ## Authentication routes

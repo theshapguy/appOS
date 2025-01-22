@@ -8,7 +8,7 @@ defmodule PlanetWeb.Endpoint do
     store: :cookie,
     # key: "_planet_key",
     key:
-      "_#{Application.compile_env(:planet, Planet.Mailer)[:app_name] |> String.downcase()}_key",
+      "_#{Application.compile_env(:planet, Planet.Mailer)[:app_name] |> String.downcase() |> String.replace(" ", "_")}_key",
     signing_salt: "7IhQ8PWj",
     same_site: "Lax"
   ]
